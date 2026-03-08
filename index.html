@@ -1184,8 +1184,16 @@
                         <div class="pay-section">
                             <div class="pay-section-header">
                                 <h3 class="pay-section-title">最近账单</h3>
-                                <span class="pay-section-more">查看全部 <i class="fas fa-chevron-right"></i></span>
+                                <span class="pay-section-more">设置 <i class="fas fa-cog"></i></span>
                             </div>
+                            
+                            <!-- 新增：账单筛选按钮 -->
+                            <div class="pay-bill-filters">
+                                <div class="pay-filter-btn active" data-filter="all">全部</div>
+                                <div class="pay-filter-btn" data-filter="income">收入</div>
+                                <div class="pay-filter-btn" data-filter="expense">支出</div>
+                            </div>
+
                             <div class="pay-bill-list" id="pay-bill-list">
                                 <!-- 账单条目将通过 JS 动态注入 -->
                                 <div class="pay-empty-state">暂无交易记录</div>
