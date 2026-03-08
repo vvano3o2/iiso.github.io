@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- DOM Elements ---
-    const payAppBtn = document.getElementById('app-icon-1');
+    const payAppBtn = document.getElementById('app-pay-btn'); // 更新为包裹整个图标的父元素 ID
     const payView = document.getElementById('pay-view');
     const payBackBtn = document.getElementById('pay-back-btn');
     
@@ -63,10 +63,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- App Launch/Close ---
     if (payAppBtn && payView) {
-        payAppBtn.addEventListener('click', () => {
+        payAppBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // 防止冒泡导致其他逻辑影响
             if (window.syncUIs) window.syncUIs();
-            payView.style.display = 'flex';
-            // Slight delay for transition if needed
+            payView.classList.add('active');
             renderPayUI();
             randomizeMarket();
         });
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (payBackBtn && payView) {
         payBackBtn.addEventListener('click', () => {
-            payView.style.display = 'none';
+            payView.classList.remove('active');
         });
     }
 
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const homeBar = document.getElementById('home-bar');
     if (homeBar && payView) {
         homeBar.addEventListener('click', () => {
-            payView.style.display = 'none';
+            payView.classList.remove('active');
         });
     }
 
