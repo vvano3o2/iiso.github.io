@@ -1057,7 +1057,7 @@ document.addEventListener('DOMContentLoaded', () => {
             grid2: document.getElementById('main-grid-2').innerHTML
         };
 
-        localStorage.setItem('ios_emulator_desktop_state_v2', JSON.stringify(state));
+        localStorage.setItem('ios_emulator_desktop_state_v3', JSON.stringify(state));
 
         // Restore jiggle mode if it was active
         if (wasJiggling) {
@@ -1068,7 +1068,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.loadDesktopState = function() {
-        const savedStateStr = localStorage.getItem('ios_emulator_desktop_state_v2');
+        const savedStateStr = localStorage.getItem('ios_emulator_desktop_state_v3');
         if (savedStateStr) {
             try {
                 const state = JSON.parse(savedStateStr);

@@ -2016,7 +2016,7 @@ input:checked + .slider:before {
 }
 
 /* Mobile Responsive */
-@media screen and (max-width: 420px) {
+@media screen and (max-width: 450px) {
     body {
         align-items: flex-start;
         background-color: #000;
@@ -2025,7 +2025,7 @@ input:checked + .slider:before {
     
     .phone-frame {
         width: 100vw;
-        height: 100vh;
+        height: 100dvh; /* use dvh for real mobile browsers to account for address bars */
         border-radius: 0;
         padding: 0;
         box-shadow: none;

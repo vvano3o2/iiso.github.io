@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>iOS Emulator</title>
-    <link rel="stylesheet" href="ios_emulator.css">
-    <link rel="stylesheet" href="imessage.css">
-    <link rel="stylesheet" href="youtube.css">
-    <link rel="stylesheet" href="pay.css">
+    <link rel="stylesheet" href="ios_emulator.css?v=1.0.1">
+    <link rel="stylesheet" href="imessage.css?v=1.0.1">
+    <link rel="stylesheet" href="youtube.css?v=1.0.1">
+    <link rel="stylesheet" href="pay.css?v=1.0.1">
+    <link rel="stylesheet" href="tiktok/tiktok.css?v=1.0.1">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -77,9 +78,9 @@
                             <div class="app-icon icon-placeholder" id="app-icon-1" style="background: linear-gradient(180deg, #d3d9d3 0%, #b8c1b8 100%); color: white; display: flex; justify-content: center; align-items: center; font-size: 28px;"><i class="fas fa-wallet"></i></div>
                             <span class="app-name">Pay</span>
                         </div>
-                        <div class="app-item">
-                            <div class="app-icon icon-placeholder" id="app-icon-2" style="background: linear-gradient(180deg, #dcdfe3 0%, #c4cccf 100%); color: white; display: flex; justify-content: center; align-items: center; font-size: 28px;"><i class="fas fa-envelope"></i></div>
-                            <span class="app-name">Mail</span>
+                        <div class="app-item tiktok-app" id="app-tiktok-btn" style="cursor: pointer;">
+                            <div class="app-icon icon-placeholder" id="app-icon-2" style="background: linear-gradient(180deg, #f8f8f8 0%, #e8e8e8 100%); color: #333; display: flex; justify-content: center; align-items: center; font-size: 30px;"><i class="fab fa-tiktok"></i></div>
+                            <span class="app-name">TikTok</span>
                         </div>
                         
                         <!-- Pet Widget (2x2 = 4 slots) -->
@@ -1045,6 +1046,106 @@
                 </div>
             </div>
 
+            <!-- Char Profile View (TikTok Sub Channel) -->
+            <div class="tk-sub-profile-view" id="tk-sub-profile-view">
+                <div class="tk-header tk-profile-header">
+                    <div class="tk-header-left" id="tk-sub-profile-back-btn">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                    <div class="tk-header-center" style="font-size: 14px; font-weight: 500;"></div>
+                    <div class="tk-header-right" style="display: flex; gap: 15px; align-items: center; width: auto;">
+                        <i class="far fa-bell"></i>
+                        <i class="fas fa-share" style="transform: scaleX(-1);"></i>
+                        <i class="fas fa-magic" id="tk-sub-profile-api-btn"></i>
+                    </div>
+                </div>
+
+                <div class="tk-profile-scrollable">
+                    <!-- Avatar Section -->
+                    <div class="tk-profile-avatar-section">
+                        <div class="tk-avatar-wrapper">
+                            <div class="tk-follow-bubble" id="tk-sub-profile-status-bubble" style="display: none;"></div>
+                            <img src="" alt="" id="tk-sub-profile-avatar-img" style="display: none;">
+                            <i class="fas fa-user" id="tk-sub-profile-avatar-icon"></i>
+                        </div>
+                    </div>
+
+                    <!-- Name & Handle -->
+                    <div class="tk-profile-name-section">
+                        <div class="tk-profile-name" id="tk-sub-profile-name">User</div>
+                        <div class="tk-profile-handle" id="tk-sub-profile-handle">@user123</div>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="tk-profile-stats">
+                        <div class="tk-stat-item">
+                            <div class="tk-stat-num" id="tk-sub-stat-following">0</div>
+                            <div class="tk-stat-label">关注中</div>
+                        </div>
+                        <div class="tk-stat-item">
+                            <div class="tk-stat-num" id="tk-sub-stat-followers">0</div>
+                            <div class="tk-stat-label">粉丝</div>
+                        </div>
+                        <div class="tk-stat-item">
+                            <div class="tk-stat-num" id="tk-sub-stat-likes">0</div>
+                            <div class="tk-stat-label">赞</div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="tk-profile-actions-row">
+                        <div class="tk-btn-primary" id="tk-sub-profile-follow-btn">关注</div>
+                        <div class="tk-btn-secondary" id="tk-sub-profile-msg-btn">讯息</div>
+                        <div class="tk-btn-icon"><i class="fas fa-caret-down"></i></div>
+                    </div>
+
+                    <!-- Bio Bubble -->
+                    <div class="tk-profile-bio-container">
+                        <div class="tk-profile-bio-bubble" id="tk-sub-profile-bio">
+                            暂无简介
+                        </div>
+                    </div>
+
+                    <!-- Profile Tabs (Icons only) -->
+                    <div class="tk-profile-tabs">
+                        <div class="tk-ptab active" data-target="videos"><i class="fas fa-bars"></i></div>
+                        <div class="tk-ptab" data-target="private"><i class="fas fa-lock"></i></div>
+                        <div class="tk-ptab" data-target="saved"><i class="far fa-bookmark"></i></div>
+                        <div class="tk-ptab" data-target="liked"><i class="far fa-heart"></i></div>
+                        <div class="tk-ptab-indicator"></div>
+                    </div>
+
+                    <!-- Profile Grid Content -->
+                    <div class="tk-profile-grid" id="tk-sub-profile-grid">
+                        <div style="grid-column: span 3; padding: 40px 0; text-align: center; color: #999; font-size: 13px;">暂无内容</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Share/Forward Action Sheet -->
+            <div class="bottom-sheet-overlay detail-sheet-overlay" id="tk-share-sheet" style="z-index: 650;">
+                <div class="bottom-sheet" style="height: auto; max-height: 50%;">
+                    <div class="sheet-handle"></div>
+                    <div class="sheet-title">分享给朋友</div>
+                    <div class="tk-import-list" id="tk-share-list" style="padding: 15px; display: flex; flex-direction: column; gap: 10px; max-height: 300px; overflow-y: auto;">
+                        <!-- Friends injected here -->
+                    </div>
+                    <div class="sheet-action confirm-action" id="tk-close-share-btn" style="margin: 15px;">取消</div>
+                </div>
+            </div>
+
+            <!-- Comment User Modal (Custom Popover) -->
+            <div class="bottom-sheet-overlay detail-sheet-overlay" id="tk-comment-user-modal" style="z-index: 700;">
+                <div class="bottom-sheet" style="height: auto; padding-bottom: 20px; text-align: center;">
+                    <div class="sheet-handle"></div>
+                    <div style="padding: 20px;">
+                        <img src="" id="tk-comment-modal-avatar" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; background: #f0f0f0;">
+                        <div id="tk-comment-modal-name" style="font-size: 18px; font-weight: bold; color: #111; margin-bottom: 20px;">Name</div>
+                        <div class="tk-btn-primary" id="tk-comment-modal-home-btn" style="display: inline-block; padding: 12px 40px;">查看主页</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Custom Action Sheet Modal (Bottom Up) -->
             <div class="bottom-sheet-overlay detail-sheet-overlay" id="custom-modal-overlay" style="z-index: 9999;">
                 <div class="bottom-sheet">
@@ -1393,6 +1494,322 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- TikTok View (Hidden by default) -->
+            <div class="app-view tiktok-view" id="tiktok-view">
+                
+                <!-- Main Container for Tabs -->
+                <div class="tk-main-content">
+                    
+                    <!-- 1. 首页 (Home Tab) -->
+                    <div class="tk-tab-content active" id="tk-home-tab">
+                        <!-- Top Bar -->
+                        <div class="tk-home-topbar">
+                            <div class="tk-topbar-left" id="tk-home-back-btn">
+                                <i class="fas fa-chevron-left"></i>
+                            </div>
+                            <div class="tk-topbar-center">
+                                <div class="tk-topbar-tab">关注</div>
+                                <div class="tk-topbar-tab active">推荐</div>
+                            </div>
+                            <div class="tk-topbar-right">
+                                <i class="fas fa-search"></i>
+                            </div>
+                        </div>
+
+                        <!-- Video Feed Area -->
+                        <div class="tk-feed-container" id="tk-feed-container">
+                            <!-- Videos will be injected here -->
+                            <div class="tk-empty-feed">
+                                <div class="tk-magic-btn-large" id="tk-api-generate-btn">
+                                    <i class="fas fa-magic"></i>
+                                    <span>生成内容</span>
+                                </div>
+                                <p style="color: #999; font-size: 13px; margin-top: 10px;">点击魔法棒生成 TikTok 视频流</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Chat Tab -->
+                    <div class="tk-tab-content" id="tk-chat-tab" style="background: #fff;">
+                        <!-- Header -->
+                        <div class="tk-header">
+                            <div class="tk-header-left" id="tk-chat-add-btn">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <div class="tk-header-center">消息</div>
+                            <div class="tk-header-right">
+                                <i class="fas fa-search"></i>
+                            </div>
+                        </div>
+
+                        <div class="tk-chat-scrollable">
+                            <!-- 关注栏 (Active Characters) -->
+                            <div class="tk-following-bar-container">
+                                <div class="tk-following-bar" id="tk-following-bar">
+                                    <!-- Self item injected by JS -->
+                                    <!-- Other items injected by JS -->
+                                </div>
+                            </div>
+
+                            <!-- Notification / Activity List -->
+                            <div class="tk-activity-list" id="tk-activity-list">
+                                <!-- Example static items -->
+                                <div class="tk-activity-item">
+                                    <div class="tk-activity-icon" style="background: #e8f5e9; color: #4caf50;"><i class="fas fa-users"></i></div>
+                                    <div class="tk-activity-text">
+                                        <div class="tk-activity-title">新粉丝</div>
+                                        <div class="tk-activity-desc">暂无新粉丝</div>
+                                    </div>
+                                    <i class="fas fa-chevron-right arrow"></i>
+                                </div>
+                                <div class="tk-activity-item">
+                                    <div class="tk-activity-icon" style="background: #ffebee; color: #f44336;"><i class="fas fa-heart"></i></div>
+                                    <div class="tk-activity-text">
+                                        <div class="tk-activity-title">点赞与收藏</div>
+                                        <div class="tk-activity-desc">互动消息</div>
+                                    </div>
+                                    <i class="fas fa-chevron-right arrow"></i>
+                                </div>
+                                <div class="tk-activity-item">
+                                    <div class="tk-activity-icon" style="background: #e3f2fd; color: #2196f3;"><i class="fas fa-comment-dots"></i></div>
+                                    <div class="tk-activity-text">
+                                        <div class="tk-activity-title">评论和@</div>
+                                        <div class="tk-activity-desc">互动消息</div>
+                                    </div>
+                                    <i class="fas fa-chevron-right arrow"></i>
+                                </div>
+                                
+                                <div class="tk-chat-section-title">消息记录</div>
+                                <div id="tk-chat-dms-container">
+                                    <!-- DM list injected here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Profile Tab -->
+                    <div class="tk-tab-content" id="tk-profile-tab" style="background: #fff;">
+                        <!-- Match screenshot header -->
+                        <div class="tk-header tk-profile-header">
+                            <div class="tk-header-left" id="tk-profile-back-btn">
+                                <i class="fas fa-chevron-left"></i>
+                            </div>
+                            <div class="tk-header-center" style="font-size: 14px; font-weight: 500;"></div>
+                            <div class="tk-header-right" style="display: flex; gap: 15px; align-items: center; width: auto;">
+                                <i class="far fa-bell"></i>
+                                <i class="fas fa-share" style="transform: scaleX(-1);"></i>
+                            </div>
+                        </div>
+
+                        <div class="tk-profile-scrollable">
+                            <!-- Avatar Section -->
+                            <div class="tk-profile-avatar-section">
+                                <div class="tk-avatar-wrapper" id="tk-profile-avatar-btn">
+                                    <div class="tk-follow-bubble" id="tk-profile-status-bubble" style="display: none;">思考中...</div>
+                                    <img src="" alt="" id="tk-profile-avatar-img" style="display: none;">
+                                    <i class="fas fa-user" id="tk-profile-avatar-icon"></i>
+                                    <div class="tk-avatar-plus"><i class="fas fa-plus"></i></div>
+                                    <input type="file" id="tk-profile-avatar-upload" accept="image/*" style="display:none;">
+                                </div>
+                            </div>
+
+                            <!-- Name & Handle -->
+                            <div class="tk-profile-name-section">
+                                <div class="tk-profile-name" id="tk-profile-name">User</div>
+                                <div class="tk-profile-handle" id="tk-profile-handle">@user123</div>
+                            </div>
+
+                            <!-- Stats -->
+                            <div class="tk-profile-stats">
+                                <div class="tk-stat-item">
+                                    <div class="tk-stat-num" id="tk-stat-following">0</div>
+                                    <div class="tk-stat-label">关注中</div>
+                                </div>
+                                <div class="tk-stat-item">
+                                    <div class="tk-stat-num" id="tk-stat-followers">0</div>
+                                    <div class="tk-stat-label">粉丝</div>
+                                </div>
+                                <div class="tk-stat-item">
+                                    <div class="tk-stat-num" id="tk-stat-likes">0</div>
+                                    <div class="tk-stat-label">赞</div>
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="tk-profile-actions-row">
+                                <div class="tk-btn-secondary" id="tk-profile-edit-btn">编辑</div>
+                                <div class="tk-btn-secondary" id="tk-profile-msg-btn">讯息</div>
+                                <div class="tk-btn-icon"><i class="fas fa-caret-down"></i></div>
+                            </div>
+
+                            <!-- Bio Bubble -->
+                            <div class="tk-profile-bio-container">
+                                <div class="tk-profile-bio-bubble" id="tk-profile-bio">
+                                    点击添加个人简介
+                                </div>
+                            </div>
+
+                            <!-- Profile Tabs (Icons only) -->
+                            <div class="tk-profile-tabs">
+                                <div class="tk-ptab active" data-target="videos"><i class="fas fa-bars"></i></div>
+                                <div class="tk-ptab" data-target="private"><i class="fas fa-lock"></i></div>
+                                <div class="tk-ptab" data-target="saved"><i class="far fa-bookmark"></i></div>
+                                <div class="tk-ptab" data-target="liked"><i class="far fa-heart"></i></div>
+                                <div class="tk-ptab-indicator"></div>
+                            </div>
+
+                            <!-- Profile Grid Content -->
+                            <div class="tk-profile-grid" id="tk-profile-grid">
+                                <!-- Grid items injected here -->
+                                <div style="grid-column: span 3; padding: 40px 0; text-align: center; color: #999; font-size: 13px;">
+                                    暂无内容
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Floating Bottom Navigation -->
+                <div class="tk-bottom-nav-container">
+                    <div class="tk-bottom-nav">
+                        <div class="tk-nav-item active" data-target="tk-home-tab">
+                            <i class="fas fa-home"></i>
+                            <span>首页</span>
+                        </div>
+                        <div class="tk-nav-item" data-target="tk-chat-tab">
+                            <i class="fas fa-comment-dots"></i>
+                            <span>消息</span>
+                        </div>
+                        <div class="tk-nav-item" data-target="tk-profile-tab">
+                            <i class="fas fa-user"></i>
+                            <span>我</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TikTok Video Detail Bottom Sheet -->
+                <div class="bottom-sheet-overlay detail-sheet-overlay" id="tk-video-detail-sheet" style="z-index: 600;">
+                    <div class="bottom-sheet" style="height: 80%; border-radius: 16px 16px 0 0;">
+                        <div class="sheet-handle"></div>
+                        <div class="sheet-title" id="tk-comments-title">评论 (0)</div>
+                        <div class="detail-sheet-content" style="padding: 0; display: flex; flex-direction: column; height: calc(100% - 40px);">
+                            <div class="tk-comments-list" id="tk-comments-list" style="flex: 1; overflow-y: auto; padding: 10px 16px;">
+                                <!-- Comments injected here -->
+                            </div>
+                            <div class="tk-comment-input-area" style="padding: 10px 16px; border-top: 1px solid #f0f0f0; display: flex; align-items: center; gap: 10px; background: #fff;">
+                                <div class="tk-avatar-small"><i class="fas fa-user"></i></div>
+                                <input type="text" id="tk-comment-input" placeholder="留下你的精彩评论" style="flex: 1; background: #f5f5f5; border: none; padding: 10px 15px; border-radius: 20px; font-size: 14px; outline: none;">
+                                <i class="fas fa-paper-plane" id="tk-comment-send-btn" style="color: #333; font-size: 18px; padding: 5px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            <!-- TikTok Edit Profile Sheet -->
+            <div class="bottom-sheet-overlay detail-sheet-overlay" id="tk-edit-profile-sheet" style="z-index: 600;">
+                <div class="bottom-sheet">
+                    <div class="sheet-handle"></div>
+                    <div class="sheet-title">编辑资料</div>
+                    <div class="detail-sheet-content">
+                        <div class="form-group fully-rounded">
+                            <div class="form-item">
+                                <label>名字</label>
+                                <input type="text" id="tk-edit-name" placeholder="名字">
+                            </div>
+                            <div class="form-item">
+                                <label>抖音号</label>
+                                <input type="text" id="tk-edit-handle" placeholder="TikTok ID">
+                            </div>
+                        </div>
+                        
+                        <!-- 新增：关注、粉丝、赞修改 -->
+                        <div class="form-group fully-rounded" style="margin-top: 20px;">
+                            <div class="form-item">
+                                <label>关注数</label>
+                                <input type="number" id="tk-edit-following" placeholder="输入关注数">
+                            </div>
+                            <div class="form-item">
+                                <label>粉丝数</label>
+                                <input type="number" id="tk-edit-followers" placeholder="输入粉丝数">
+                            </div>
+                            <div class="form-item">
+                                <label>获赞数</label>
+                                <input type="number" id="tk-edit-likes" placeholder="输入获赞数">
+                            </div>
+                        </div>
+
+                        <div class="form-group fully-rounded tall-input-group" style="margin: 20px 16px;">
+                            <div class="form-item tall-item">
+                                <textarea id="tk-edit-bio" class="tall-input" placeholder="填写个人简介..."></textarea>
+                            </div>
+                        </div>
+                        <!-- 核心人设设定 (仅 AI 可见) -->
+                        <div class="form-group fully-rounded tall-input-group" style="margin: 20px 16px;">
+                            <div class="form-item tall-item">
+                                <textarea id="tk-edit-persona" class="tall-input" placeholder="AI 角色核心人设 (不公开展示)..."></textarea>
+                            </div>
+                        </div>
+                        <div class="sheet-action confirm-action" id="tk-save-profile-btn" style="background-color: #333; color: #fff;">保存</div>
+                    </div>
+                </div>
+            </div>
+
+                <!-- TikTok Add/Edit Char Sheet -->
+                <div class="bottom-sheet-overlay detail-sheet-overlay" id="tk-edit-char-sheet" style="z-index: 600;">
+                    <div class="bottom-sheet">
+                        <div class="sheet-handle"></div>
+                        <div class="sheet-title" id="tk-char-sheet-title">添加新角色</div>
+                        <div class="detail-sheet-content">
+                            <!-- Avatar Upload -->
+                            <div class="edit-avatar-section" style="margin-top: 5px; margin-bottom: 15px;">
+                                <div class="edit-avatar-wrapper detail-avatar-wrapper" id="tk-char-avatar-wrapper">
+                                    <div class="edit-avatar" id="tk-char-avatar-preview">
+                                        <i class="fas fa-user"></i>
+                                        <img id="tk-char-avatar-img" src="" alt="" style="display:none;">
+                                    </div>
+                                    <div class="edit-label">上传照片</div>
+                                    <input type="file" id="tk-char-avatar-upload" accept="image/*" style="display:none;">
+                                </div>
+                            </div>
+
+                            <div class="form-group fully-rounded">
+                                <div class="form-item">
+                                    <label>名字</label>
+                                    <input type="text" id="tk-char-name" placeholder="角色显示名称">
+                                </div>
+                                <div class="form-item">
+                                    <label>当前状态/心情</label>
+                                    <input type="text" id="tk-char-status" placeholder="气泡文字 (如: 在海边)">
+                                </div>
+                            </div>
+                            <div class="form-group fully-rounded tall-input-group" style="margin: 20px 16px;">
+                                <div class="form-item tall-item">
+                                    <textarea id="tk-char-persona" class="tall-input" placeholder="角色性格与设定..."></textarea>
+                                </div>
+                            </div>
+                            <div class="sheet-action confirm-action" id="tk-save-char-btn" style="background-color: #333; color: #fff;">保存角色</div>
+                            <div class="sheet-action" id="tk-delete-char-btn" style="color: #ff3b30; display: none;">删除角色</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TikTok Import Char Sheet -->
+                <div class="bottom-sheet-overlay detail-sheet-overlay" id="tk-import-char-sheet" style="z-index: 600;">
+                    <div class="bottom-sheet">
+                        <div class="sheet-handle"></div>
+                        <div class="sheet-title">从应用导入角色</div>
+                        <div class="detail-sheet-content">
+                            <div class="tk-import-list" id="tk-import-list" style="padding: 15px; display: flex; flex-direction: column; gap: 10px;">
+                                <!-- iMessage friends injected here -->
+                            </div>
+                            <div class="sheet-action confirm-action" id="tk-close-import-btn" style="margin: 15px;">取消</div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <!-- Widget Gallery Sheet -->
@@ -2413,17 +2830,22 @@
         </div>
     </div>
 
-    <script src="ios_emulator.js"></script>
-    <script src="widgets.js"></script>
-    <script src="imessage.js"></script>
-    <script src="youtube/1_data.js"></script>
-    <script src="youtube/2_core.js"></script>
-    <script src="youtube/3_channel.js"></script>
-    <script src="youtube/4_settings.js"></script>
-    <script src="youtube/5_player.js"></script>
-    <script src="youtube/6_community.js"></script>
-    <script src="youtube/7_trending.js"></script>
-    <script src="youtube/8_user_live.js"></script>
-    <script src="pay.js"></script>
+    <script src="ios_emulator.js?v=1.0.1"></script>
+    <script src="widgets.js?v=1.0.1"></script>
+    <script src="imessage.js?v=1.0.1"></script>
+    <script src="youtube/1_data.js?v=1.0.1"></script>
+    <script src="youtube/2_core.js?v=1.0.1"></script>
+    <script src="youtube/3_channel.js?v=1.0.1"></script>
+    <script src="youtube/4_settings.js?v=1.0.1"></script>
+    <script src="youtube/5_player.js?v=1.0.1"></script>
+    <script src="youtube/6_community.js?v=1.0.1"></script>
+    <script src="youtube/7_trending.js?v=1.0.1"></script>
+    <script src="youtube/8_user_live.js?v=1.0.1"></script>
+    <script src="pay.js?v=1.0.1"></script>
+    <script src="tiktok/1_data.js?v=1.0.1"></script>
+    <script src="tiktok/2_core.js?v=1.0.1"></script>
+    <script src="tiktok/3_home.js?v=1.0.1"></script>
+    <script src="tiktok/4_chat.js?v=1.0.1"></script>
+    <script src="tiktok/5_profile.js?v=1.0.1"></script>
 </body>
 </html>

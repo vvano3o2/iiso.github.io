@@ -32,12 +32,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let themeState = {
         bgUrl: null,
         apps: [
-            { id: 'app-icon-1', name: 'App 1', icon: null },
-            { id: 'app-icon-2', name: 'App 2', icon: null },
-            { id: 'app-icon-3', name: 'App 3', icon: null },
-            { id: 'app-icon-4', name: 'App 4', icon: null },
-            { id: 'dock-icon-settings', name: 'Settings', icon: null },
-            { id: 'dock-icon-imessage', name: 'iMessage', icon: null },
+            { id: 'app-icon-1', name: 'Pay', icon: null },
+            { id: 'app-icon-2', name: 'TikTok', icon: null },
+            { id: 'app-icon-3', name: 'Notes', icon: null },
+            { id: 'app-icon-4', name: 'Calendar', icon: null },
+            { id: 'dock-icon-settings', name: '设置', icon: null },
+            { id: 'dock-icon-imessage', name: '信息', icon: null },
             { id: 'dock-icon-youtube', name: 'YouTube', icon: null }
         ]
     };
@@ -63,7 +63,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.apiConfig) Object.assign(apiConfig, data.apiConfig);
                 if (data.apiPresets) apiPresets = data.apiPresets;
                 if (data.fetchedModels) fetchedModels = data.fetchedModels;
-                if (data.themeState) themeState = data.themeState;
+                if (data.themeState) {
+                    themeState = data.themeState;
+                    // Migration for default app names
+                    if (themeState.apps) {
+                        const app1 = themeState.apps.find(a => a.id === 'app-icon-1');
+                        if (app1 && app1.name === 'App 1') app1.name = 'Pay';
+                        
+                        const app2 = themeState.apps.find(a => a.id === 'app-icon-2');
+                        if (app2 && app2.name === 'App 2') app2.name = 'TikTok';
+                        
+                        const app3 = themeState.apps.find(a => a.id === 'app-icon-3');
+                        if (app3 && app3.name === 'App 3') app3.name = 'Notes';
+                        
+                        const app4 = themeState.apps.find(a => a.id === 'app-icon-4');
+                        if (app4 && app4.name === 'App 4') app4.name = 'Calendar';
+                    }
+                }
                 if (data.wbGroups) wbGroups = data.wbGroups;
                 if (data.worldBooks) worldBooks = data.worldBooks;
                 
@@ -1682,7 +1698,12 @@ Reply naturally as your character in a chat app. Do not include your own name at
         // Target the inner .app-icon div rather than the wrapper
         const iconDiv = el.querySelector('.app-icon');
         const iEl = el.querySelector('i');
+        const nameEl = el.querySelector('.app-name');
         
+        if (nameEl && app.name) {
+            nameEl.textContent = app.name;
+        }
+
         if (!iconDiv) return;
 
         if (app.icon) {
@@ -1698,13 +1719,13 @@ Reply naturally as your character in a chat app. Do not include your own name at
             // Restore original gradient/color using inline style if it was stripped, 
             // but normally removing backgroundImage is enough if CSS handles it.
             // We'll rely on the default inline style still being there under the hood or class defaults.
-            if (app.id === 'dock-icon-settings') iconDiv.style.background = 'linear-gradient(180deg, #e3e3e3 0%, #cfcfcf 100%)';
-            else if (app.id === 'dock-icon-imessage') iconDiv.style.background = 'linear-gradient(180deg, #dfebd6 0%, #c8d8bd 100%)';
-            else if (app.id === 'dock-icon-youtube') iconDiv.style.background = '#fdfaf9';
-            else if (app.id === 'app-icon-1') iconDiv.style.background = 'linear-gradient(180deg, #d3d9d3 0%, #b8c1b8 100%)';
-            else if (app.id === 'app-icon-2') iconDiv.style.background = 'linear-gradient(180deg, #dcdfe3 0%, #c4cccf 100%)';
-            else if (app.id === 'app-icon-3') iconDiv.style.background = 'linear-gradient(180deg, #ebdada 0%, #d8c8c8 100%)';
-            else if (app.id === 'app-icon-4') iconDiv.style.background = '#f7f5f5';
+            if (app.id === 'dock-icon-settings') { iconDiv.style.background = 'linear-gradient(180deg, #e3e3e3 0%, #cfcfcf 100%)'; iconDiv.style.color = '#fff'; if (iEl) iEl.className = 'fas fa-cog'; }
+            else if (app.id === 'dock-icon-imessage') { iconDiv.style.background = 'linear-gradient(180deg, #dfebd6 0%, #c8d8bd 100%)'; iconDiv.style.color = '#fff'; if (iEl) iEl.className = 'fas fa-comment'; }
+            else if (app.id === 'dock-icon-youtube') { iconDiv.style.background = '#fdfaf9'; iconDiv.style.color = '#d1b8b8'; if (iEl) iEl.className = 'fab fa-youtube'; }
+            else if (app.id === 'app-icon-1') { iconDiv.style.background = 'linear-gradient(180deg, #d3d9d3 0%, #b8c1b8 100%)'; iconDiv.style.color = 'white'; if (iEl) iEl.className = 'fas fa-wallet'; }
+            else if (app.id === 'app-icon-2') { iconDiv.style.background = 'linear-gradient(180deg, #f8f8f8 0%, #e8e8e8 100%)'; iconDiv.style.color = '#333'; if (iEl) iEl.className = 'fab fa-tiktok'; } // TikTok Style
+            else if (app.id === 'app-icon-3') { iconDiv.style.background = 'linear-gradient(180deg, #ebdada 0%, #d8c8c8 100%)'; iconDiv.style.color = 'white'; if (iEl) iEl.className = 'fas fa-sticky-note'; }
+            else if (app.id === 'app-icon-4') { iconDiv.style.background = '#f7f5f5'; iconDiv.style.color = '#b0a0a0'; if (iEl) iEl.className = 'fas fa-calendar-alt'; }
             
             if (iEl) iEl.style.display = '';
         }
@@ -1926,68 +1947,103 @@ Reply naturally as your character in a chat app. Do not include your own name at
         // Clean up legacy dataset if it exists so it doesn't pollute saved HTML
         if (el.dataset.dragSetup) delete el.dataset.dragSetup;
 
+        let isTouchDrag = false;
+        let isMoved = false;
+        let startX = 0;
+        let startY = 0;
+
         el.addEventListener('pointerdown', (e) => {
-            if (window.isJiggleMode) return;
+            isMoved = false;
+            startX = e.clientX;
+            startY = e.clientY;
+
+            // In jiggle mode, pointerdown immediately starts a drag
+            if (window.isJiggleMode) {
+                // Ignore empty slots for dragging
+                if (el.classList.contains('empty-slot')) return;
+                
+                e.preventDefault(); // Prevent scrolling on mobile during drag start
+                draggedElement = el;
+                isTouchDrag = true;
+                setTimeout(() => el.classList.add('dragging'), 0);
+                
+                // Create ghost for custom pointer dragging
+                const ghost = el.cloneNode(true);
+                ghost.id = 'drag-ghost';
+                ghost.style.position = 'fixed';
+                ghost.style.margin = '0';
+                ghost.style.zIndex = '9999';
+                ghost.style.opacity = '0.9';
+                ghost.style.pointerEvents = 'none';
+                ghost.style.transform = 'scale(1.05)';
+                ghost.style.transition = 'none';
+                
+                const rect = el.getBoundingClientRect();
+                ghost.dataset.offsetX = e.clientX - rect.left;
+                ghost.dataset.offsetY = e.clientY - rect.top;
+                
+                ghost.style.left = (e.clientX - ghost.dataset.offsetX) + 'px';
+                ghost.style.top = (e.clientY - ghost.dataset.offsetY) + 'px';
+                
+                document.body.appendChild(ghost);
+                return;
+            }
+
             window.preventAppClick = false;
             pressTimer = setTimeout(() => {
-                window.preventAppClick = true;
-                enterJiggleMode();
+                if(!isMoved) {
+                    window.preventAppClick = true;
+                    enterJiggleMode();
+                }
             }, 800); // 800ms to trigger jiggle mode
         });
 
-        const cancelPress = () => {
+        // Track movement to cancel long press if they swipe
+        el.addEventListener('pointermove', (e) => {
+            // Only count as movement if they moved more than a few pixels
+            if (Math.abs(e.clientX - startX) > 5 || Math.abs(e.clientY - startY) > 5) {
+                isMoved = true;
+            }
+        });
+
+        const cancelPress = (e) => {
             clearTimeout(pressTimer);
-            if (window.preventAppClick) {
+            
+            // If they didn't hold long enough, and didn't move, it's a click!
+            if (!window.preventAppClick && !window.isJiggleMode && !isMoved) {
+                // Fire a synthetic click since we might have prevented default somewhere,
+                // or touch devices might swallow the native click.
+                // We dispatch it manually to ensure listeners trigger.
+                setTimeout(() => {
+                    const clickEvent = new MouseEvent('click', {
+                        view: window,
+                        bubbles: true,
+                        cancelable: true
+                    });
+                    el.dispatchEvent(clickEvent);
+                }, 10);
+            } else if (window.preventAppClick && !window.isJiggleMode) {
+                // Was long press, but jiggle hasn't started or we just cancelled it
                 setTimeout(() => window.preventAppClick = false, 100);
             }
-        };
-        el.addEventListener('pointerup', cancelPress);
-        el.addEventListener('pointermove', () => clearTimeout(pressTimer));
-        el.addEventListener('pointercancel', cancelPress);
 
-        el.addEventListener('dragstart', (e) => {
-            if (!window.isJiggleMode || el.classList.contains('empty-slot')) {
-                e.preventDefault();
-                return;
+            // End drag if we were dragging
+            if (isTouchDrag && window.isJiggleMode) {
+                isTouchDrag = false;
+                if(draggedElement) draggedElement.classList.remove('dragging');
+                draggedElement = null;
+                const ghost = document.getElementById('drag-ghost');
+                if(ghost) ghost.remove();
+                balanceGridSlots();
+                if (window.saveDesktopState) window.saveDesktopState();
             }
-            draggedElement = el;
-            setTimeout(() => el.classList.add('dragging'), 0);
-            e.dataTransfer.effectAllowed = 'move';
-            
-            // Create ghost
-            const ghost = el.cloneNode(true);
-            ghost.id = 'drag-ghost';
-            ghost.style.position = 'fixed';
-            ghost.style.margin = '0';
-            ghost.style.zIndex = '9999';
-            ghost.style.opacity = '0.9';
-            ghost.style.pointerEvents = 'none';
-            ghost.style.transform = 'scale(1.05)';
-            ghost.style.transition = 'none';
-            
-            const rect = el.getBoundingClientRect();
-            ghost.dataset.offsetX = e.clientX - rect.left;
-            ghost.dataset.offsetY = e.clientY - rect.top;
-            
-            ghost.style.left = (e.clientX - ghost.dataset.offsetX) + 'px';
-            ghost.style.top = (e.clientY - ghost.dataset.offsetY) + 'px';
-            
-            document.body.appendChild(ghost);
-
-        // To deal with potential HTML5 drag issues
-        const blankImage = new Image();
-        blankImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-        e.dataTransfer.setDragImage(blankImage, 0, 0);
-    });
-
-    el.addEventListener('dragend', () => {
-        if(draggedElement) draggedElement.classList.remove('dragging');
-        draggedElement = null;
-        const ghost = document.getElementById('drag-ghost');
-        if(ghost) ghost.remove();
-        balanceGridSlots();
-        if (window.saveDesktopState) window.saveDesktopState();
-    });
+        };
+        
+        el.addEventListener('pointerup', cancelPress);
+        el.addEventListener('pointercancel', cancelPress);
+        
+        // Disable native drag and drop to use our custom pointer events
+        el.addEventListener('dragstart', (e) => e.preventDefault());
 }
 
 function refreshDraggables() {
@@ -2070,6 +2126,9 @@ function playAnimations(oldPositions) {
     let dragMoveHandler = (e) => {
         if (!draggedElement || !window.isJiggleMode) return;
         
+        // Prevent scrolling while dragging
+        e.preventDefault();
+
         const ghost = document.getElementById('drag-ghost');
         if (ghost) {
             ghost.style.left = (e.clientX - parseFloat(ghost.dataset.offsetX)) + 'px';
@@ -2168,10 +2227,18 @@ function playAnimations(oldPositions) {
         }
     };
     
-    document.addEventListener('dragover', (e) => {
-        e.preventDefault(); // Necessary to allow dropping
-        dragMoveHandler(e);
-    });
+    // Use pointermove globally to track dragging anywhere on screen
+    document.addEventListener('pointermove', (e) => {
+        // If we are dragging, handle it
+        if (draggedElement && window.isJiggleMode) {
+            dragMoveHandler(e);
+        } else {
+            // Cancel long press if moving too much before jiggle mode
+            if (!window.isJiggleMode && pressTimer) {
+                 clearTimeout(pressTimer);
+            }
+        }
+    }, { passive: false });
 
     window.setupDraggable = setupDraggable;
 
