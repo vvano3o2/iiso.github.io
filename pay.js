@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- App Launch/Close ---
     if (payAppBtn && payView) {
         payAppBtn.addEventListener('click', (e) => {
+            if (window.isJiggleMode || window.preventAppClick) { e.preventDefault(); e.stopPropagation(); return; }
             e.stopPropagation(); // 防止冒泡导致其他逻辑影响
             if (window.syncUIs) window.syncUIs();
             payView.classList.add('active');

@@ -109,7 +109,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const dockIcon = document.getElementById('dock-icon-imessage');
     
     if (dockIcon) {
-        dockIcon.addEventListener('click', () => {
+        dockIcon.addEventListener('click', (e) => {
+            if (window.isJiggleMode || window.preventAppClick) { e.preventDefault(); e.stopPropagation(); return; }
             if (syncUIs) syncUIs();
             openView(imessageView);
         });
@@ -195,8 +196,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add Friend Modal Logic
     const friendAvatarWrapper = document.getElementById('friend-avatar-wrapper');
     if(friendAvatarWrapper) {
-        friendAvatarWrapper.addEventListener('click', () => {
-            document.getElementById('friend-avatar-upload').click();
+        friendAvatarWrapper.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'INPUT') document.getElementById('friend-avatar-upload').click();
         });
     }
 
@@ -589,14 +590,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         const newAvatarWrapper = avatarWrapper.cloneNode(true);
                         avatarWrapper.parentNode.replaceChild(newAvatarWrapper, avatarWrapper);
                         
-                        const newAvatarUpload = avatarUpload.cloneNode(true);
-                        avatarUpload.parentNode.replaceChild(newAvatarUpload, avatarUpload);
+                    const newAvatarUpload = avatarUpload.cloneNode(true);
+                    avatarUpload.parentNode.replaceChild(newAvatarUpload, avatarUpload);
 
-                        newAvatarWrapper.addEventListener('click', () => {
-                            newAvatarUpload.click();
-                        });
+                    newAvatarWrapper.addEventListener('click', (e) => {
+                        if (e.target.tagName !== 'INPUT') newAvatarUpload.click();
+                    });
 
-                        newAvatarUpload.addEventListener('change', (e) => {
+                    newAvatarUpload.addEventListener('change', (e) => {
                             const file = e.target.files[0];
                             if (file) {
                                 const reader = new FileReader();

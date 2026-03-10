@@ -25,70 +25,137 @@
                 </div>
             </div>
 
-            <!-- Profile Section -->
-            <div class="profile-section">
-                <div class="avatar">
-                    <i class="fas fa-user"></i>
+            <!-- Pages Container for Swipe -->
+            <div class="pages-container" id="pages-container">
+                <!-- Page 1 (Ins Widget & Apps) -->
+                <div class="page-wrapper">
+                    <div class="main-grid" id="main-grid-1">
+                        <!-- Status Card Widget (Top, 4x2 = 8 slots) -->
+                        <div class="status-card-widget" id="status-card-desktop">
+                            <div class="delete-widget-btn"><i class="fas fa-times"></i></div>
+                            
+                            <div class="status-card-top" id="status-card-top-desktop">
+                                <img src="" class="status-card-bg-img" id="status-card-bg-desktop">
+                                <div class="status-card-bg-upload-btn"><i class="fas fa-camera"></i></div>
+                                <input type="file" id="status-card-bg-upload-desktop" accept="image/*" style="display:none;">
+                                
+                                <div class="status-card-date" id="status-card-date-desktop" contenteditable="true" spellcheck="false">03-02</div>
+                                <div class="status-card-temp" id="status-card-temp-desktop" contenteditable="true" spellcheck="false">11°</div>
+                            </div>
+                            
+                            <div class="status-card-bottom">
+                                <div class="status-card-progress-area">
+                                    <div class="status-card-progress-label" contenteditable="true" spellcheck="false">今日剩余</div>
+                                    <i class="fas fa-heart" style="color: #ccc; font-size: 10px;"></i>
+                                    <div class="status-card-progress-track">
+                                        <div class="status-card-progress-fill"></div>
+                                    </div>
+                                    <i class="fas fa-heart" style="color: #ccc; font-size: 10px;"></i>
+                                    <div class="status-card-progress-value" contenteditable="true" spellcheck="false">61%</div>
+                                </div>
+                            </div>
+                            
+                            <div class="status-card-avatar-wrapper">
+                                <div class="status-card-avatar" id="status-card-avatar-btn-desktop">
+                                    <img src="" id="status-card-avatar-img-desktop">
+                                    <i class="fas fa-user" id="status-card-avatar-icon-desktop"></i>
+                                    <input type="file" id="status-card-avatar-upload-desktop" accept="image/*" style="display:none;">
+                                </div>
+                                <div class="status-card-clip"><i class="fas fa-paperclip"></i></div>
+                                
+                                <div class="status-card-info-pill">
+                                    <div class="status-card-name-box" contenteditable="true" spellcheck="false">iis</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4 Empty slots (1 row) -->
+                        <div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div><div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div><div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div><div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div>
+
+                        <!-- Apps and Pet Widget (Bottom) -->
+                        <div class="app-item" id="app-pay-btn" style="cursor: pointer;">
+                            <div class="app-icon icon-placeholder" id="app-icon-1" style="background: linear-gradient(180deg, #d3d9d3 0%, #b8c1b8 100%); color: white; display: flex; justify-content: center; align-items: center; font-size: 28px;"><i class="fas fa-wallet"></i></div>
+                            <span class="app-name">Pay</span>
+                        </div>
+                        <div class="app-item">
+                            <div class="app-icon icon-placeholder" id="app-icon-2" style="background: linear-gradient(180deg, #dcdfe3 0%, #c4cccf 100%); color: white; display: flex; justify-content: center; align-items: center; font-size: 28px;"><i class="fas fa-envelope"></i></div>
+                            <span class="app-name">Mail</span>
+                        </div>
+                        
+                        <!-- Pet Widget (2x2 = 4 slots) -->
+                        <div class="pet-widget" id="pet-widget-desktop">
+                            <div class="delete-widget-btn"><i class="fas fa-times"></i></div>
+                            <div class="pet-widget-img-wrapper" id="pet-img-container-desktop">
+                                <img src="" id="pet-img-desktop">
+                                <i class="fas fa-image" id="pet-icon-desktop" style="font-size: 30px; color: #ccc;"></i>
+                                <input type="file" id="pet-upload-desktop" accept="image/*" style="display:none;">
+                            </div>
+                            <div class="pet-widget-bubble" id="pet-bubble-desktop" contenteditable="true" spellcheck="false">oxo</div>
+                            <div class="pet-widget-music-icon"><i class="fas fa-music"></i></div>
+                            <div class="pet-widget-plus-btn"><i class="fas fa-plus"></i></div>
+                        </div>
+
+                        <!-- More Apps (2 slots) -->
+                        <div class="app-item">
+                            <div class="app-icon icon-placeholder" id="app-icon-3" style="background: linear-gradient(180deg, #ebdada 0%, #d8c8c8 100%); color: white; display: flex; justify-content: center; align-items: center; font-size: 28px;"><i class="fas fa-sticky-note"></i></div>
+                            <span class="app-name">Notes</span>
+                        </div>
+                        <div class="app-item">
+                            <div class="app-icon icon-placeholder" id="app-icon-4" style="background: #f7f5f5; color: #b0a0a0; display: flex; justify-content: center; align-items: center; font-size: 28px; border: 1px solid #e5e0e0;"><i class="fas fa-calendar-alt"></i></div>
+                            <span class="app-name">Calendar</span>
+                        </div>
+                        
+                        <!-- Fill remaining 4 slots to equal 24 -->
+                        <div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div><div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div><div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div><div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div>
+                    </div>
                 </div>
-                <div class="username">iis</div>
-                <div class="signature-bubble search-bubble">
-                    <i class="fas fa-search"></i>
-                    <span>search</span>
+
+                <!-- Page 2 (Empty Grid for dragging) -->
+                <div class="page-wrapper">
+                    <div class="main-grid" id="main-grid-2">
+                        <!-- Fill with 24 empty slots -->
+                        <div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div><div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div><div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div><div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div>
+                        <div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div><div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div><div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div><div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div>
+                        <div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div><div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div><div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div><div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div>
+                        <div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div><div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div><div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div><div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div>
+                        <div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div><div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div><div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div><div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div>
+                        <div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div><div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div><div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div><div class="app-item empty-slot"><div class="app-icon" style="opacity:0;"></div></div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Main Content Grid -->
-            <div class="main-grid">
-                <!-- Left: 4 Apps (2x2) -->
-                <div class="apps-grid-left">
-                    <div class="app-item" id="app-pay-btn" style="cursor: pointer;">
-                        <div class="app-icon icon-placeholder" id="app-icon-1" style="background-color: #34c759; color: white; display: flex; justify-content: center; align-items: center; font-size: 32px;"><i class="fas fa-wallet"></i></div>
-                        <span class="app-name">Pay</span>
-                    </div>
-                    <div class="app-item">
-                        <div class="app-icon icon-placeholder" id="app-icon-2"></div>
-                        <span class="app-name">app2</span>
-                    </div>
-                    <div class="app-item">
-                        <div class="app-icon icon-placeholder" id="app-icon-3"></div>
-                        <span class="app-name">app3</span>
-                    </div>
-                    <div class="app-item">
-                        <div class="app-icon icon-placeholder" id="app-icon-4"></div>
-                        <span class="app-name">app4</span>
-                    </div>
-                </div>
+            <!-- Page Indicators (Dots) -->
+            <div class="page-indicators" id="page-indicators">
+                <div class="dot active"></div>
+                <div class="dot"></div>
+            </div>
 
-                <!-- Right: Music Player Widget (2x2 size) -->
-                <div class="music-widget">
-                    <div class="music-cover">
-                        <div class="music-note-icon">
-                            <i class="fas fa-music"></i>
-                        </div>
-                    </div>
-                    <div class="music-info">
-                        <span class="song-title">Song Title</span>
-                        <span class="artist-name">Artist</span>
-                    </div>
-                    <div class="music-controls">
-                        <i class="fas fa-backward"></i>
-                        <i class="fas fa-play" id="play-btn"></i>
-                        <i class="fas fa-forward"></i>
-                    </div>
-                </div>
+            <!-- Home Screen Search Pill -->
+            <div class="home-search-pill">
+                <i class="fas fa-search"></i>
+                <span>搜索</span>
             </div>
 
             <!-- Floating Dock -->
             <div class="dock-container">
-                <div class="dock">
-                    <div class="dock-icon" id="dock-icon-settings">
-                        <i class="fas fa-cog"></i> <!-- Settings -->
+                <div class="dock" id="dock">
+                    <div class="app-item" id="dock-icon-settings" style="cursor: pointer;">
+                        <div class="app-icon" style="background: linear-gradient(180deg, #e3e3e3 0%, #cfcfcf 100%); font-size: 32px; color: #fff; display: flex; justify-content: center; align-items: center;">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <span class="app-name">设置</span>
                     </div>
-                    <div class="dock-icon imessage-app" id="dock-icon-imessage">
-                        <i class="fas fa-comment"></i> <!-- iMessage -->
+                    <div class="app-item imessage-app" id="dock-icon-imessage" style="cursor: pointer;">
+                        <div class="app-icon" style="background: linear-gradient(180deg, #dfebd6 0%, #c8d8bd 100%); font-size: 32px; color: #fff; display: flex; justify-content: center; align-items: center;">
+                            <i class="fas fa-comment"></i>
+                        </div>
+                        <span class="app-name">信息</span>
                     </div>
-                    <div class="dock-icon youtube-app" id="dock-icon-youtube">
-                        <i class="fab fa-youtube"></i> <!-- YouTube -->
+                    <div class="app-item youtube-app" id="dock-icon-youtube" style="cursor: pointer;">
+                        <div class="app-icon" style="background: #fdfaf9; color: #d1b8b8; font-size: 38px; display: flex; justify-content: center; align-items: center;">
+                            <i class="fab fa-youtube"></i>
+                        </div>
+                        <span class="app-name">YouTube</span>
                     </div>
                 </div>
             </div>
@@ -112,7 +179,7 @@
                     <!-- Profile Section -->
                     <div class="line-profile">
                         <div class="line-profile-info">
-                            <h2 class="line-profile-name" id="imessage-profile-name">iis</h2>
+                            <h2 class="line-profile-name" id="imessage-profile-name">iisonyoung</h2>
                             <p class="line-profile-sign" id="imessage-profile-sign">Default User</p>
                         </div>
                         <div class="line-profile-avatar">
@@ -608,6 +675,23 @@
                             <i class="fas fa-chevron-right arrow"></i>
                         </div>
                     </div>
+
+                    <!-- Data Management Group -->
+                    <div class="settings-group fully-rounded">
+                        <div class="settings-item" id="export-data-btn">
+                            <div class="settings-icon" style="background-color: #34c759;"><i class="fas fa-file-export"></i></div>
+                            <div class="settings-text">导出全局数据</div>
+                        </div>
+                        <div class="settings-item" id="import-data-btn">
+                            <div class="settings-icon" style="background-color: #ff9500;"><i class="fas fa-file-import"></i></div>
+                            <div class="settings-text">导入全局数据</div>
+                            <input type="file" id="import-data-file" accept=".json" style="display:none;">
+                        </div>
+                        <div class="settings-item" id="clear-data-btn" style="border-bottom: none;">
+                            <div class="settings-icon" style="background-color: #ff3b30;"><i class="fas fa-trash-alt"></i></div>
+                            <div class="settings-text" style="color: #ff3b30;">清空缓存数据</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -804,7 +888,7 @@
                         <div class="detail-sheet-content">
                             <!-- Avatar Edit inside Detail View -->
                             <div class="edit-avatar-section" style="margin-top: 5px; margin-bottom: 15px;">
-                                <div class="edit-avatar-wrapper detail-avatar-wrapper">
+                                <div class="edit-avatar-wrapper detail-avatar-wrapper" id="user-detail-avatar-wrapper">
                                     <div class="edit-avatar" id="detail-avatar-preview">
                                         <i class="fas fa-user"></i>
                                         <img id="detail-avatar-img" src="" alt="" style="display:none;">
@@ -899,9 +983,15 @@
                             </div>
                         </div>
 
-                        <div class="form-group fully-rounded tall-input-group" style="margin: 20px 16px;">
-                            <div class="form-item tall-item">
+                        <div class="form-group fully-rounded tall-input-group" style="margin: 20px 16px; min-height: 80px;">
+                            <div class="form-item tall-item" style="height: 80px;">
                                 <textarea id="yt-char-desc-input" class="tall-input" placeholder="输入频道的简介或角色人设..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group fully-rounded tall-input-group" style="margin: 20px 16px; min-height: 80px;">
+                            <div class="form-item tall-item" style="height: 80px;">
+                                <textarea id="yt-char-live-topic-input" class="tall-input" placeholder="直播主题与简介 (仅AI可见，不显示在外)"></textarea>
                             </div>
                         </div>
                         
@@ -1305,33 +1395,227 @@
                 </div>
             </div>
 
+            <!-- Widget Gallery Sheet -->
+            <div class="bottom-sheet-overlay detail-sheet-overlay" id="widget-gallery-sheet" style="z-index: 600;">
+                <div class="bottom-sheet" style="height: auto; max-height: 80%;">
+                    <div class="sheet-handle"></div>
+                    <div class="sheet-title">添加小组件</div>
+                    <div class="detail-sheet-content" style="padding: 16px; display: flex; flex-direction: column; gap: 20px;">
+                        <div style="display: flex; flex-direction: column; align-items: center;">
+                            <!-- Preview of Diary Widget -->
+                            <div class="widget-preview-card time-widget" id="add-time-widget-btn" style="height: 120px; width: 100%; align-self: center; background-color: #f2f2f7; border: 1px solid #e5e5ea; border-radius: 20px; display: flex; flex-direction: row; box-shadow: 0 8px 24px rgba(0,0,0,0.06); cursor: pointer; position: relative; overflow: visible; padding: 0;">
+                                <div class="time-widget-left" style="padding: 10px; gap: 6px;">
+                                    <div class="time-bubble" style="font-size: 10px; padding: 4px 8px; border-radius: 10px; width: 100px;"><i class="fas fa-cloud"></i> 26°C 阴天</div>
+                                    <div class="time-bubble time-display-bubble" style="font-size: 10px; padding: 4px 8px; border-radius: 10px; width: 100px;"><i class="far fa-clock"></i> <span>14:30</span></div>
+                                    <div class="time-bubble" style="font-size: 10px; padding: 4px 8px; border-radius: 10px; width: 100px;"><i class="fas fa-pen"></i> Have a nice day</div>
+                                </div>
+                                
+                                <div class="binder-spine">
+                                    <div class="binder-ring"></div>
+                                    <div class="binder-ring"></div>
+                                    <div class="binder-ring"></div>
+                                </div>
+
+                                <div class="time-widget-right-wrapper">
+                                    <div class="time-widget-right" style="width: 80px; height: 90px; padding: 4px 4px 15px 4px;">
+                                        <div class="polaroid-tape" style="width: 30px; height: 12px; top: -6px;"></div>
+                                        <div class="time-widget-img-container" style="display: flex; justify-content: center; align-items: center; color: #c7c7cc; font-size: 20px; background: #e5e5ea;">
+                                            <i class="fas fa-image"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="text-align: center; margin-top: 8px; font-size: 16px; font-weight: 600; color: #000;">日记本组件</div>
+                            <div style="text-align: center; margin-top: 4px; font-size: 12px; color: #8e8e93;">拖拽到主屏幕 (4x2)</div>
+                        </div>
+                        
+                        <div style="display: flex; flex-direction: column; align-items: center;">
+                            <!-- Preview of Ins Profile Widget -->
+                            <div class="widget-preview-card" id="add-ins-profile-btn" style="width: 100%; height: 280px; background-color: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 36px; box-shadow: 0 8px 24px rgba(0,0,0,0.06); display: flex; flex-direction: column; overflow: hidden; position: relative; cursor: pointer;">
+                                <div style="width: 100%; height: 45%; background: linear-gradient(135deg, rgba(252, 228, 236, 0.8), rgba(243, 229, 245, 0.8)); display: flex; justify-content: center; align-items: center; color: #aaa;"><i class="fas fa-image"></i></div>
+                                <div style="position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; border-radius: 50%; border: 3px solid rgba(255, 255, 255, 0.6); background: #e5e5ea; display: flex; justify-content: center; align-items: center; color: #fff;"><i class="fas fa-user"></i></div>
+                                <div style="margin-top: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                                    <div style="font-weight: 700; font-size: 14px;">Your Name</div>
+                                    <div style="color: #8e8e93; font-size: 11px;">@username</div>
+                                </div>
+                            </div>
+                            <div style="text-align: center; margin-top: 8px; font-size: 16px; font-weight: 600; color: #000;">个人名片</div>
+                            <div style="text-align: center; margin-top: 4px; font-size: 12px; color: #8e8e93;">拖拽到主屏幕 (4x4)</div>
+                        </div>
+                        
+                        <div style="display: flex; flex-direction: column; align-items: center;">
+                            <!-- Preview of Spotify Widget -->
+                            <div class="widget-preview-card" id="add-spotify-widget-btn" style="width: 100%; height: 280px; background-color: #2b2b2b; border-radius: 36px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); display: flex; flex-direction: column; overflow: hidden; position: relative; cursor: pointer; padding: 15px;">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; z-index: 2;">
+                                    <div style="background: #fff; border-radius: 20px; padding: 6px 15px; display: inline-flex; align-items: center; gap: 5px;">
+                                        <div>
+                                            <div style="font-weight: 800; font-size: 14px; color: #000;">iisonyoung</div>
+                                            <div style="font-size: 11px; color: #666;">@iis</div>
+                                        </div>
+                                        <i class="fas fa-heart" style="color: #000; font-size: 16px; margin-left: 5px;"></i>
+                                    </div>
+                                    <div style="width: 32px; height: 32px; background: #fff; border-radius: 50%; display: flex; justify-content: center; align-items: center;">
+                                        <i class="fab fa-spotify" style="color: #000; font-size: 20px;"></i>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 10px; margin-top: 15px; flex: 1; z-index: 2;">
+                                    <div style="flex: 1; background: #fff; border-radius: 12px; display: flex; justify-content: center; align-items: center; color: #ccc;"><i class="fas fa-image" style="font-size: 24px;"></i></div>
+                                    <div style="flex: 1; background: #fff; border-radius: 12px; display: flex; justify-content: center; align-items: center; color: #ccc;"><i class="fas fa-image" style="font-size: 24px;"></i></div>
+                                </div>
+                                <div style="height: 40px; margin-top: 15px; display: flex; align-items: center; justify-content: space-between; gap: 2px; z-index: 2;">
+                                    <!-- simple preview bars -->
+                                    <div style="flex:1; background: rgba(255,255,255,0.7); height: 40%; border-radius: 2px;"></div>
+                                    <div style="flex:1; background: rgba(255,255,255,0.7); height: 80%; border-radius: 2px;"></div>
+                                    <div style="flex:1; background: rgba(255,255,255,0.7); height: 60%; border-radius: 2px;"></div>
+                                    <div style="flex:1; background: rgba(255,255,255,0.7); height: 100%; border-radius: 2px;"></div>
+                                    <div style="flex:1; background: rgba(255,255,255,0.7); height: 50%; border-radius: 2px;"></div>
+                                    <div style="flex:1; background: rgba(255,255,255,0.7); height: 70%; border-radius: 2px;"></div>
+                                    <div style="flex:1; background: rgba(255,255,255,0.7); height: 30%; border-radius: 2px;"></div>
+                                    <div style="flex:1; background: rgba(255,255,255,0.7); height: 90%; border-radius: 2px;"></div>
+                                </div>
+                            </div>
+                            <div style="text-align: center; margin-top: 8px; font-size: 16px; font-weight: 600; color: #000;">音乐相册</div>
+                            <div style="text-align: center; margin-top: 4px; font-size: 12px; color: #8e8e93;">拖拽到主屏幕 (4x4)</div>
+                        </div>
+                        
+                        <div style="display: flex; flex-direction: column; align-items: center;">
+                            <!-- Preview of Pet Circle Widget -->
+                            <div class="widget-preview-card" id="add-pet-widget-btn" style="width: 155px; height: 155px; background-color: transparent; border-radius: 50%; display: flex; justify-content: center; align-items: center; position: relative; cursor: pointer;">
+                                <!-- Main Circular Image Container -->
+                                <div style="width: 110px; height: 110px; border-radius: 50%; border: 3px solid #e5e5ea; background-color: rgba(255, 255, 255, 0.8); display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.08); z-index: 1; color: #ccc; font-size: 30px; margin-top: 15px;">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                                <!-- Speech Bubble (Top Left) -->
+                                <div style="position: absolute; top: 5px; left: -5px; background: rgba(255, 255, 255, 0.95); padding: 10px 18px; border-radius: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 3; font-size: 18px; color: #666; font-weight: 600;">
+                                    oxo
+                                    <div style="position: absolute; bottom: -6px; right: 20px; width: 14px; height: 14px; background: rgba(255, 255, 255, 0.95); transform: rotate(45deg); box-shadow: 2px 2px 2px rgba(0,0,0,0.05);"></div>
+                                </div>
+                                <!-- Music Note (Top Right) -->
+                                <div style="position: absolute; top: 15px; right: 5px; z-index: 2; color: #b0b0b0; font-size: 18px; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                    <i class="fas fa-music"></i>
+                                </div>
+                                <!-- Plus Button (Bottom Right) -->
+                                <div style="position: absolute; bottom: 10px; right: 5px; width: 28px; height: 28px; background: rgba(200, 200, 200, 0.5); backdrop-filter: blur(5px); border-radius: 50%; display: flex; justify-content: center; align-items: center; z-index: 2; color: #fff; font-size: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                                    <i class="fas fa-plus"></i>
+                                </div>
+                            </div>
+                            <div style="text-align: center; margin-top: 15px; font-size: 16px; font-weight: 600; color: #000;">圆形相框</div>
+                            <div style="text-align: center; margin-top: 4px; font-size: 12px; color: #8e8e93;">拖拽到主屏幕 (2x2)</div>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                            <!-- Preview of Status Card Widget -->
+                            <div class="widget-preview-card" id="add-status-card-btn" style="width: 100%; height: 155px; background-color: #ffffff; border-radius: 28px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); display: flex; flex-direction: column; position: relative; overflow: hidden; cursor: pointer;">
+                                <!-- Top Background Half -->
+                                <div style="width: 100%; height: 60%; background: linear-gradient(135deg, #e0e0e0, #f5f5f5); position: relative;">
+                                    <div style="position: absolute; top: 12px; left: 16px; font-size: 12px; color: #666; font-weight: 500;">03-02</div>
+                                    <div style="position: absolute; top: 12px; right: 16px; font-size: 13px; color: #666; font-weight: 600;">11°</div>
+                                </div>
+                                <!-- Bottom White Half -->
+                                <div style="width: 100%; height: 40%; background-color: #ffffff; position: relative; display: flex; align-items: flex-end; padding-bottom: 15px;">
+                                    <!-- Progress Bar Area -->
+                                    <div style="width: 100%; padding: 0 20px; display: flex; align-items: center; gap: 8px; font-size: 10px; color: #999;">
+                                        <div style="white-space: nowrap;">今日剩余</div>
+                                        <i class="fas fa-heart" style="color: #ccc; font-size: 10px;"></i>
+                                        <div style="flex: 1; height: 4px; background: #f0f0f0; border-radius: 2px; overflow: hidden;">
+                                            <div style="width: 61%; height: 100%; background: #ccc; border-radius: 2px;"></div>
+                                        </div>
+                                        <i class="fas fa-heart" style="color: #ccc; font-size: 10px;"></i>
+                                        <div>61%</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Center Avatar -->
+                                <div style="position: absolute; top: 35%; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; flex-direction: column; align-items: center;">
+                                    <div style="position: relative;">
+                                        <div style="width: 54px; height: 54px; border-radius: 50%; border: 3px solid #fff; background: #e5e5ea; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center; color: #fff;">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <!-- Little Clip Icon -->
+                                        <div style="position: absolute; top: -5px; left: 0px; transform: rotate(-20deg); font-size: 14px; color: #333; text-shadow: 1px 1px 2px rgba(255,255,255,0.8);">
+                                            <i class="fas fa-paperclip"></i>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Info Pill -->
+                                    <div style="display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 6px;">
+                                        <div style="background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 2px 10px; font-size: 12px; color: #666; font-weight: 500; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                                            iis
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="text-align: center; margin-top: 15px; font-size: 16px; font-weight: 600; color: #000;">状态卡片</div>
+                            <div style="text-align: center; margin-top: 4px; font-size: 12px; color: #8e8e93;">拖拽到主屏幕 (4x2)</div>
+                        </div>
+                        
+                        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                            <!-- Preview of Complex Music Widget -->
+                            <div class="widget-preview-card" id="add-complex-music-btn" style="width: 100%; height: 240px; background-color: transparent; position: relative; cursor: pointer;">
+                                <!-- Main Card -->
+                                <div style="position: absolute; top: 70px; left: 0; width: 100%; height: 170px; background-color: #ffffff; border-radius: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                                    <div style="position: absolute; top: 15px; right: 15px; width: 36px; height: 36px; border-radius: 50%; background: #f2f2f7; display: flex; justify-content: center; align-items: center; color: #666;"><i class="fas fa-music"></i></div>
+                                    <div style="position: absolute; top: 80px; left: 20px; right: 20px; height: 3px; background: #f2f2f7; border-radius: 2px;">
+                                        <div style="width: 30%; height: 100%; background: #333; position: relative;">
+                                            <div style="position: absolute; right: -4px; top: -3px; width: 9px; height: 9px; border-radius: 50%; background: #333;"></div>
+                                        </div>
+                                    </div>
+                                    <div style="position: absolute; top: 95px; left: 20px; font-size: 13px; color: #666; font-weight: 500;">1:15</div>
+                                    <div style="position: absolute; top: 95px; right: 20px; font-size: 13px; color: #666; font-weight: 500;">-2:38</div>
+                                    <div style="position: absolute; bottom: 20px; left: 0; width: 100%; display: flex; justify-content: center; align-items: center; gap: 30px; color: #333;">
+                                        <i class="fas fa-backward" style="font-size: 24px;"></i>
+                                        <div style="display: flex; gap: 5px;"><div style="width: 8px; height: 32px; background: #333; border-radius: 4px;"></div><div style="width: 8px; height: 32px; background: #333; border-radius: 4px;"></div></div>
+                                        <i class="fas fa-forward" style="font-size: 24px;"></i>
+                                    </div>
+                                </div>
+                                <!-- Top Ring -->
+                                <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 130px; height: 130px; border-radius: 50%; border: 6px solid #f2f2f7; background: transparent; display: flex; justify-content: center; align-items: center; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                                    <div style="width: 100%; height: 100%; border-radius: 50%; background-color: #ffffff; display: flex; justify-content: center; align-items: center; color: #ccc; font-size: 24px;"><i class="fas fa-image"></i></div>
+                                    <div style="position: absolute; top: -6px; right: 18px; background: #ffffff; width: 28px; height: 28px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);"><i class="fas fa-heart" style="color: #333; font-size: 14px;"></i></div>
+                                    <div style="position: absolute; bottom: -6px; left: 18px; background: #ffffff; width: 28px; height: 28px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);"><i class="fas fa-heart" style="color: #333; font-size: 14px;"></i></div>
+                                    <div style="position: absolute; top: 25px; left: -25px; background: #ffffff; padding: 6px 12px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-size: 14px; color: #666; font-weight: 600;">oxo</div>
+                                </div>
+                            </div>
+                            <div style="text-align: center; margin-top: 15px; font-size: 16px; font-weight: 600; color: #000;">悬浮音乐播放器</div>
+                            <div style="text-align: center; margin-top: 4px; font-size: 12px; color: #8e8e93;">拖拽到主屏幕 (4x3)</div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
             <!-- Theme Config Bottom Sheet -->
-            <div class="bottom-sheet-overlay detail-sheet-overlay" id="theme-config-sheet">
-                <div class="bottom-sheet">
+            <div class="bottom-sheet-overlay detail-sheet-overlay" id="theme-config-sheet" style="z-index: 500;">
+                <div class="bottom-sheet" style="max-height: 85%; height: 80%; display: flex; flex-direction: column;">
                     <div class="sheet-handle"></div>
                     <div class="sheet-title">主题美化</div>
                     
-                    <div class="detail-sheet-content">
+                    <div class="detail-sheet-content" style="padding-bottom: 30px; overflow-y: auto; flex: 1;">
                         <!-- Background Customization -->
-                        <div class="settings-group fully-rounded" style="margin: 0 0 20px 0;">
-                            <div class="settings-item" style="cursor: default;">
+                        <div class="settings-group fully-rounded" style="margin: 0 16px 20px;">
+                            <div class="settings-item" style="cursor: default; border-bottom: 1px solid var(--separator-color);">
                                 <div class="settings-text" style="font-weight: 600;">主界面背景</div>
                             </div>
-                            <div class="form-item">
+                            <div class="form-item" style="display: none;"> <!-- 隐藏丑陋的链接输入框，主推上传 -->
                                 <label style="width: 80px;">链接</label>
                                 <input type="text" id="theme-bg-url-input" placeholder="https://example.com/bg.jpg">
                             </div>
-                            <div class="settings-item fully-rounded-item" id="theme-bg-upload-btn" style="justify-content: flex-start;">
-                                <div class="settings-icon action-icon-blue"><i class="fas fa-image"></i></div>
-                                <div class="settings-text" style="color: var(--blue-color);">上传图片</div>
+                            <div style="display: flex; padding: 12px 16px; gap: 10px;">
+                                <div class="sheet-action" id="theme-bg-upload-btn" style="flex: 1; margin: 0; background: #f2f2f7; color: var(--blue-color); font-size: 14px; border-radius: 12px; height: 44px; display: flex; justify-content: center; align-items: center;">
+                                    <i class="fas fa-image" style="margin-right: 6px;"></i> 上传背景
+                                </div>
+                                <div class="sheet-action" id="theme-bg-reset-btn" style="flex: 1; margin: 0; background: #ffebee; color: #ff3b30; font-size: 14px; border-radius: 12px; height: 44px; display: flex; justify-content: center; align-items: center;">
+                                    <i class="fas fa-undo" style="margin-right: 6px;"></i> 重置背景
+                                </div>
                                 <input type="file" id="theme-bg-file-input" accept="image/*" style="display:none;">
                             </div>
                         </div>
 
                         <!-- App Icons List Customization -->
-                        <div class="settings-group fully-rounded" style="margin: 0 0 20px 0;">
-                            <div class="settings-item" style="cursor: default;">
+                        <div class="settings-group fully-rounded" style="margin: 0 16px 20px;">
+                            <div class="settings-item" style="cursor: default; border-bottom: 1px solid var(--separator-color);">
                                 <div class="settings-text" style="font-weight: 600;">应用图标管理</div>
+                                <div id="theme-reset-all-icons-btn" style="font-size: 13px; color: #ff3b30; cursor: pointer; padding: 4px 8px; background: #ffebee; border-radius: 6px;">全部重置</div>
                             </div>
                             
                             <!-- Dynamic App List -->
@@ -1343,7 +1627,9 @@
                         <!-- Hidden global file input for app icons -->
                         <input type="file" id="theme-app-file-input" accept="image/*" style="display:none;">
                         
-                        <div class="sheet-action confirm-action" id="confirm-theme-btn">应用主题</div>
+                        <div style="margin: 0 16px;">
+                            <div class="sheet-action confirm-action" id="confirm-theme-btn" style="background-color: #1c1c1e; color: #fff;">保存并应用</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1721,6 +2007,9 @@
                 <div class="bottom-sheet" style="max-height: 80%;">
                     <div class="sheet-handle"></div>
                     <div class="sheet-title">直播总结列表</div>
+                    <div class="yt-filters-bar" id="yt-summary-filter-bar" style="padding: 0 16px 15px; border-bottom: 1px solid #f2f2f2; margin-bottom: 10px; display: none;">
+                        <!-- Filter bubbles injected by JS -->
+                    </div>
                     <div class="detail-sheet-content" style="padding-bottom: 20px;">
                         <div id="yt-summary-list-container" style="margin: 0 16px; display: flex; flex-direction: column;">
                             <!-- Injected by JS -->
@@ -1891,6 +2180,12 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="form-group fully-rounded tall-input-group" style="margin: 20px 16px; min-height: 80px;">
+                            <div class="form-item tall-item" style="height: 80px;">
+                                <textarea id="yt-user-live-topic-input" class="tall-input" placeholder="直播主题与简介 (仅AI可见，不显示在外)"></textarea>
+                            </div>
+                        </div>
                         
                         <div class="sheet-action confirm-action" id="start-user-live-btn" style="background-color: #cc0000; color: #fff;">开播</div>
                     </div>
@@ -1914,8 +2209,11 @@
                 </div>
 
                 <!-- 视频/背景播放区域 (固定16:9比例) -->
-                <div id="yt-user-live-video-area" style="width: 100%; aspect-ratio: 16/9; background-color: #e5e5e5; position: relative; margin-top: 0; display: flex; justify-content: center; align-items: center; overflow: hidden;">
+                <div id="yt-user-live-video-area" style="width: 100%; aspect-ratio: 16/9; background-color: #e5e5e5; position: relative; margin-top: 0; display: flex; justify-content: center; align-items: center; overflow: hidden; cursor: pointer;">
                     <img src="" alt="Background" id="yt-user-live-bg-display" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; opacity: 0.7;" id="yt-user-live-edit-info-btn">
+                        <i class="fas fa-pen" style="color: white; font-size: 14px;"></i>
+                    </div>
                     
                     <!-- 漂浮气泡容器 (用于显示 User 发的直播内容) -->
                     <div id="yt-user-live-bubbles-container" style="position: absolute; bottom: 10px; right: 10px; width: 60%; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; z-index: 3;">
@@ -1936,8 +2234,8 @@
                 <div style="flex: 1; display: flex; flex-direction: column; overflow: hidden; background-color: #ffffff;">
                     <div style="padding: 12px 16px; font-size: 14px; font-weight: 500; border-bottom: 1px solid #e5e5e5; display: flex; justify-content: space-between; align-items: center; color: #0f0f0f;">
                         <span>实时聊天</span>
-                        <div id="yt-user-live-trigger-api-btn" style="background: #f2f2f2; padding: 4px 10px; border-radius: 12px; font-size: 12px; cursor: pointer; color: #00bfa5;">
-                            <i class="fas fa-magic"></i> 观众反应
+                        <div id="yt-user-live-trigger-api-btn" style="background: #f2f2f2; padding: 4px 10px; border-radius: 12px; font-size: 12px; cursor: pointer; color: #606060;">
+                            <i class="fas fa-magic"></i>
                         </div>
                     </div>
                     
@@ -2116,8 +2414,16 @@
     </div>
 
     <script src="ios_emulator.js"></script>
+    <script src="widgets.js"></script>
     <script src="imessage.js"></script>
-    <script src="youtube.js"></script>
+    <script src="youtube/1_data.js"></script>
+    <script src="youtube/2_core.js"></script>
+    <script src="youtube/3_channel.js"></script>
+    <script src="youtube/4_settings.js"></script>
+    <script src="youtube/5_player.js"></script>
+    <script src="youtube/6_community.js"></script>
+    <script src="youtube/7_trending.js"></script>
+    <script src="youtube/8_user_live.js"></script>
     <script src="pay.js"></script>
 </body>
 </html>

@@ -22,32 +22,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // API State
     let apiConfig = { endpoint: '', apiKey: '', model: 'gpt-3.5-turbo', temperature: 0.7 };
-    
-    // Load saved API config if exists
-    try {
-        const savedApi = localStorage.getItem('emulator_api_config');
-        if (savedApi) {
-            apiConfig = { ...apiConfig, ...JSON.parse(savedApi) };
-        }
-    } catch(e) { console.error('Failed to load api config', e); }
-    
-    window.apiConfig = apiConfig;
-
     let apiPresets = [
         { id: 1, name: 'Localhost', endpoint: 'http://localhost:5000', apiKey: 'sk-12345', model: 'llama-2', temp: 0.7 },
         { id: 2, name: 'OpenAI', endpoint: 'https://api.openai.com/v1', apiKey: '', model: 'gpt-4', temp: 1.0 }
     ];
-    let fetchedModels = [];
-    
-    // Load saved fetched models if exists
-    try {
-        const savedModels = localStorage.getItem('emulator_api_models');
-        if (savedModels) {
-            fetchedModels = JSON.parse(savedModels);
-        } else {
-            fetchedModels = ['gpt-3.5-turbo', 'gpt-4', 'claude-v1'];
-        }
-    } catch(e) {}
+    let fetchedModels = ['gpt-3.5-turbo', 'gpt-4', 'claude-v1'];
 
     // Theme State
     let themeState = {
@@ -64,13 +43,67 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     let currentEditingAppIndex = -1;
 
-    // World Book State (CLEARED as requested)
-    let wbGroups = []; // Empty initially
-    let worldBooks = []; // Empty initially
-    window.getWorldBooks = () => worldBooks; // Export for imessage.js
-    let editingBookId = null; // For edit mode
-    let tempEntries = []; // For add/edit modal: [{id, keyword, content}]
-    let activeEntryId = null; // Currently selected chip
+    // World Book State
+    let wbGroups = []; 
+    let worldBooks = []; 
+    window.getWorldBooks = () => worldBooks; 
+    let editingBookId = null; 
+    let tempEntries = []; 
+    let activeEntryId = null; 
+
+    // --- Data Persistence Helper ---
+    function loadGlobalData() {
+        try {
+            const dataStr = localStorage.getItem('ios_emulator_global_data');
+            if (dataStr) {
+                const data = JSON.parse(dataStr);
+                if (data.userState) Object.assign(userState, data.userState);
+                if (data.accounts) accounts = data.accounts;
+                if (data.currentAccountId) currentAccountId = data.currentAccountId;
+                if (data.apiConfig) Object.assign(apiConfig, data.apiConfig);
+                if (data.apiPresets) apiPresets = data.apiPresets;
+                if (data.fetchedModels) fetchedModels = data.fetchedModels;
+                if (data.themeState) themeState = data.themeState;
+                if (data.wbGroups) wbGroups = data.wbGroups;
+                if (data.worldBooks) worldBooks = data.worldBooks;
+                
+                // Call external state restores if they registered a hook
+                if (window.onGlobalDataLoaded) window.onGlobalDataLoaded(data);
+            }
+        } catch (e) {
+            console.error('Failed to load global data', e);
+        }
+    }
+
+    function saveGlobalData() {
+        try {
+            const data = {
+                userState,
+                accounts,
+                currentAccountId,
+                apiConfig,
+                apiPresets,
+                fetchedModels,
+                themeState,
+                wbGroups,
+                worldBooks
+            };
+            
+            // Allow other modules to inject their state
+            if (window.onGlobalDataSave) {
+                window.onGlobalDataSave(data);
+            }
+            
+            localStorage.setItem('ios_emulator_global_data', JSON.stringify(data));
+        } catch (e) {
+            console.error('Failed to save global data', e);
+        }
+    }
+    window.saveGlobalData = saveGlobalData;
+
+    // Load at startup
+    loadGlobalData();
+    window.apiConfig = apiConfig;
 
     // ==========================================
     // 2. DOM ELEMENTS
@@ -86,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
             personaDetail: document.getElementById('persona-detail-sheet'),
             apiConfig: document.getElementById('api-config-sheet'),
             themeConfig: document.getElementById('theme-config-sheet'),
+            widgetGallery: document.getElementById('widget-gallery-sheet'),
             addFriend: document.getElementById('add-friend-sheet'),
             savePreset: document.getElementById('save-preset-name-sheet'),
             loadPreset: document.getElementById('load-preset-list-sheet'),
@@ -325,16 +359,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateClock();
     setInterval(updateClock, 1000);
 
-    // Music Player Toggle
-    const playBtn = document.getElementById('play-btn');
-    if (playBtn) {
-        playBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            playBtn.classList.toggle('fa-play');
-            playBtn.classList.toggle('fa-pause');
-        });
-    }
-
     // Phone Input Restriction
     if (UI.inputs.detailPhone) {
         UI.inputs.detailPhone.addEventListener('input', function() {
@@ -346,10 +370,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // 5. NAVIGATION EVENT LISTENERS
     // ==========================================
     // Main Settings
-    document.querySelector('.dock-icon:nth-child(1)').addEventListener('click', () => {
-        syncUIs();
-        openView(UI.views.settings);
-    });
+    const settingsBtn = document.getElementById('dock-icon-settings');
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', (e) => {
+            if (window.isJiggleMode || window.preventAppClick) { e.preventDefault(); e.stopPropagation(); return; }
+            syncUIs();
+            openView(UI.views.settings);
+        });
+    }
     document.getElementById('settings-title-back-btn').addEventListener('click', () => closeView(UI.views.settings));
 
     // Use Home Bar to close apps
@@ -1153,8 +1181,8 @@ Reply naturally as your character in a chat app. Do not include your own name at
     const mainEditAvatarWrapper = document.getElementById('main-edit-avatar-wrapper');
     const mainAvatarUpload = document.getElementById('main-avatar-upload');
     if (mainEditAvatarWrapper && mainAvatarUpload) {
-        mainEditAvatarWrapper.addEventListener('click', () => {
-            mainAvatarUpload.click();
+        mainEditAvatarWrapper.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'INPUT') mainAvatarUpload.click();
         });
 
         mainAvatarUpload.addEventListener('change', (e) => {
@@ -1238,14 +1266,18 @@ Reply naturally as your character in a chat app. Do not include your own name at
             }
         }
         isCreatingNewAccount = false;
+        saveGlobalData();
         renderAccountList(); 
         closeView(UI.overlays.personaDetail); 
     });
 
     // Avatar Upload Handler
-    document.querySelector('.detail-avatar-wrapper').addEventListener('click', () => {
-        document.getElementById('detail-avatar-upload').click();
-    });
+    const userDetailAvatarWrapper = document.getElementById('user-detail-avatar-wrapper');
+    if (userDetailAvatarWrapper) {
+        userDetailAvatarWrapper.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'INPUT') document.getElementById('detail-avatar-upload').click();
+        });
+    }
 
     document.getElementById('detail-avatar-upload').addEventListener('change', (e) => {
         const file = e.target.files[0];
@@ -1313,6 +1345,7 @@ Reply naturally as your character in a chat app. Do not include your own name at
                 if (confirm(`Delete account "${acc.name}"?`)) {
                     accounts = accounts.filter(a => a.id !== acc.id);
                     if (currentAccountId === acc.id) currentAccountId = accounts.length > 0 ? accounts[0].id : null;
+                    saveGlobalData();
                     renderAccountList();
                 }
             });
@@ -1341,9 +1374,9 @@ Reply naturally as your character in a chat app. Do not include your own name at
         apiConfig.model = UI.inputs.apiModel.value;
         apiConfig.temperature = parseFloat(UI.inputs.apiTemp.value) || 0.7;
         
-        // Save to localStorage
-        localStorage.setItem('emulator_api_config', JSON.stringify(apiConfig));
-        window.apiConfig = apiConfig; // Update global
+        // Save globally
+        window.apiConfig = apiConfig;
+        saveGlobalData();
         
         closeView(UI.overlays.apiConfig);
         showToast('API Config Saved');
@@ -1383,9 +1416,7 @@ Reply naturally as your character in a chat app. Do not include your own name at
             
             if (data && data.data && Array.isArray(data.data)) {
                 fetchedModels = data.data.map(m => m.id);
-                // Save fetched models
-                localStorage.setItem('emulator_api_models', JSON.stringify(fetchedModels));
-                
+                saveGlobalData();
                 showToast(`Fetched ${fetchedModels.length} models!`);
             } else {
                 throw new Error('Invalid format');
@@ -1415,6 +1446,7 @@ Reply naturally as your character in a chat app. Do not include your own name at
             model: UI.inputs.apiModel.value,
             temp: UI.inputs.apiTemp.value
         });
+        saveGlobalData();
         closeView(UI.overlays.savePreset);
     });
 
@@ -1458,6 +1490,7 @@ Reply naturally as your character in a chat app. Do not include your own name at
                 e.stopPropagation();
                 if (confirm(`Delete preset "${preset.name}"?`)) {
                     apiPresets = apiPresets.filter(p => p.id !== preset.id);
+                    saveGlobalData();
                     renderPresetList();
                 }
             });
@@ -1509,23 +1542,55 @@ Reply naturally as your character in a chat app. Do not include your own name at
     document.getElementById('theme-bg-upload-btn').addEventListener('click', () => {
         document.getElementById('theme-bg-file-input').click();
     });
+    
+    // Theme Background Reset
+    document.getElementById('theme-bg-reset-btn').addEventListener('click', () => {
+        themeState.bgUrl = null;
+        if (UI.inputs.themeBgUrl) UI.inputs.themeBgUrl.value = '';
+        showToast('背景已重置，点击保存生效');
+    });
 
     document.getElementById('theme-bg-file-input').addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = (event) => {
-                UI.inputs.themeBgUrl.value = event.target.result;
-                themeState.bgUrl = event.target.result;
+                // Resize for background (max 1080p)
+                if (window.compressImage) {
+                    window.compressImage(event.target.result, 1080, 1920, (compressedUrl) => {
+                        if (UI.inputs.themeBgUrl) UI.inputs.themeBgUrl.value = compressedUrl;
+                        themeState.bgUrl = compressedUrl;
+                        showToast('背景已加载，点击保存生效');
+                    });
+                } else {
+                    if (UI.inputs.themeBgUrl) UI.inputs.themeBgUrl.value = event.target.result;
+                    themeState.bgUrl = event.target.result;
+                    showToast('背景已加载，点击保存生效');
+                }
             };
             reader.readAsDataURL(file);
         }
+        e.target.value = '';
     });
     
     // Background URL Input Change
-    UI.inputs.themeBgUrl.addEventListener('input', (e) => {
-        themeState.bgUrl = e.target.value;
-    });
+    if (UI.inputs.themeBgUrl) {
+        UI.inputs.themeBgUrl.addEventListener('input', (e) => {
+            themeState.bgUrl = e.target.value;
+        });
+    }
+
+    // Reset All Icons
+    const resetAllIconsBtn = document.getElementById('theme-reset-all-icons-btn');
+    if (resetAllIconsBtn) {
+        resetAllIconsBtn.addEventListener('click', () => {
+            themeState.apps.forEach(app => {
+                app.icon = null;
+            });
+            renderThemeAppList();
+            showToast('应用图标已全部重置，点击保存生效');
+        });
+    }
 
     // Render App List for Customization
     function renderThemeAppList() {
@@ -1538,25 +1603,46 @@ Reply naturally as your character in a chat app. Do not include your own name at
             // Custom styling for app item
             item.style.padding = '8px 16px';
             item.style.height = '60px';
+            item.style.display = 'flex';
+            item.style.justifyContent = 'space-between';
+            item.style.alignItems = 'center';
+            item.style.borderBottom = '1px solid #f2f2f7';
             
             // Icon Preview (or placeholder)
             let iconHtml = '';
             if (app.icon) {
-                iconHtml = `<div style="width: 40px; height: 40px; border-radius: 10px; background-image: url('${app.icon}'); background-size: cover; background-position: center; border: 1px solid #e5e5ea;"></div>`;
+                iconHtml = `<div style="width: 40px; height: 40px; border-radius: 10px; background-image: url('${app.icon}'); background-size: cover; background-position: center; border: 1px solid #e5e5ea; flex-shrink: 0;"></div>`;
             } else {
-                iconHtml = `<div style="width: 40px; height: 40px; border-radius: 10px; background-color: #f2f2f7; border: 1px solid #e5e5ea; display: flex; align-items: center; justify-content: center; color: #c7c7cc;"><i class="fas fa-image"></i></div>`;
+                iconHtml = `<div style="width: 40px; height: 40px; border-radius: 10px; background-color: #f2f2f7; border: 1px solid #e5e5ea; display: flex; align-items: center; justify-content: center; color: #c7c7cc; flex-shrink: 0;"><i class="fas fa-image"></i></div>`;
             }
 
             item.innerHTML = `
-                <div style="display: flex; align-items: center; width: 100%;">
+                <div style="display: flex; align-items: center; flex: 1;">
                     ${iconHtml}
-                    <div style="margin-left: 12px; font-size: 17px; font-weight: 500; flex: 1;">${app.name}</div>
-                    <div class="settings-icon action-icon-blue" style="margin: 0;"><i class="fas fa-upload"></i></div>
+                    <div style="margin-left: 12px; font-size: 16px; font-weight: 500; color: #000;">${app.name}</div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <div class="reset-single-app-btn" style="width: 32px; height: 32px; border-radius: 50%; background: #ffebee; color: #ff3b30; display: flex; justify-content: center; align-items: center; cursor: pointer;">
+                        <i class="fas fa-undo" style="font-size: 14px;"></i>
+                    </div>
+                    <div class="upload-single-app-btn" style="width: 32px; height: 32px; border-radius: 50%; background: #e8f5e9; color: #34c759; display: flex; justify-content: center; align-items: center; cursor: pointer;">
+                        <i class="fas fa-upload" style="font-size: 14px;"></i>
+                    </div>
                 </div>
             `;
             
+            // Click to reset
+            const resetBtn = item.querySelector('.reset-single-app-btn');
+            resetBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                themeState.apps[index].icon = null;
+                renderThemeAppList();
+            });
+
             // Click to upload
-            item.addEventListener('click', () => {
+            const uploadBtn = item.querySelector('.upload-single-app-btn');
+            uploadBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 currentEditingAppIndex = index;
                 document.getElementById('theme-app-file-input').click();
             });
@@ -1571,10 +1657,16 @@ Reply naturally as your character in a chat app. Do not include your own name at
         if (file && currentEditingAppIndex >= 0) {
             const reader = new FileReader();
             reader.onload = (event) => {
-                // Update state
-                themeState.apps[currentEditingAppIndex].icon = event.target.result;
-                // Re-render list to show preview
-                renderThemeAppList();
+                // Compress icon to tiny size (150x150) to save space
+                if (window.compressImage) {
+                    window.compressImage(event.target.result, 150, 150, (compressedUrl) => {
+                        themeState.apps[currentEditingAppIndex].icon = compressedUrl;
+                        renderThemeAppList();
+                    });
+                } else {
+                    themeState.apps[currentEditingAppIndex].icon = event.target.result;
+                    renderThemeAppList();
+                }
             };
             reader.readAsDataURL(file);
         }
@@ -1582,10 +1674,46 @@ Reply naturally as your character in a chat app. Do not include your own name at
         e.target.value = '';
     });
 
+    // Apply specific logic for app icon background to avoid overlay bug
+    function applyAppIconStyles(app) {
+        const el = document.getElementById(app.id);
+        if (!el) return;
+        
+        // Target the inner .app-icon div rather than the wrapper
+        const iconDiv = el.querySelector('.app-icon');
+        const iEl = el.querySelector('i');
+        
+        if (!iconDiv) return;
+
+        if (app.icon) {
+            // Apply image, clear background color
+            iconDiv.style.backgroundImage = `url(${app.icon})`;
+            iconDiv.style.backgroundSize = 'cover';
+            iconDiv.style.backgroundPosition = 'center';
+            iconDiv.style.backgroundColor = 'transparent';
+            if (iEl) iEl.style.display = 'none';
+        } else {
+            // Revert to original
+            iconDiv.style.backgroundImage = 'none';
+            // Restore original gradient/color using inline style if it was stripped, 
+            // but normally removing backgroundImage is enough if CSS handles it.
+            // We'll rely on the default inline style still being there under the hood or class defaults.
+            if (app.id === 'dock-icon-settings') iconDiv.style.background = 'linear-gradient(180deg, #e3e3e3 0%, #cfcfcf 100%)';
+            else if (app.id === 'dock-icon-imessage') iconDiv.style.background = 'linear-gradient(180deg, #dfebd6 0%, #c8d8bd 100%)';
+            else if (app.id === 'dock-icon-youtube') iconDiv.style.background = '#fdfaf9';
+            else if (app.id === 'app-icon-1') iconDiv.style.background = 'linear-gradient(180deg, #d3d9d3 0%, #b8c1b8 100%)';
+            else if (app.id === 'app-icon-2') iconDiv.style.background = 'linear-gradient(180deg, #dcdfe3 0%, #c4cccf 100%)';
+            else if (app.id === 'app-icon-3') iconDiv.style.background = 'linear-gradient(180deg, #ebdada 0%, #d8c8c8 100%)';
+            else if (app.id === 'app-icon-4') iconDiv.style.background = '#f7f5f5';
+            
+            if (iEl) iEl.style.display = '';
+        }
+    }
+
     // Confirm Theme Settings
     document.getElementById('confirm-theme-btn').addEventListener('click', () => {
         // Apply Background
-        const bgUrl = UI.inputs.themeBgUrl.value.trim() || themeState.bgUrl;
+        const bgUrl = (UI.inputs.themeBgUrl && UI.inputs.themeBgUrl.value) ? UI.inputs.themeBgUrl.value.trim() : themeState.bgUrl;
         const screenEl = document.querySelector('.screen');
         if (screenEl) {
             if (bgUrl) {
@@ -1595,25 +1723,99 @@ Reply naturally as your character in a chat app. Do not include your own name at
                 screenEl.style.backgroundPosition = 'center';
             } else {
                 screenEl.style.backgroundImage = 'none';
+                screenEl.style.backgroundColor = '#000'; // Default fallback
             }
         }
 
         // Apply App Icons
         themeState.apps.forEach(app => {
-            const el = document.getElementById(app.id);
-            if (el) {
-                if (app.icon) {
-                    el.style.backgroundImage = `url(${app.icon})`;
-                    el.style.backgroundSize = 'cover';
-                    el.style.backgroundPosition = 'center';
-                } else {
-                    el.style.backgroundImage = '';
-                }
-            }
+            applyAppIconStyles(app);
         });
 
+        saveGlobalData();
         closeView(UI.overlays.themeConfig);
         showToast('主题已应用！');
+    });
+
+    // Apply theme on load
+    function applySavedTheme() {
+        const screenEl = document.querySelector('.screen');
+        if (screenEl) {
+            if (themeState.bgUrl) {
+                screenEl.style.backgroundImage = `url(${themeState.bgUrl})`;
+                screenEl.style.backgroundSize = 'cover';
+                screenEl.style.backgroundPosition = 'center';
+            } else {
+                screenEl.style.backgroundImage = 'none';
+            }
+        }
+        themeState.apps.forEach(app => {
+            applyAppIconStyles(app);
+        });
+    }
+
+    // ==========================================
+    // 8.5 DATA MANAGEMENT
+    // ==========================================
+    document.getElementById('export-data-btn')?.addEventListener('click', () => {
+        saveGlobalData(); // Ensure latest state is saved
+        const dataStr = localStorage.getItem('ios_emulator_global_data');
+        if (!dataStr) {
+            showToast('暂无数据可导出');
+            return;
+        }
+        
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `emulator_data_${new Date().getTime()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showToast('导出成功');
+    });
+
+    const importDataBtn = document.getElementById('import-data-btn');
+    const importDataFile = document.getElementById('import-data-file');
+    
+    if (importDataBtn && importDataFile) {
+        importDataBtn.addEventListener('click', () => {
+            importDataFile.click();
+        });
+
+        importDataFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const parsed = JSON.parse(event.target.result);
+                    if (parsed && typeof parsed === 'object') {
+                        localStorage.setItem('ios_emulator_global_data', event.target.result);
+                        showToast('导入成功，即将刷新...');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showToast('无效的数据格式');
+                    }
+                } catch (err) {
+                    showToast('文件解析失败');
+                }
+            };
+            reader.readAsText(file);
+            e.target.value = '';
+        });
+    }
+
+    document.getElementById('clear-data-btn')?.addEventListener('click', () => {
+        if (confirm('确定要清空所有数据吗？此操作不可恢复。')) {
+            localStorage.removeItem('ios_emulator_global_data');
+            showToast('数据已清空，即将刷新...');
+            setTimeout(() => location.reload(), 1500);
+        }
     });
 
     // ==========================================
@@ -1687,6 +1889,450 @@ Reply naturally as your character in a chat app. Do not include your own name at
         }
     }
 
+    // ==========================================
+    // 10. JIGGLE MODE & DRAG AND DROP
+    // ==========================================
+    const homeScreen = document.querySelector('.screen');
+    const dock = document.getElementById('dock');
+    let pressTimer = null;
+    window.isJiggleMode = false;
+    let draggedElement = null;
+    window.preventAppClick = false;
+
+    // Use capturing phase to intercept clicks
+    homeScreen.addEventListener('click', (e) => {
+        if (e.target.closest('.jiggle-plus-btn')) return; // Allow plus button to work
+
+        if (window.isJiggleMode || window.preventAppClick) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+        if (window.isJiggleMode && (
+            e.target === homeScreen || 
+            e.target.classList.contains('main-grid') || 
+            e.target.classList.contains('dock-container') || 
+            e.target.id === 'dock' ||
+            e.target.classList.contains('empty-slot') ||
+            (e.target.classList.contains('app-icon') && e.target.parentNode.classList.contains('empty-slot'))
+        )) {
+            exitJiggleMode();
+        }
+    }, true);
+
+    function setupDraggable(el) {
+        if (el._dragSetup) return;
+        el._dragSetup = true;
+
+        // Clean up legacy dataset if it exists so it doesn't pollute saved HTML
+        if (el.dataset.dragSetup) delete el.dataset.dragSetup;
+
+        el.addEventListener('pointerdown', (e) => {
+            if (window.isJiggleMode) return;
+            window.preventAppClick = false;
+            pressTimer = setTimeout(() => {
+                window.preventAppClick = true;
+                enterJiggleMode();
+            }, 800); // 800ms to trigger jiggle mode
+        });
+
+        const cancelPress = () => {
+            clearTimeout(pressTimer);
+            if (window.preventAppClick) {
+                setTimeout(() => window.preventAppClick = false, 100);
+            }
+        };
+        el.addEventListener('pointerup', cancelPress);
+        el.addEventListener('pointermove', () => clearTimeout(pressTimer));
+        el.addEventListener('pointercancel', cancelPress);
+
+        el.addEventListener('dragstart', (e) => {
+            if (!window.isJiggleMode || el.classList.contains('empty-slot')) {
+                e.preventDefault();
+                return;
+            }
+            draggedElement = el;
+            setTimeout(() => el.classList.add('dragging'), 0);
+            e.dataTransfer.effectAllowed = 'move';
+            
+            // Create ghost
+            const ghost = el.cloneNode(true);
+            ghost.id = 'drag-ghost';
+            ghost.style.position = 'fixed';
+            ghost.style.margin = '0';
+            ghost.style.zIndex = '9999';
+            ghost.style.opacity = '0.9';
+            ghost.style.pointerEvents = 'none';
+            ghost.style.transform = 'scale(1.05)';
+            ghost.style.transition = 'none';
+            
+            const rect = el.getBoundingClientRect();
+            ghost.dataset.offsetX = e.clientX - rect.left;
+            ghost.dataset.offsetY = e.clientY - rect.top;
+            
+            ghost.style.left = (e.clientX - ghost.dataset.offsetX) + 'px';
+            ghost.style.top = (e.clientY - ghost.dataset.offsetY) + 'px';
+            
+            document.body.appendChild(ghost);
+
+        // To deal with potential HTML5 drag issues
+        const blankImage = new Image();
+        blankImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+        e.dataTransfer.setDragImage(blankImage, 0, 0);
+    });
+
+    el.addEventListener('dragend', () => {
+        if(draggedElement) draggedElement.classList.remove('dragging');
+        draggedElement = null;
+        const ghost = document.getElementById('drag-ghost');
+        if(ghost) ghost.remove();
+        balanceGridSlots();
+        if (window.saveDesktopState) window.saveDesktopState();
+    });
+}
+
+function refreshDraggables() {
+    document.querySelectorAll('.app-item, .time-widget, .ins-profile-widget, .spotify-widget, .pet-widget, .status-card-widget, .complex-music-widget').forEach(setupDraggable);
+}
+    
+window.refreshDraggables = refreshDraggables;
+refreshDraggables();
+
+function getElementByMouse(container, x, y) {
+    const elements = [...container.querySelectorAll('.app-item:not(.dragging):not(.empty-slot), .time-widget:not(.dragging), .ins-profile-widget:not(.dragging), .spotify-widget:not(.dragging), .pet-widget:not(.dragging), .status-card-widget:not(.dragging), .complex-music-widget:not(.dragging)')];
+        for (let child of elements) {
+            const box = child.getBoundingClientRect();
+            if (x >= box.left && x <= box.right && y >= box.top && y <= box.bottom) {
+                return { element: child, isLeft: x < box.left + box.width / 2 };
+            }
+        }
+        
+        // Also check empty slots so we can insert before them
+        const emptySlots = [...container.querySelectorAll('.empty-slot')];
+        if (emptySlots.length > 0) {
+            for (let child of emptySlots) {
+                const box = child.getBoundingClientRect();
+                if (x >= box.left && x <= box.right && y >= box.top && y <= box.bottom) {
+                    return { element: child, isLeft: true };
+                }
+            }
+        }
+        return null;
+    }
+
+    function swapNodes(node1, node2) {
+        if (node1 === node2) return;
+        const parent1 = node1.parentNode;
+        const parent2 = node2.parentNode;
+        const marker = document.createElement('div');
+        parent1.insertBefore(marker, node1);
+        parent2.insertBefore(node1, node2);
+        marker.parentNode.insertBefore(node2, marker);
+        marker.remove();
+    }
+
+// Custom Drag Tracking to bypass dataTransfer limitations and enable visual following
+function recordPositions() {
+    const positions = new Map();
+    document.querySelectorAll('.app-item, .time-widget, .ins-profile-widget, .spotify-widget, .pet-widget, .status-card-widget, .complex-music-widget').forEach(el => {
+        positions.set(el, el.getBoundingClientRect());
+        el.style.transition = 'none';
+        el.style.transform = '';
+    });
+    return positions;
+}
+
+function playAnimations(oldPositions) {
+    document.querySelectorAll('.app-item, .time-widget, .ins-profile-widget, .spotify-widget, .pet-widget, .status-card-widget, .complex-music-widget').forEach(el => {
+        if (el.classList.contains('dragging')) return;
+        const oldPos = oldPositions.get(el);
+            if (!oldPos) return;
+            const newPos = el.getBoundingClientRect();
+            
+            const dx = oldPos.left - newPos.left;
+            const dy = oldPos.top - newPos.top;
+            
+            if (dx !== 0 || dy !== 0) {
+                el.style.transform = `translate(${dx}px, ${dy}px)`;
+                el.style.transition = 'none';
+                
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        el.style.transform = '';
+                        el.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
+                    });
+                });
+            }
+        });
+    }
+
+    let lastEdgeScrollTime = 0;
+
+    let dragMoveHandler = (e) => {
+        if (!draggedElement || !window.isJiggleMode) return;
+        
+        const ghost = document.getElementById('drag-ghost');
+        if (ghost) {
+            ghost.style.left = (e.clientX - parseFloat(ghost.dataset.offsetX)) + 'px';
+            ghost.style.top = (e.clientY - parseFloat(ghost.dataset.offsetY)) + 'px';
+        }
+
+        // --- Edge Scrolling for Pages ---
+        const pagesContainerEl = document.getElementById('pages-container');
+        if (pagesContainerEl) {
+            const rect = pagesContainerEl.getBoundingClientRect();
+            const now = Date.now();
+            if (now - lastEdgeScrollTime > 800) { // Throttle edge scrolling
+                if (e.clientX > rect.right - 40) {
+                    pagesContainerEl.scrollBy({ left: pagesContainerEl.clientWidth, behavior: 'smooth' });
+                    lastEdgeScrollTime = now;
+                } else if (e.clientX < rect.left + 40) {
+                    pagesContainerEl.scrollBy({ left: -pagesContainerEl.clientWidth, behavior: 'smooth' });
+                    lastEdgeScrollTime = now;
+                }
+            }
+        }
+
+        // Find which container we are over
+        let targetContainer = null;
+        
+        const pageIndex = pagesContainerEl ? Math.round(pagesContainerEl.scrollLeft / pagesContainerEl.clientWidth) : 0;
+        const currentGrid = document.getElementById(pageIndex === 0 ? 'main-grid-1' : 'main-grid-2');
+        
+        if (currentGrid) {
+            const currentGridRect = currentGrid.getBoundingClientRect();
+            if (e.clientY >= currentGridRect.top && e.clientY <= currentGridRect.bottom) {
+                targetContainer = currentGrid;
+            }
+        }
+        
+    const dockRect = dock.getBoundingClientRect();
+    if (!targetContainer && e.clientY >= dockRect.top - 20 && e.clientY <= dockRect.bottom + 20) {
+        targetContainer = dock;
+    }
+
+    if (!targetContainer) return;
+    
+    // Constraints (Only allow regular app items in dock)
+    if (targetContainer === dock && !draggedElement.classList.contains('app-item')) return;
+
+    const targetInfo = getElementByMouse(targetContainer, e.clientX, e.clientY);
+        
+        let didSwap = false;
+        let oldPositions = null;
+
+        if (targetInfo && targetInfo.element !== draggedElement) {
+            let targetEl = targetInfo.element;
+            oldPositions = recordPositions();
+
+            // Scenario 1: Same container or simple swap
+            if (draggedElement.parentNode === targetEl.parentNode) {
+                swapNodes(draggedElement, targetEl);
+                didSwap = true;
+            } 
+            // Scenario 2: Dock -> Grid (Replace empty slot or Swap with App)
+            else if (draggedElement.parentNode === dock && targetEl.parentNode === currentGrid) {
+                if (targetEl.classList.contains('empty-slot')) {
+                    targetEl.parentNode.insertBefore(draggedElement, targetEl);
+                    targetEl.remove();
+                } else {
+                    swapNodes(draggedElement, targetEl);
+                }
+                didSwap = true;
+            }
+            // Scenario 3: Grid -> Dock
+            else if (draggedElement.parentNode && draggedElement.parentNode.classList.contains('main-grid') && targetEl.parentNode === dock) {
+                swapNodes(draggedElement, targetEl);
+                didSwap = true;
+            }
+
+        } 
+        // Hovering over empty space in dock
+        else if (!targetInfo && targetContainer === dock && draggedElement.parentNode !== dock) {
+            const currentItems = dock.querySelectorAll('.app-item:not(.dragging)').length;
+            if (currentItems < 4) {
+                oldPositions = recordPositions();
+                // Leave an empty slot in grid
+                const empty = document.createElement('div');
+                empty.className = 'app-item empty-slot';
+                empty.innerHTML = '<div class="app-icon" style="opacity:0;"></div>';
+                draggedElement.parentNode.insertBefore(empty, draggedElement);
+                
+                dock.appendChild(draggedElement);
+                setupDraggable(empty);
+                didSwap = true;
+            }
+        }
+        
+        if (didSwap && oldPositions) {
+            playAnimations(oldPositions);
+        }
+    };
+    
+    document.addEventListener('dragover', (e) => {
+        e.preventDefault(); // Necessary to allow dropping
+        dragMoveHandler(e);
+    });
+
+    window.setupDraggable = setupDraggable;
+
+    // We no longer strip and append empty slots dynamically to the end, 
+    // because we want to preserve user-defined empty gaps.
+    // However, we still need a function to ensure exactly 24 capacity on load or major changes.
+function balanceGridSlots() {
+    const grids = document.querySelectorAll('.main-grid');
+    grids.forEach(grid => {
+        let usedSlots = 0;
+        [...grid.children].forEach(item => {
+            if (item.classList.contains('ins-profile-widget') || item.classList.contains('spotify-widget') || item.classList.contains('complex-music-widget')) usedSlots += 16;
+            else if (item.classList.contains('time-widget') || item.classList.contains('status-card-widget')) usedSlots += 8;
+            else if (item.classList.contains('pet-widget')) usedSlots += 4;
+            else usedSlots += 1;
+        });
+
+        if (usedSlots < 24) {
+                for (let i = 0; i < 24 - usedSlots; i++) {
+                    const empty = document.createElement('div');
+                    empty.className = 'app-item empty-slot';
+                    empty.innerHTML = '<div class="app-icon" style="opacity:0;"></div>';
+                    grid.appendChild(empty);
+                    setupDraggable(empty);
+                }
+            } else if (usedSlots > 24) {
+                // Only prune empty slots from the end if we somehow overflowed
+                const empties = [...grid.querySelectorAll('.empty-slot')];
+                let excess = usedSlots - 24;
+                for (let i = empties.length - 1; i >= 0 && excess > 0; i--) {
+                    empties[i].remove();
+                    excess--;
+                }
+            }
+        });
+    }
+    window.balanceGridSlots = balanceGridSlots;
+
+function enterJiggleMode() {
+    window.isJiggleMode = true;
+    document.body.classList.add('jiggle-mode');
+
+    document.querySelectorAll('.app-item:not(.empty-slot), .time-widget, .ins-profile-widget, .spotify-widget, .pet-widget, .status-card-widget, .complex-music-widget').forEach(el => {
+        el.setAttribute('draggable', 'true');
+    });
+
+    // Add Plus button for widgets
+        let plusBtn = document.querySelector('.jiggle-plus-btn');
+        if (!plusBtn) {
+            plusBtn = document.createElement('div');
+            plusBtn.className = 'jiggle-plus-btn';
+            plusBtn.innerHTML = '<i class="fas fa-plus"></i>';
+            plusBtn.style.position = 'absolute';
+            plusBtn.style.top = '20px';
+            plusBtn.style.left = '24px';
+            plusBtn.style.backgroundColor = 'rgba(255,255,255,0.5)';
+            plusBtn.style.backdropFilter = 'blur(10px)';
+            plusBtn.style.WebkitBackdropFilter = 'blur(10px)';
+            plusBtn.style.width = '32px';
+            plusBtn.style.height = '32px';
+            plusBtn.style.borderRadius = '50%';
+            plusBtn.style.display = 'flex';
+            plusBtn.style.justifyContent = 'center';
+            plusBtn.style.alignItems = 'center';
+            plusBtn.style.color = '#000';
+            plusBtn.style.fontSize = '16px';
+            plusBtn.style.zIndex = '100';
+            plusBtn.style.cursor = 'pointer';
+
+            homeScreen.appendChild(plusBtn);
+            plusBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openView(document.getElementById('widget-gallery-sheet'));
+            });
+        }
+    }
+
+function exitJiggleMode() {
+    window.isJiggleMode = false;
+    document.body.classList.remove('jiggle-mode');
+    const plusBtn = document.querySelector('.jiggle-plus-btn');
+    if (plusBtn) plusBtn.remove();
+
+    document.querySelectorAll('.app-item, .time-widget, .ins-profile-widget, .spotify-widget, .pet-widget, .status-card-widget, .complex-music-widget').forEach(el => {
+        el.removeAttribute('draggable');
+    });
+    
+    // Save state after arranging
+    if (window.saveDesktopState) window.saveDesktopState();
+}
+window.enterJiggleMode = enterJiggleMode;
+window.exitJiggleMode = exitJiggleMode;
+
+    // ==========================================
+    // 11. SWIPE / SCROLL NAVIGATION
+    // ==========================================
+    const pagesContainer = document.getElementById('pages-container');
+    if (pagesContainer) {
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        pagesContainer.addEventListener('pointerdown', (e) => {
+            // Do not intercept if in jiggle mode or interacting with bottom sheets/buttons
+            if (window.isJiggleMode || window.preventAppClick || e.target.closest('.bottom-sheet-overlay')) return;
+            isDown = true;
+            startX = e.pageX - pagesContainer.offsetLeft;
+            scrollLeft = pagesContainer.scrollLeft;
+        });
+
+        pagesContainer.addEventListener('pointerleave', () => {
+            if (!isDown) return;
+            isDown = false;
+            snapToNearestPage();
+        });
+
+        pagesContainer.addEventListener('pointerup', () => {
+            if (!isDown) return;
+            isDown = false;
+            snapToNearestPage();
+        });
+
+        pagesContainer.addEventListener('pointermove', (e) => {
+            if (!isDown) return;
+            if (window.isJiggleMode) {
+                isDown = false;
+                return;
+            }
+            
+            const x = e.pageX - pagesContainer.offsetLeft;
+            const walk = (x - startX) * 1.5;
+            
+            if (Math.abs(walk) > 10) {
+                // We are actually swiping
+                e.preventDefault(); 
+                pagesContainer.scrollLeft = scrollLeft - walk;
+            }
+        });
+
+        function snapToNearestPage() {
+            const pageIndex = Math.round(pagesContainer.scrollLeft / pagesContainer.clientWidth);
+            pagesContainer.scrollTo({
+                left: pageIndex * pagesContainer.clientWidth,
+                behavior: 'smooth'
+            });
+        }
+        
+        pagesContainer.addEventListener('scroll', () => {
+            const pageIndex = Math.round(pagesContainer.scrollLeft / pagesContainer.clientWidth);
+            const dots = document.querySelectorAll('.page-indicators .dot');
+            dots.forEach((dot, index) => {
+                if (index === pageIndex) dot.classList.add('active');
+                else dot.classList.remove('active');
+            });
+        });
+    }
+
     // Initial Bootstrap
     syncUIs();
+    applySavedTheme();
+    if (typeof syncInsWidgetToUserState === 'function') {
+        syncInsWidgetToUserState();
+    }
 });

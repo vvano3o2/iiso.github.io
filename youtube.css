@@ -1160,8 +1160,8 @@
 }
 
 .yt-bubble-row.right .yt-bubble-msg {
-    background-color: #3797f0; /* Messenger Blue / Gradient */
-    background: linear-gradient(135deg, #a033ff 0%, #3797f0 100%); /* Ins Gradient */
+    background-color: #333333; 
+    background: #333333;
     color: #fff;
     border-bottom-right-radius: 8px;
 }
