@@ -1064,16 +1064,16 @@
 
             <!-- Watch Together Floating Bubble (New) -->
             <!-- Note: overflow is visible to allow avatars to break out of the top -->
-            <div id="tk-watch-together-bubble" style="display: none; position: absolute; top: 120px; left: 50%; transform: translateX(-50%); width: 240px; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-radius: 24px; z-index: 1000; flex-direction: column; overflow: visible; border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+            <div id="tk-watch-together-bubble" style="display: none; position: absolute; top: 120px; left: 50%; transform: translateX(-50%); width: 240px; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-radius: 24px; z-index: 9999; flex-direction: column; overflow: visible; border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: 0 10px 30px rgba(0,0,0,0.15); pointer-events: auto !important;">
                 
                 <!-- Header (Centered Avatars Breaking Out) -->
                 <!-- The container height is reserved for layout, but avatars are absolutely positioned to break top -->
-                <div style="display: flex; justify-content: center; align-items: center; padding: 10px 15px; position: relative; height: 30px;">
-                    <div style="display: flex; align-items: center; position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 72px; height: 44px; z-index: 20;">
+                <div style="display: flex; justify-content: center; align-items: center; padding: 10px 15px; position: relative; height: 30px; pointer-events: auto !important;">
+                    <div style="display: flex; align-items: center; position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 72px; height: 44px; z-index: 20; pointer-events: auto !important;">
                         <!-- User Avatar Right (Now underneath) -->
                         <img src="" id="wt-user-avatar" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 3px solid #fff; position: absolute; left: 28px; z-index: 1; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
                         <!-- Char Avatar Left (Now on top and clickable) -->
-                        <img src="" id="wt-char-avatar" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 3px solid #fff; position: absolute; left: 0; z-index: 2; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                        <img src="" id="wt-char-avatar" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 3px solid #fff; position: absolute; left: 0; z-index: 9999; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); pointer-events: auto !important;" onclick="if(window.tkTriggerWtApi) window.tkTriggerWtApi(event)">
                     </div>
                     <!-- Close button remains inside bubble bounds -->
                     <i class="fas fa-chevron-down" id="wt-history-btn" style="position: absolute; left: 15px; top: 15px; color: #333; font-size: 14px; cursor: pointer; z-index: 10;"></i>
@@ -1087,12 +1087,14 @@
                         <div style="text-align: center; color: rgba(0,0,0,0.5); font-size: 10px; margin-top: 5px;">点击对方头像可以进行互动</div>
                     </div>
                     <!-- Input Area -->
-                    <div style="padding: 10px 12px; border-top: 1px solid rgba(255, 255, 255, 0.4); display: flex; gap: 8px; align-items: center;">
-                        <input type="text" id="wt-chat-input" placeholder="说点什么..." style="flex: 1; background: rgba(0, 0, 0, 0.05); border: none; border-radius: 16px; padding: 8px 12px; color: #111; font-size: 12px; outline: none;">
-                        <div id="wt-send-btn" style="width: 32px; height: 32px; border-radius: 50%; background: #ff4b4b; display: flex; justify-content: center; align-items: center; cursor: pointer; flex-shrink: 0;">
-                            <i class="fas fa-arrow-up" style="color: white; font-size: 14px;"></i>
-                        </div>
-                    </div>
+                                <div style="padding: 10px 12px; border-top: 1px solid rgba(255, 255, 255, 0.4); display: flex; gap: 8px; align-items: center;">
+                                    <div style="flex: 1; position: relative; display: flex; align-items: center;">
+                                        <input type="text" id="wt-chat-input" placeholder="说点什么... (点击头像可互动)" style="width: 100%; box-sizing: border-box; background: rgba(0, 0, 0, 0.05); border: none; border-radius: 16px; padding: 8px 36px 8px 12px; color: #111; font-size: 12px; outline: none;">
+                                        <div id="wt-send-btn" style="position: absolute; right: 4px; width: 24px; height: 24px; border-radius: 50%; background: #ff4b4b; display: flex; justify-content: center; align-items: center; cursor: pointer;">
+                                            <i class="fas fa-arrow-up" style="color: white; font-size: 12px;"></i>
+                                        </div>
+                                    </div>
+                                </div>
                 </div>
 
                 <!-- Exit Options Overlay (Inline in bubble) -->
@@ -1528,6 +1530,62 @@
                                 <p style="color: #999; font-size: 13px; margin-top: 10px;">点击魔法棒生成 TikTok 视频流</p>
                             </div>
                         </div>
+
+                        <!-- Watch Together Floating Bubble (Moved inside Home Tab) -->
+                        <div id="tk-watch-together-bubble" style="display: none; position: absolute; top: 120px; left: 50%; transform: translateX(-50%); width: 240px; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-radius: 24px; z-index: 9999; flex-direction: column; overflow: visible; border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: 0 10px 30px rgba(0,0,0,0.15); pointer-events: auto !important;">
+                            
+                            <!-- Header (Centered Avatars Breaking Out) -->
+                            <div style="display: flex; justify-content: center; align-items: center; padding: 10px 15px; position: relative; height: 30px; pointer-events: auto !important;">
+                                <div style="display: flex; align-items: center; position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 72px; height: 44px; z-index: 20; pointer-events: auto !important;">
+                                    <img src="" id="wt-user-avatar" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 3px solid #fff; position: absolute; left: 28px; z-index: 1; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                                    <img src="" id="wt-char-avatar" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 3px solid #fff; position: absolute; left: 0; z-index: 9999; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); pointer-events: auto !important;" onclick="if(window.tkTriggerWtApi) window.tkTriggerWtApi(event)">
+                                </div>
+                                <i class="fas fa-chevron-down" id="wt-history-btn" style="position: absolute; left: 15px; top: 15px; color: #333; font-size: 14px; cursor: pointer; z-index: 10;"></i>
+                                <i class="fas fa-times" id="wt-close-btn" style="position: absolute; right: 15px; top: 15px; color: #333; font-size: 14px; cursor: pointer; z-index: 10;"></i>
+                            </div>
+                            
+                            <!-- Main Content Wrapper -->
+                            <div id="wt-main-content" style="display: flex; flex-direction: column; width: 100%; border-radius: 24px; overflow: hidden;">
+                                <div id="wt-chat-container" style="overflow-y: auto; padding: 5px 12px; display: flex; flex-direction: column; gap: 8px; height: 75px;">
+                                    <div style="text-align: center; color: rgba(0,0,0,0.5); font-size: 10px; margin-top: 5px;">点击对方头像可以进行互动</div>
+                                </div>
+                                <div style="padding: 10px 12px; border-top: 1px solid rgba(255, 255, 255, 0.4); display: flex; gap: 8px; align-items: center;">
+                                    <input type="text" id="wt-chat-input" placeholder="说点什么..." style="flex: 1; background: rgba(0, 0, 0, 0.05); border: none; border-radius: 16px; padding: 8px 12px; color: #111; font-size: 12px; outline: none;">
+                                    <div id="wt-magic-btn" style="width: 32px; height: 32px; border-radius: 50%; background: #333; display: flex; justify-content: center; align-items: center; cursor: pointer; flex-shrink: 0;" title="让 AI 回复当前视频" onclick="if(window.tkTriggerWtApi) window.tkTriggerWtApi(event)">
+                                        <i class="fas fa-magic" style="color: white; font-size: 14px;"></i>
+                                    </div>
+                                    <div id="wt-send-btn" style="width: 32px; height: 32px; border-radius: 50%; background: #ff4b4b; display: flex; justify-content: center; align-items: center; cursor: pointer; flex-shrink: 0;">
+                                        <i class="fas fa-arrow-up" style="color: white; font-size: 14px;"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Exit Options Overlay -->
+                            <div id="wt-exit-menu" style="display: none; flex-direction: column; padding: 15px; gap: 10px; background: rgba(255,255,255,0.8); height: 120px; box-sizing: border-box; justify-content: center; border-radius: 24px;">
+                                <div id="wt-exit-summary-btn" style="background: #111; color: #fff; text-align: center; padding: 10px; border-radius: 16px; font-size: 13px; cursor: pointer; font-weight: 500;">总结并退出</div>
+                                <div id="wt-exit-direct-btn" style="background: rgba(0,0,0,0.05); color: #ff3b30; text-align: center; padding: 10px; border-radius: 16px; font-size: 13px; cursor: pointer; font-weight: 500;">直接退出</div>
+                            </div>
+                            
+                            <!-- Loading Overlay -->
+                            <div id="wt-loading-overlay" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 10; justify-content: center; align-items: center; flex-direction: column; border-radius: 24px;">
+                                <i class="fas fa-spinner fa-spin" style="color: #111; font-size: 20px; margin-bottom: 8px;"></i>
+                                <span style="color: #333; font-size: 11px;" id="wt-loading-text">正在总结...</span>
+                            </div>
+                        </div>
+
+                        <!-- Watch Together History Overlay -->
+                        <div id="wt-history-overlay" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 2000; align-items: flex-end; justify-content: center;">
+                            <div id="wt-history-sheet" style="width: 100%; height: 60%; background: #fff; border-radius: 20px 20px 0 0; display: flex; flex-direction: column;">
+                                <div style="padding: 15px; text-align: center; font-weight: bold; border-bottom: 1px solid #eee; position: relative;">
+                                    全部聊天记录
+                                    <i class="fas fa-times" id="wt-history-close" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #999; cursor: pointer;"></i>
+                                </div>
+                                <div id="wt-history-content" style="flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px;">
+                                    <!-- messages -->
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
                     <!-- 2. Chat Tab -->
@@ -2002,7 +2060,7 @@
                     
                     <div class="tk-header-right" style="color: #111; display: flex; gap: 20px; margin-left: auto; margin-top: 10px;">
                         <i class="fas fa-phone-alt" style="font-size: 18px; color: #111; cursor: pointer;"></i>
-                        <i class="fas fa-video" style="font-size: 18px; color: #111; cursor: pointer;"></i>
+                        <i class="fas fa-video" style="font-size: 18px; color: #111; cursor: pointer;" onclick="if(window.tkOpenWatchTogetherConfirm) window.tkOpenWatchTogetherConfirm()"></i>
                     </div>
 
                 </div>

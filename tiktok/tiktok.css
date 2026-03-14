@@ -476,6 +476,18 @@
     pointer-events: auto;
 }
 
+/* 彻底解除 Watch Together Bubble 的点击封锁 */
+#tk-watch-together-bubble {
+    pointer-events: auto !important;
+}
+#tk-watch-together-bubble * {
+    pointer-events: auto !important;
+}
+#wt-chat-container {
+    overscroll-behavior: contain; /* 防止内部滚动穿透到视频流 */
+    -webkit-overflow-scrolling: touch;
+}
+
 /* Home Topbar overrides */
 .tk-home-topbar {
     position: absolute;

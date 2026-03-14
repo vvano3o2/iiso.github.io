@@ -138,6 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const card = document.createElement('div');
             card.className = 'tk-video-card';
+            card.dataset.videoId = video.id; // Store ID for retrieving current video later
             
             let bgStyleStr = 'background: #ffffff;';
             let cardContentHtml = '';

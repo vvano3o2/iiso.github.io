@@ -358,58 +358,95 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- WATCH TOGETHER FEATURE ---
     const wtBubble = document.getElementById('tk-watch-together-bubble');
+    let currentWtConfirmHandler = null;
+    window.currentWtCharId = null; // 全局保存一起看的角色ID
 
-    // We will attach the event globally using event delegation or bind every time chat opens 
-    // to avoid the bug where the button becomes unclickable.
-    document.addEventListener('click', (e) => {
-        const tkDmVideoCallBtn = e.target.closest('#tk-dm-chat-view .tk-header-right .fa-video');
-        if (tkDmVideoCallBtn) {
-            if (!currentChatCharId) return;
-            const char = window.tkGetChar(currentChatCharId);
-            if (!char) return;
+    window.tkOpenWatchTogetherConfirm = function() {
+        // 放宽限制，为了调试加一些日志
+        console.log("[一起看入口] 被点击，当前 currentChatCharId:", currentChatCharId);
 
-            const modalTitle = document.getElementById('modal-title');
-            const modalMessage = document.getElementById('modal-message');
-            const confirmBtn = document.getElementById('modal-confirm-btn');
-            
-            modalTitle.textContent = '一起看';
-            modalMessage.innerHTML = `是否邀请 ${char.name || char.handle} 一起看视频？`;
-            
-            // Clean up old events by cloning
-            const newConfirmBtn = confirmBtn.cloneNode(true);
-            confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
-            
-            newConfirmBtn.addEventListener('click', () => {
-                window.closeView(document.getElementById('custom-modal-overlay'));
-                
-                // Initialize Watch Together Bubble
-                wtChatHistory = [];
-                wtChatContainer.innerHTML = '<div style="text-align: center; color: rgba(0,0,0,0.5); font-size: 10px; margin-top: 5px;">点击对方头像可以进行互动</div>';
-                
-                wtUserAvatar.src = tkState.profile.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=User';
-                wtCharAvatar.src = char.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Char';
-                
-                // Store charId in bubble for later use
-                wtBubble.dataset.charId = currentChatCharId;
-                wtBubble.dataset.isHidden = "false";
-                
-                wtBubble.style.display = 'flex';
-                
-                // Reset menu states if any
-                if(wtExitMenu) wtExitMenu.style.display = 'none';
-                if(wtMainContent) wtMainContent.style.display = 'flex';
-                if(wtCloseBtn) wtCloseBtn.className = 'fas fa-times';
-
-                // Close chat view and navigate to Home Feed
-                window.closeView(chatView);
-                document.querySelector('.tk-bottom-nav .tk-nav-item[data-target="tk-home-tab"]').click();
-                
-                window.showToast(`已连接 ${char.name || char.handle}`);
-            });
-            
-            window.openView(document.getElementById('custom-modal-overlay'));
+        if (!currentChatCharId || currentChatCharId === "null" || currentChatCharId === "undefined") {
+            // 如果在聊天界面外点击了，尝试从之前缓存的 currentWtCharId 恢复
+            if (window.currentWtCharId && window.currentWtCharId !== "null" && window.currentWtCharId !== "undefined") {
+                console.log("[一起看入口] 使用缓存的 currentWtCharId 恢复:", window.currentWtCharId);
+                currentChatCharId = window.currentWtCharId;
+            } else {
+                if(window.showToast) window.showToast('无法获取当前聊天对象，请重新进入聊天室！');
+                return;
+            }
         }
-    });
+        
+        // 我们要在这里把真正的ID快照下来，防止后续异步执行前 currentChatCharId 变化
+        const snapshotCharId = currentChatCharId;
+        const char = window.tkGetChar(snapshotCharId);
+        if (!char) {
+            if(window.showToast) window.showToast('找不到角色数据');
+            return;
+        }
+
+        // 检查气泡是否已经在显示中了
+        const wtBubbleEl = document.getElementById('tk-watch-together-bubble');
+        if (wtBubbleEl && wtBubbleEl.style.display === 'flex' && wtBubbleEl.dataset.isHidden !== "true") {
+            if(window.showToast) window.showToast(`您已经在和 ${char.name || 'TA'} 一起看了！`);
+            return;
+        }
+
+        const modalOverlay = document.getElementById('custom-modal-overlay');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        const confirmBtn = document.getElementById('modal-confirm-btn');
+        
+        modalTitle.textContent = '一起看';
+        modalMessage.innerHTML = `是否邀请 ${char.name || char.handle} 一起看视频？`;
+        
+        // 我们用克隆节点的方式彻底清除绑定，防止旧事件残留和多次触发
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+        
+        currentWtConfirmHandler = () => {
+            window.closeView(modalOverlay);
+            
+            // Initialize Watch Together Bubble
+            wtChatHistory = [];
+            wtChatContainer.innerHTML = '<div style="text-align: center; color: rgba(0,0,0,0.5); font-size: 10px; margin-top: 5px;">点击对方头像可以进行互动</div>';
+            
+            wtUserAvatar.src = tkState.profile.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=User';
+            wtCharAvatar.src = char.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Char';
+            
+            // Store charId in bubble for later use
+            wtBubble.dataset.charId = snapshotCharId;
+            window.currentWtCharId = snapshotCharId; // 显式保存到全局
+            wtBubble.dataset.isHidden = "false";
+            
+            wtBubble.style.display = 'flex';
+            
+            // Reset menu states if any
+            if(wtExitMenu) wtExitMenu.style.display = 'none';
+            if(wtMainContent) wtMainContent.style.display = 'flex';
+            if(wtCloseBtn) wtCloseBtn.className = 'fas fa-times';
+
+            // Close chat view and navigate to Home Feed
+            window.closeView(chatView);
+            document.querySelector('.tk-bottom-nav .tk-nav-item[data-target="tk-home-tab"]').click();
+            
+            window.showToast(`已连接 ${char.name || char.handle}`);
+        };
+        
+        newConfirmBtn.addEventListener('click', currentWtConfirmHandler);
+        
+        // Ensure UI is set to normal confirm mode (not prompt mode)
+        const promptContent = document.getElementById('modal-prompt-content');
+        const confirmContent = document.getElementById('modal-confirm-content');
+        const promptConfirmBtn = document.getElementById('modal-prompt-confirm-btn');
+        if(promptContent) promptContent.style.display = 'none';
+        if(confirmContent) confirmContent.style.display = 'block';
+        if(promptConfirmBtn) promptConfirmBtn.style.display = 'none';
+        if(newConfirmBtn) newConfirmBtn.style.display = 'block';
+        
+        // 确保 overlay 层级够高并且可见
+        modalOverlay.style.zIndex = '99999';
+        window.openView(modalOverlay);
+    };
 
     const wtUserAvatar = document.getElementById('wt-user-avatar');
     const wtCharAvatar = document.getElementById('wt-char-avatar');
@@ -438,6 +475,20 @@ document.addEventListener('DOMContentLoaded', () => {
         wtChatInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendWtMessage();
         });
+        
+        // 手机端软键盘弹出时的视口适配 (将气泡往上推以防被挡住)
+        wtChatInput.addEventListener('focus', () => {
+            if (window.innerWidth <= 768 || ('ontouchstart' in window)) {
+                wtBubble.style.top = '60px';
+                wtBubble.style.transition = 'top 0.3s ease';
+            }
+        });
+        
+        wtChatInput.addEventListener('blur', () => {
+            if (window.innerWidth <= 768 || ('ontouchstart' in window)) {
+                wtBubble.style.top = '120px';
+            }
+        });
     }
 
     // WT Append Message
@@ -448,7 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
         row.style.justifyContent = sender === 'user' ? 'flex-end' : 'flex-start';
         
         const msgDiv = document.createElement('div');
-        msgDiv.style.background = sender === 'user' ? '#333333' : 'rgba(255, 255, 255, 0.9)';
+        msgDiv.style.background = sender === 'user' ? '#333333' : '#e5e5ea'; // char的背景改为浅灰色
         msgDiv.style.color = sender === 'user' ? '#ffffff' : '#111111';
         msgDiv.style.padding = '6px 10px';
         msgDiv.style.borderRadius = sender === 'user' ? '12px 12px 2px 12px' : '12px 12px 12px 2px';
@@ -470,7 +521,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (wtHistoryBtn && wtHistoryOverlay) {
         wtHistoryBtn.addEventListener('click', () => {
-            if(wtHistoryContent) wtHistoryContent.innerHTML = '';
+            if(wtHistoryContent) {
+                wtHistoryContent.innerHTML = '';
+                // 使历史记录容器更好地适应气泡布局
+                wtHistoryContent.style.display = 'flex';
+                wtHistoryContent.style.flexDirection = 'column';
+                wtHistoryContent.style.gap = '10px';
+                wtHistoryContent.style.padding = '10px 5px';
+            }
             const charId = wtBubble.dataset.charId;
             const char = window.tkGetChar(charId);
             
@@ -479,13 +537,39 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 wtChatHistory.forEach(m => {
                     const isSelf = m.sender === 'user';
-                    const name = isSelf ? '我' : (char ? char.name : '对方');
-                    const color = isSelf ? '#ff4b4b' : '#333';
-                    const msgDiv = document.createElement('div');
-                    msgDiv.style.marginBottom = '10px';
-                    msgDiv.innerHTML = `<span style="color: ${color}; font-weight: bold;">${name}:</span> <span style="color: #555;">${m.text}</span>`;
-                    if(wtHistoryContent) wtHistoryContent.appendChild(msgDiv);
+                    
+                    const row = document.createElement('div');
+                    row.style.display = 'flex';
+                    row.style.width = '100%';
+                    row.style.justifyContent = isSelf ? 'flex-end' : 'flex-start';
+                    
+                    const bubble = document.createElement('div');
+                    bubble.style.maxWidth = '80%';
+                    bubble.style.padding = '8px 12px';
+                    bubble.style.fontSize = '14px';
+                    bubble.style.lineHeight = '1.4';
+                    bubble.style.wordBreak = 'break-word';
+                    
+                    if (isSelf) {
+                        bubble.style.background = '#111111'; // 用户黑色气泡
+                        bubble.style.color = '#ffffff';
+                        bubble.style.borderRadius = '16px 16px 2px 16px';
+                    } else {
+                        bubble.style.background = '#e5e5ea'; // 角色浅灰色气泡
+                        bubble.style.color = '#111111';
+                        bubble.style.borderRadius = '16px 16px 16px 2px';
+                    }
+                    
+                    bubble.textContent = m.text;
+                    row.appendChild(bubble);
+                    
+                    if(wtHistoryContent) wtHistoryContent.appendChild(row);
                 });
+                
+                // 滚动到底部
+                setTimeout(() => {
+                    if (wtHistoryContent) wtHistoryContent.scrollTop = wtHistoryContent.scrollHeight;
+                }, 50);
             }
             
             wtHistoryOverlay.style.display = 'flex';
@@ -504,53 +588,114 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Hide/Show Watch Together bubble based on active tab
-    const bottomNavItems = document.querySelectorAll('.tk-bottom-nav .tk-nav-item');
-    bottomNavItems.forEach(item => {
-        item.addEventListener('click', (e) => {
-            const targetId = item.getAttribute('data-target');
-            if (wtBubble.dataset.charId) { // Active session exists
-                if (targetId === 'tk-home-tab') {
-                    // Only show if not explicitly hidden by user exit
-                    if (wtBubble.dataset.isHidden !== "true") {
-                        wtBubble.style.display = 'flex';
-                    }
-                } else {
-                    wtBubble.style.display = 'none';
-                }
-            }
-        });
-    });
-
     // WT Char Avatar Click -> API Gen Reaction
-    if (wtCharAvatar) {
-        wtCharAvatar.addEventListener('click', async (e) => {
-            const charId = wtBubble.dataset.charId;
-            const char = window.tkGetChar(charId);
-            if (!char) return;
-
-            if (!window.apiConfig || !window.apiConfig.endpoint || !window.apiConfig.apiKey) {
-                window.showToast('请在系统设置中配置 API');
-                return;
+    let isWtGenerating = false;
+    
+    window.tkTriggerWtApi = async function(e) {
+        if (e) {
+            e.stopPropagation(); // 阻止冒泡
+            if (e.type === 'touchend') {
+                e.preventDefault(); // 防止穿透和双击
             }
+        }
+        
+        console.log("[一起看] 触发 API 调用逻辑");
 
-            // Get Current Video Context
-            let currentVideo = null;
-            // 简单粗暴：获取首页可视区域中间的视频，这里简化为获取第一条视频作为示例
-            // 更好的做法是找到 feed 容器中离顶端最近的 video card
-            const feedContainer = document.getElementById('tk-feed-container');
-            if (feedContainer && feedContainer.children.length > 0) {
-                // Find currently viewing video logic:
-                // Since this is a simple emulator without intersection observer, we grab the first video in state 
-                // Or if full screen is open, grab that one.
-                const fsView = document.getElementById('tk-fullscreen-video-view');
-                if (fsView && fsView.classList.contains('active')) {
-                    const vid = fsView.dataset.videoId;
-                    currentVideo = window.findVideoGlobal ? window.findVideoGlobal(vid).video : null;
-                } else {
-                    currentVideo = tkState.videos[0]; // Fallback to first video in feed
+        if (isWtGenerating) {
+            console.log("[一起看] 拦截: 正在生成中");
+            if (window.showToast) window.showToast('对方正在回复中...');
+            return;
+        }
+
+        // 1. 优先使用 window.currentWtCharId
+        let charId = window.currentWtCharId;
+
+        // 2. 备用尝试 dataset
+        const wtBubbleEl = document.getElementById('tk-watch-together-bubble');
+        if (!charId && wtBubbleEl && wtBubbleEl.dataset.charId) {
+            charId = wtBubbleEl.dataset.charId;
+        }
+        
+        // 3. 最终尝试 currentChatCharId
+        if (!charId) {
+            charId = currentChatCharId;
+        }
+
+        // 清理由于 DOM 属性化带来的假值
+        if (charId === "null" || charId === "undefined" || charId === "") {
+            charId = null;
+        }
+
+        if (!charId) {
+            console.warn("[一起看] 拦截: 找不到气泡或没有 charId (所有途径均为空)");
+            if (window.showToast) window.showToast('无法获取互动对象ID，请退出重试！');
+            return;
+        }
+
+        const char = window.tkGetChar(charId);
+        if (!char) {
+            console.warn("[一起看] 拦截: 找不到对应的 char 对象, charId:", charId);
+            if (window.showToast) window.showToast(`找不到ID为 ${charId} 的角色数据！`);
+            return;
+        }
+
+        if (!window.apiConfig || !window.apiConfig.endpoint || !window.apiConfig.apiKey) {
+            if (window.showToast) window.showToast('请在系统设置中配置 API');
+            return;
+        }
+
+        console.log("[一起看] 准备调用 API, Char:", char.name);
+        isWtGenerating = true;
+        if (window.showToast) window.showToast('准备互动中...');
+
+        // Get Current Video Context dynamically based on scroll position
+        let currentVideo = null;
+        try {
+            const fsView = document.getElementById('tk-fullscreen-video-view');
+            if (fsView && fsView.classList.contains('active')) {
+                const vid = fsView.dataset.videoId;
+                if (vid && window.findVideoGlobal) {
+                    const res = window.findVideoGlobal(vid);
+                    currentVideo = res ? res.video : null;
+                }
+            } else {
+                // 动态获取：在主页滚动时寻找最靠近容器中心的卡片 (适配手机端)
+                const feedContainer = document.getElementById('tk-feed-container');
+                if (feedContainer && feedContainer.children.length > 0) {
+                    const cards = Array.from(feedContainer.querySelectorAll('.tk-video-card'));
+                    let closestCard = null;
+                    let minDistance = Infinity;
+                    
+                    const containerRect = feedContainer.getBoundingClientRect();
+                    const containerCenter = containerRect.top + containerRect.height / 2;
+
+                    cards.forEach(card => {
+                        const rect = card.getBoundingClientRect();
+                        const cardCenter = rect.top + rect.height / 2;
+                        const distance = Math.abs(containerCenter - cardCenter);
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            closestCard = card;
+                        }
+                    });
+
+                    if (closestCard && closestCard.dataset.videoId) {
+                        const vid = closestCard.dataset.videoId;
+                        if (window.findVideoGlobal) {
+                            const res = window.findVideoGlobal(vid);
+                            currentVideo = res ? res.video : null;
+                        }
+                    }
+                }
+                
+                // Fallback
+                if (!currentVideo && tkState && tkState.videos && tkState.videos.length > 0) {
+                    currentVideo = tkState.videos[0];
                 }
             }
+        } catch(err) {
+            console.warn('获取当前视频上下文失败', err);
+        }
 
             let commentsContext = '';
             if (currentVideo && currentVideo.comments && currentVideo.comments.length > 0) {
@@ -601,8 +746,8 @@ document.addEventListener('DOMContentLoaded', () => {
             row.style.width = '100%';
             row.style.justifyContent = 'flex-start';
             const msgDiv = document.createElement('div');
-            msgDiv.style.background = 'rgba(255, 255, 255, 0.9)';
-            msgDiv.style.color = '#999';
+            msgDiv.style.background = '#e5e5ea'; // 输入中提示也改成浅灰色
+            msgDiv.style.color = '#666';
             msgDiv.style.padding = '6px 10px';
             msgDiv.style.borderRadius = '12px 12px 12px 2px';
             msgDiv.style.fontSize = '12px';
@@ -665,35 +810,64 @@ ${chatHistoryStr}
                 const data = await response.json();
                 let aiReply = data.choices[0].message.content;
                 aiReply = aiReply.replace(/```json/g, '').replace(/```/g, '').trim();
-                const parsedMsgs = JSON.parse(aiReply);
+                
+                let parsedMsgs = [];
+                try {
+                    const parsed = JSON.parse(aiReply);
+                    if (Array.isArray(parsed)) {
+                        parsedMsgs = parsed;
+                    } else if (parsed.text) {
+                        parsedMsgs = [parsed.text];
+                    } else if (parsed.reply && Array.isArray(parsed.reply)) {
+                        parsedMsgs = parsed.reply;
+                    } else if (typeof parsed === 'object') {
+                        // 提取对象中的所有 string 值
+                        parsedMsgs = Object.values(parsed).filter(v => typeof v === 'string');
+                    }
+                } catch (parseErr) {
+                    console.warn('JSON Parse failed, falling back to split', parseErr);
+                    // 容错：直接按换行符拆分气泡
+                    parsedMsgs = aiReply.split('\n').map(s => s.replace(/^[-*•\d.\[\]"'\s]+/, '').trim()).filter(s => s.length > 0);
+                }
+                
+                if (parsedMsgs.length === 0) {
+                    parsedMsgs = ["(微笑)"];
+                }
                 
                 // Remove typing message
                 const typingRow = document.getElementById(typingId);
                 if(typingRow) typingRow.remove();
 
-                if (Array.isArray(parsedMsgs)) {
-                    let delay = 0;
-                    parsedMsgs.forEach((msgText) => {
-                        setTimeout(() => {
-                            wtChatHistory.push({ sender: 'char', text: msgText });
-                            appendWtMessage('char', msgText);
-                        }, delay);
-                        delay += 1500 + Math.random() * 1000;
-                    });
-                } else if (parsedMsgs.text) {
-                    wtChatHistory.push({ sender: 'char', text: parsedMsgs.text });
-                    appendWtMessage('char', parsedMsgs.text);
-                }
+                let delay = 0;
+                parsedMsgs.forEach((msgText) => {
+                    setTimeout(() => {
+                        wtChatHistory.push({ sender: 'char', text: msgText });
+                        appendWtMessage('char', msgText);
+                    }, delay);
+                    delay += 1500 + Math.random() * 1000;
+                });
 
-            } catch (error) {
-                console.error('WT Gen Error:', error);
-                window.showToast('互动生成失败');
-                const typingRow = document.getElementById(typingId);
-                if(typingRow) typingRow.remove();
-            } finally {
-                wtCharAvatar.style.opacity = '1';
-            }
-        });
+        } catch (error) {
+            console.error('WT Gen Error:', error);
+            if (window.showToast) window.showToast('互动生成失败');
+            const typingRow = document.getElementById(typingId);
+            if(typingRow) typingRow.remove();
+        } finally {
+            const avatarEl = document.getElementById('wt-char-avatar');
+            if (avatarEl) avatarEl.style.opacity = '1';
+            isWtGenerating = false;
+        }
+    }
+
+    if (wtCharAvatar) {
+        wtCharAvatar.addEventListener('click', window.tkTriggerWtApi);
+        wtCharAvatar.addEventListener('touchend', window.tkTriggerWtApi);
+    }
+
+    const wtMagicBtn = document.getElementById('wt-magic-btn');
+    if (wtMagicBtn) {
+        wtMagicBtn.addEventListener('click', window.tkTriggerWtApi);
+        wtMagicBtn.addEventListener('touchend', window.tkTriggerWtApi);
     }
 
     // WT Close & Summary (Inline Menu)
@@ -738,11 +912,12 @@ ${chatHistoryStr}
 
     if (wtExitDirectBtn) {
         wtExitDirectBtn.addEventListener('click', () => {
-            const charId = wtBubble.dataset.charId;
+            const charId = wtBubble.dataset.charId || window.currentWtCharId;
             endWatchTogether(charId);
 
             wtBubble.style.display = 'none';
             wtBubble.dataset.charId = '';
+            window.currentWtCharId = null;
             wtBubble.dataset.isHidden = "true";
             wtChatHistory = [];
             // Reset state
@@ -754,7 +929,7 @@ ${chatHistoryStr}
 
     if (wtExitSummaryBtn) {
         wtExitSummaryBtn.addEventListener('click', async () => {
-            const charId = wtBubble.dataset.charId;
+            const charId = wtBubble.dataset.charId || window.currentWtCharId;
             const char = window.tkGetChar(charId);
             if (!char) return;
 
@@ -768,6 +943,7 @@ ${chatHistoryStr}
                 wtLoadingOverlay.style.display = 'none';
                 wtBubble.style.display = 'none';
                 wtBubble.dataset.charId = '';
+                window.currentWtCharId = null;
                 wtBubble.dataset.isHidden = "true";
                 wtChatHistory = [];
                 // Reset state
@@ -1087,14 +1263,22 @@ ${chatHistoryStr}
         });
     }
 
+    let isChatGenerating = false;
     if (chatMicBtn) {
         chatMicBtn.addEventListener('click', async () => {
             if (!currentChatCharId) return;
-            
-            if (!window.apiConfig || !window.apiConfig.endpoint || !window.apiConfig.apiKey) {
-                window.showToast('请在系统设置中配置 API');
+
+            if (isChatGenerating) {
+                if (window.showToast) window.showToast('对方正在输入中...');
                 return;
             }
+            
+            if (!window.apiConfig || !window.apiConfig.endpoint || !window.apiConfig.apiKey) {
+                if (window.showToast) window.showToast('请在系统设置中配置 API');
+                return;
+            }
+
+            isChatGenerating = true;
 
             const char = window.tkGetChar(currentChatCharId);
             if(!char) return;
@@ -1158,7 +1342,7 @@ ${chatHistoryStr}
 
 要求：
 1. 一句一发，不要一大串。调用一次必须生成 3 到 6 条气泡回复。
-2. 如果 User 分享了视频，请务必读取视频内容和文案进行针对性吐槽、玩梗、感叹或讨论。
+2. 如果 User 分享了视频，请务必读取视频内容和文案进行针对性吐槽、玩梗、感叹或讨论（视频的作者不一定是user，读取视频创作者名字）。
 3. 绝对不要发emoji，也绝对不要使用句号结尾，要有十足的"活人感"和网感，就像真实朋友在连发微信一样。
 4. 结合上下文和当前人设，语言简练自然。
 5. 必须返回严格的 JSON 数组格式（不要带有 markdown 代码块标记），格式如下：
@@ -1202,36 +1386,54 @@ ${chatHistory}
                 let aiReply = data.choices[0].message.content;
                 
                 aiReply = aiReply.replace(/```json/g, '').replace(/```/g, '').trim();
-                const parsedMsgs = JSON.parse(aiReply);
                 
-                if (Array.isArray(parsedMsgs)) {
-                    // Send messages sequentially with delay
-                    let delay = 0;
-                    parsedMsgs.forEach((msgText, index) => {
-                        setTimeout(() => {
-                            // double check we are still on the same chat if needed, but safe to push anyway
-                            dm.messages.push({
-                                sender: 'char',
-                                text: msgText,
-                                timestamp: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
-                            });
-                            window.saveGlobalData();
-                            // Only re-render if we are still viewing this chat
-                            if (currentChatCharId === charId) {
-                                renderMessages();
-                            }
-                            if (window.tkRenderChat) window.tkRenderChat();
-                        }, delay);
-                        // Add 1.5 - 2.5 seconds delay between each message
-                        delay += 1500 + Math.random() * 1000;
-                    });
-                } else {
-                    throw new Error('Not an array');
+                let parsedMsgs = [];
+                try {
+                    const parsed = JSON.parse(aiReply);
+                    if (Array.isArray(parsed)) {
+                        parsedMsgs = parsed;
+                    } else if (parsed.text) {
+                        parsedMsgs = [parsed.text];
+                    } else if (parsed.reply && Array.isArray(parsed.reply)) {
+                        parsedMsgs = parsed.reply;
+                    } else if (typeof parsed === 'object') {
+                        parsedMsgs = Object.values(parsed).filter(v => typeof v === 'string');
+                    }
+                } catch (parseErr) {
+                    console.warn('Chat JSON Parse failed, falling back to split', parseErr);
+                    parsedMsgs = aiReply.split('\n').map(s => s.replace(/^[-*•\d.\[\]"'\s]+/, '').trim()).filter(s => s.length > 0);
                 }
+                
+                if (parsedMsgs.length === 0) {
+                    parsedMsgs = ["(微笑)"];
+                }
+
+                // Send messages sequentially with delay
+                let delay = 0;
+                parsedMsgs.forEach((msgText, index) => {
+                    setTimeout(() => {
+                        // double check we are still on the same chat if needed, but safe to push anyway
+                        dm.messages.push({
+                            sender: 'char',
+                            text: msgText,
+                            timestamp: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+                        });
+                        window.saveGlobalData();
+                        // Only re-render if we are still viewing this chat
+                        if (currentChatCharId === char.id) {
+                            renderMessages();
+                        }
+                        if (window.tkRenderChat) window.tkRenderChat();
+                    }, delay);
+                    // Add 1.5 - 2.5 seconds delay between each message
+                    delay += 1500 + Math.random() * 1000;
+                });
 
             } catch (error) {
                 console.error('Chat Gen Error:', error);
-                window.showToast('生成回复失败');
+                if (window.showToast) window.showToast('生成回复失败');
+            } finally {
+                isChatGenerating = false;
             }
         });
     }
