@@ -1890,7 +1890,7 @@ input:checked + .slider:before {
 /* Fullscreen & Hide Island Modes */
 body.fullscreen-mode {
     align-items: flex-start;
-    background-color: #000;
+    background-color: transparent; /* 去掉全屏模式的黑色背景，透出真实背景 */
     margin: 0;
     padding: 0;
     width: 100vw;
@@ -1908,10 +1908,15 @@ body.fullscreen-mode .phone-frame {
     padding: 0;
     box-shadow: none;
     border: none;
+    background-color: transparent; /* 去除原本的外壳黑边 */
 }
 
 body.fullscreen-mode .screen {
     border-radius: 0;
+    padding-top: env(safe-area-inset-top, 55px); /* 利用安全区域并保留默认后备 */
+    padding-bottom: env(safe-area-inset-bottom, 34px); /* 底部同样适配安全区域 */
+    width: 100%;
+    height: 100%;
 }
 
 body.hide-island .notch {
