@@ -1892,16 +1892,22 @@ body.fullscreen-mode {
     align-items: flex-start;
     background-color: #000;
     margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
 }
 
 body.fullscreen-mode .phone-frame {
-    width: 100vw;
-    height: 100dvh; /* use dvh for real mobile browsers */
+    width: 100%;
+    height: 100%;
     max-width: 100%;
     max-height: 100%;
     border-radius: 0;
     padding: 0;
     box-shadow: none;
+    border: none;
 }
 
 body.fullscreen-mode .screen {
