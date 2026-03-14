@@ -55,45 +55,41 @@
 /* --- BOTTOM NAV (Floating & Low Saturation) --- */
 .tk-bottom-nav-container {
     position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80%;
+    bottom: 30px; 
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
     z-index: 200;
 }
 
 .tk-bottom-nav {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    background-color: rgba(255, 255, 255, 0.95);
+    background-color: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    padding: 12px 20px;
-    border-radius: 30px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    padding: 4px; 
+    border-radius: 40px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
     position: relative;
+    width: auto; 
+    min-width: 240px;
+    justify-content: space-between;
+    align-items: stretch; 
+    height: 52px;
+    gap: 0; 
 }
 
 .tk-nav-indicator {
     position: absolute;
-    bottom: 12px;
-    left: 0; /* Will be set by JS */
-    width: 33.33%;
-    height: 4px;
-    display: flex;
-    justify-content: center;
-    transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
-    pointer-events: none;
-}
-
-.tk-nav-indicator::after {
-    content: '';
-    width: 20px;
-    height: 100%;
-    background-color: #111111;
-    border-radius: 2px;
+    top: 4px; 
+    bottom: 4px; 
+    background-color: rgba(0, 0, 0, 0.06);
+    border-radius: 36px; 
+    z-index: 0;
+    transition: left 0.3s cubic-bezier(0.25, 1, 0.5, 1), width 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    left: 4px; 
 }
 
 .tk-nav-item {
@@ -101,22 +97,28 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: #999999;
-    font-size: 10px;
-    gap: 4px;
+    gap: 2px;
+    color: #8e8e93; 
     cursor: pointer;
-    transition: color 0.2s;
-    flex: 1;
-    z-index: 2;
+    z-index: 1;
+    padding: 0 20px;
+    height: 100%;
+    transition: color 0.3s;
 }
 
 .tk-nav-item i {
     font-size: 20px;
+    margin-bottom: 0;
+}
+
+.tk-nav-item span {
+    display: block;
+    font-size: 10px;
+    font-weight: 500;
 }
 
 .tk-nav-item.active {
-    color: #111111;
-    font-weight: 600;
+    color: #0f0f0f;
 }
 
 /* --- HOME TAB --- */
@@ -137,6 +139,9 @@
 }
 
 .tk-topbar-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     gap: 20px;
     font-size: 16px;
@@ -229,27 +234,28 @@
 }
 
 .tk-video-text-content {
-    width: 80%;
+    width: 100%;
+    height: 100%;
     font-size: 18px;
     line-height: 1.6;
     color: #333333;
     text-align: center;
-    padding: 20px;
-    background: rgba(245, 245, 245, 0.6);
-    border-radius: 20px;
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
     font-weight: 500;
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.02);
+    box-shadow: none;
 }
 
 /* Right Actions */
 .tk-right-actions {
     position: absolute;
     right: 12px;
-    bottom: 100px;
+    bottom: 130px; /* Moved up */
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
+    gap: 22px; /* Increased gap */
     z-index: 5;
 }
 
@@ -264,7 +270,7 @@
 }
 
 .tk-action-item i {
-    font-size: 28px;
+    font-size: 34px; /* Bigger icons */
     color: #111111;
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05));
     transition: transform 0.2s, color 0.2s;
@@ -277,8 +283,8 @@
 /* Avatar with Plus */
 .tk-avatar-action {
     position: relative;
-    width: 48px;
-    height: 48px;
+    width: 52px; /* Bigger avatar */
+    height: 52px;
     border-radius: 50%;
     background: #f0f0f0;
     border: 2px solid #ffffff;
@@ -327,6 +333,32 @@
     transform: translateX(-50%) scale(0);
 }
 
+/* Music Disc Rotating */
+.tk-music-disc {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #111;
+    border: 8px solid #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    animation: tk-spin 4s linear infinite;
+}
+
+.tk-music-disc i {
+    font-size: 14px;
+    color: #fff;
+    margin: 0;
+    filter: none;
+}
+
+@keyframes tk-spin {
+    100% { transform: rotate(360deg); }
+}
+
 /* Bottom Info */
 .tk-bottom-info {
     position: absolute;
@@ -356,7 +388,11 @@
 /* API Gen Button on Video (Removed, using Top Bar instead) */
 
 /* --- COMMON HEADER --- */
-.tk-header {
+.tk-header, .tk-home-topbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
     height: 90px;
     padding-top: 45px;
     display: flex;
@@ -365,21 +401,57 @@
     padding-left: 20px;
     padding-right: 20px;
     background: #ffffff;
-    z-index: 10;
-    /* removed border/shadow just in case */
+    z-index: 20;
     border: none;
     box-shadow: none;
 }
 
-.tk-header-left, .tk-header-right {
-    width: 30px;
-    height: 30px;
+.tk-header.floating-header, .tk-home-topbar.floating-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: transparent;
+    pointer-events: none;
+}
+
+.tk-header.floating-header > *, .tk-home-topbar.floating-header > * {
+    pointer-events: auto;
+}
+
+/* Common floating button wrapper for header icons (used in html) */
+.tk-floating-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     display: flex;
     justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    color: #ffffff;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    pointer-events: auto; /* Ensure it's clickable in floating header */
+}
+
+.tk-floating-btn:active {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Fallback/Original left/right/center styles */
+.tk-header-left, .tk-header-right {
+    display: flex;
     align-items: center;
     font-size: 20px;
     color: #111;
     cursor: pointer;
+}
+
+.tk-header-right {
+    gap: 15px;
 }
 
 .tk-header-center {
@@ -388,12 +460,60 @@
     color: #111;
 }
 
+/* For views that overlay completely (like sub-profile floating header) */
+.tk-header.floating-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: transparent !important;
+    pointer-events: none;
+    z-index: 20;
+    border-bottom: none !important;
+}
+
+.tk-header.floating-header > * {
+    pointer-events: auto;
+}
+
+/* Home Topbar overrides */
+.tk-home-topbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: transparent;
+    border-bottom: none;
+    pointer-events: none;
+}
+.tk-home-topbar > * {
+    pointer-events: auto;
+}
+
+.tk-topbar-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #999999;
+}
+
+.tk-topbar-left, .tk-topbar-right {
+    display: flex;
+    gap: 12px;
+}
+
 
 /* --- CHAT TAB --- */
 .tk-chat-scrollable {
     flex: 1;
     overflow-y: auto;
     padding-bottom: 100px;
+    /* Adjust padding to align with profile tab */
+    padding-top: 80px; 
 }
 
 /* Following Bar (Avatars with bubbles) */
@@ -526,6 +646,13 @@
     font-size: 20px;
     margin-right: 15px;
     flex-shrink: 0;
+    overflow: hidden;
+}
+
+.tk-activity-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .tk-activity-text {
@@ -559,15 +686,32 @@
 
 /* --- PROFILE TAB --- */
 .tk-profile-header {
-    height: 90px; /* Align with other headers */
+    height: 90px;
     padding-top: 45px;
-    border-bottom: none; /* No separator */
+    border-bottom: none;
 }
 
 .tk-profile-scrollable {
     flex: 1;
     overflow-y: auto;
     padding-bottom: 100px;
+    padding-top: 80px; /* Align with user profile */
+}
+
+.tk-profile-avatar-section {
+    display: flex;
+    justify-content: center;
+    padding: 10px 0;
+}
+
+#tk-profile-status-bubble {
+    font-size: 15px; /* slightly bigger */
+    top: -25px; /* move higher */
+    left: 10px; /* move left to overlap avatar edge */
+    transform: translateX(-30%); /* keeping it slightly offset */
+    padding: 6px 14px;
+    z-index: 5; /* ensure above avatar */
+    border: 2px solid #fff; /* add border to stand out against avatar */
 }
 
 /* --- CHAR PROFILE SUB-VIEW (Added for Char Detail) --- */
@@ -754,6 +898,8 @@
     font-size: 20px;
     color: #999;
     cursor: pointer;
+    position: relative;
+    z-index: 2; /* Ensure clicks register above indicator */
 }
 
 .tk-ptab.active {
@@ -764,10 +910,11 @@
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 25%;
+    width: 25%; /* Default for 4 tabs, overridden by inline style for sub profile */
     height: 2px;
     background: #111;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1); /* Smoother animation */
+    z-index: 1;
 }
 
 .tk-profile-grid {
@@ -816,6 +963,73 @@
     background: #f9f9f9;
     border-radius: 12px;
     cursor: pointer;
+}
+
+/* Enhanced Share Sheet Styles */
+.tk-share-section-title {
+    font-size: 13px;
+    color: #888;
+    margin: 10px 15px 5px;
+    font-weight: 500;
+}
+
+.tk-share-friends-row {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    padding: 10px 15px 20px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.tk-share-friends-row::-webkit-scrollbar {
+    display: none;
+}
+
+.tk-share-friend-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-width: 60px;
+    cursor: pointer;
+}
+
+.tk-share-actions-row {
+    display: flex;
+    gap: 20px;
+    padding: 10px 15px 20px;
+    justify-content: flex-start;
+}
+
+.tk-share-action-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.tk-share-action-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #f2f2f2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    color: #111;
+    transition: background 0.2s;
+}
+
+.tk-share-action-item:active .tk-share-action-icon {
+    background: #e5e5e5;
+}
+
+.tk-share-action-item span {
+    font-size: 11px;
+    color: #555;
 }
 
 
@@ -887,5 +1101,141 @@
     font-size: 12px;
     gap: 4px;
     padding-top: 5px;
+    cursor: pointer;
+    transition: transform 0.1s;
 }
-.tk-comment-like i { font-size: 14px; }
+.tk-comment-like:active { transform: scale(0.9); }
+.tk-comment-like i { font-size: 14px; transition: color 0.2s; }
+.tk-comment-like.liked i { color: #ff4b4b; font-weight: 900; }
+.tk-comment-like.liked span { color: #ff4b4b; }
+
+/* Hashtag Styles */
+.tk-hashtag {
+    color: #111111;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-block;
+    background: rgba(255,255,255,0.8);
+    padding: 2px 6px;
+    border-radius: 6px;
+    margin: 0 2px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.tk-hashtag-view {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #ffffff;
+    z-index: 550; /* Above normal sub views */
+    display: flex;
+    flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.tk-hashtag-view.active {
+    transform: translateY(0);
+}
+
+.tk-hashtag-header-content {
+    padding: 60px 20px 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.tk-hashtag-icon-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 36px;
+    color: #111;
+}
+
+.tk-hashtag-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.tk-hashtag-views {
+    font-size: 13px;
+    color: #888;
+}
+
+/* =========================================
+   NEW OVERRIDES FOR Z-INDEX AND SHADOWS
+   ========================================= */
+
+/* Adjust layers so videos don't cover bottom sheets */
+/* 
+   Z-Index Hierarchy:
+   - Base Views (Home/Chat/Profile Tabs): Default flow
+   - Bottom Nav: z-index 200
+   - Sub Profile View: z-index 300
+   - Fullscreen Video View: z-index 400
+   - Chat View: z-index 400
+   - Hashtag / Music Views: z-index 500
+   - Bottom Sheets (Comments, Share, Create): z-index 600-800
+   - Modals / Popovers: z-index 900+
+*/
+#tk-fullscreen-video-view {
+    z-index: 400 !important;
+}
+
+.tk-sub-profile-view {
+    z-index: 300 !important;
+}
+
+/* Force text-shadow and box-shadow removal across video views */
+.tk-video-card,
+.tk-video-text-content,
+.tk-video-text-content div,
+.tk-grid-item,
+.tk-grid-text,
+.tk-grid-views,
+.tk-grid-views i,
+#tk-fullscreen-video-view,
+#tk-fullscreen-video-view .tk-right-actions i,
+#tk-fullscreen-video-view .tk-right-actions span,
+#tk-fullscreen-video-view .tk-bottom-info,
+#tk-fullscreen-video-view .tk-bottom-info div {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    filter: none !important;
+}
+
+#tk-dm-chat-view {
+    z-index: 400 !important;
+}
+
+.bottom-sheet-overlay {
+    /* Base for sheets to override video if inside the same container */
+    z-index: 800;
+}
+
+/* Remove shadows from videos in user/char profile */
+.tk-grid-item img {
+    box-shadow: none !important;
+}
+.tk-grid-item .tk-grid-text {
+    box-shadow: none !important;
+    border: none !important;
+}
+#tk-fullscreen-video-view img {
+    box-shadow: none !important;
+}
+.tk-video-text-content div {
+    box-shadow: none !important;
+}
+.tk-video-card, .tk-video-text-content {
+    box-shadow: none !important;
+}

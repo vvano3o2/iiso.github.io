@@ -29,8 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let fetchedModels = ['gpt-3.5-turbo', 'gpt-4', 'claude-v1'];
 
     // Theme State
+    const isMobileUser = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     let themeState = {
         bgUrl: null,
+        showIsland: !isMobileUser,
+        isFullscreen: isMobileUser,
         apps: [
             { id: 'app-icon-1', name: 'Pay', icon: null },
             { id: 'app-icon-2', name: 'TikTok', icon: null },
@@ -65,6 +68,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.fetchedModels) fetchedModels = data.fetchedModels;
                 if (data.themeState) {
                     themeState = data.themeState;
+                    if (themeState.showIsland === undefined) themeState.showIsland = !isMobileUser;
+                    if (themeState.isFullscreen === undefined) themeState.isFullscreen = isMobileUser;
                     // Migration for default app names
                     if (themeState.apps) {
                         const app1 = themeState.apps.find(a => a.id === 'app-icon-1');
@@ -796,7 +801,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let rightElementHtml = '';
         const tokens = calculateTokens(book.entries);
 
-        if (type === 'all' || type === 'global') {
+        if (type === 'all' || type === 'global' || type === 'summary') {
             rightElementHtml = `
                 <div class="wb-book-meta">
                     <span class="wb-token-count">+${tokens} Tokens</span>
@@ -905,6 +910,11 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>`;
         }
 
+        // Ensure "总结" is in wbGroups
+        if (!wbGroups.includes('总结')) {
+            wbGroups.push('总结');
+        }
+
         // Render Local Tab
         const localList = document.getElementById('wb-local-list');
         if (localList) {
@@ -949,8 +959,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>`;
             }
         }
+
+        // Render Summary Tab
+        const summaryList = document.getElementById('wb-summary-list');
+        if (summaryList) {
+            const summaryBooks = worldBooks.filter(b => b.group === '总结' || b.group.includes('总结'));
+            if (summaryBooks.length === 0) {
+                summaryList.innerHTML = `<div style="padding: 40px 16px; text-align: center; color: #8e8e93; font-size: 15px;">暂无总结记录</div>`;
+            } else {
+                summaryList.innerHTML = `<div style="padding: 10px 16px;">
+                    ${summaryBooks.map(b => createBookHtml(b, 'summary')).join('')}
+                </div>`;
+            }
+        }
     }
     window.renderWorldBooks = renderWorldBooks; // Export for update
+    
+    // Auto-save summary to World Book globally
+    window.autoSaveSummaryToWorldBook = function(title, summaryText) {
+        if (!wbGroups.includes('总结')) {
+            wbGroups.push('总结');
+        }
+        
+        const newBook = {
+            id: Date.now(),
+            name: title || '新总结',
+            group: '总结',
+            entries: [{ keyword: '总结内容', content: summaryText }],
+            isGlobal: true, // 默认设为全局可用
+            attachedRoles: []
+        };
+        
+        worldBooks.push(newBook);
+        saveGlobalData();
+        renderWorldBooks();
+        showToast('已自动生成总结世界书');
+    };
 
     // Global Click Listener for Edit Book (Event Delegation)
     document.addEventListener('click', (e) => {
@@ -1550,6 +1594,12 @@ Reply naturally as your character in a chat app. Do not include your own name at
     // Open Theme Settings
     document.getElementById('theme-config-btn').addEventListener('click', (e) => {
         e.stopPropagation();
+        
+        const islandToggle = document.getElementById('theme-island-toggle');
+        const fsToggle = document.getElementById('theme-fullscreen-toggle');
+        if (islandToggle) islandToggle.checked = themeState.showIsland;
+        if (fsToggle) fsToggle.checked = themeState.isFullscreen;
+
         renderThemeAppList();
         openView(UI.overlays.themeConfig);
     });
@@ -1719,13 +1769,13 @@ Reply naturally as your character in a chat app. Do not include your own name at
             // Restore original gradient/color using inline style if it was stripped, 
             // but normally removing backgroundImage is enough if CSS handles it.
             // We'll rely on the default inline style still being there under the hood or class defaults.
-            if (app.id === 'dock-icon-settings') { iconDiv.style.background = 'linear-gradient(180deg, #e3e3e3 0%, #cfcfcf 100%)'; iconDiv.style.color = '#fff'; if (iEl) iEl.className = 'fas fa-cog'; }
-            else if (app.id === 'dock-icon-imessage') { iconDiv.style.background = 'linear-gradient(180deg, #dfebd6 0%, #c8d8bd 100%)'; iconDiv.style.color = '#fff'; if (iEl) iEl.className = 'fas fa-comment'; }
-            else if (app.id === 'dock-icon-youtube') { iconDiv.style.background = '#fdfaf9'; iconDiv.style.color = '#d1b8b8'; if (iEl) iEl.className = 'fab fa-youtube'; }
-            else if (app.id === 'app-icon-1') { iconDiv.style.background = 'linear-gradient(180deg, #d3d9d3 0%, #b8c1b8 100%)'; iconDiv.style.color = 'white'; if (iEl) iEl.className = 'fas fa-wallet'; }
-            else if (app.id === 'app-icon-2') { iconDiv.style.background = 'linear-gradient(180deg, #f8f8f8 0%, #e8e8e8 100%)'; iconDiv.style.color = '#333'; if (iEl) iEl.className = 'fab fa-tiktok'; } // TikTok Style
-            else if (app.id === 'app-icon-3') { iconDiv.style.background = 'linear-gradient(180deg, #ebdada 0%, #d8c8c8 100%)'; iconDiv.style.color = 'white'; if (iEl) iEl.className = 'fas fa-sticky-note'; }
-            else if (app.id === 'app-icon-4') { iconDiv.style.background = '#f7f5f5'; iconDiv.style.color = '#b0a0a0'; if (iEl) iEl.className = 'fas fa-calendar-alt'; }
+            if (app.id === 'dock-icon-settings') { iconDiv.style.background = 'linear-gradient(180deg, #48484a 0%, #2c2c2e 100%)'; iconDiv.style.color = '#ffffff'; if (iEl) iEl.className = 'fas fa-cog'; }
+            else if (app.id === 'dock-icon-imessage') { iconDiv.style.background = 'linear-gradient(180deg, #ffffff 0%, #f2f2f7 100%)'; iconDiv.style.color = '#1c1c1e'; if (iEl) iEl.className = 'fas fa-comment'; }
+            else if (app.id === 'dock-icon-youtube') { iconDiv.style.background = '#ffffff'; iconDiv.style.color = '#1c1c1e'; if (iEl) iEl.className = 'fab fa-youtube'; }
+            else if (app.id === 'app-icon-1') { iconDiv.style.background = 'linear-gradient(180deg, #3a3a3c 0%, #1c1c1e 100%)'; iconDiv.style.color = '#ffffff'; if (iEl) iEl.className = 'fas fa-wallet'; }
+            else if (app.id === 'app-icon-2') { iconDiv.style.background = '#000000'; iconDiv.style.color = '#ffffff'; if (iEl) iEl.className = 'fab fa-tiktok'; } // TikTok Style
+            else if (app.id === 'app-icon-3') { iconDiv.style.background = 'linear-gradient(180deg, #ffffff 0%, #f2f2f7 100%)'; iconDiv.style.color = '#1c1c1e'; if (iEl) iEl.className = 'fas fa-sticky-note'; }
+            else if (app.id === 'app-icon-4') { iconDiv.style.background = '#ffffff'; iconDiv.style.color = '#1c1c1e'; if (iEl) iEl.className = 'fas fa-calendar-alt'; }
             
             if (iEl) iEl.style.display = '';
         }
@@ -1733,6 +1783,23 @@ Reply naturally as your character in a chat app. Do not include your own name at
 
     // Confirm Theme Settings
     document.getElementById('confirm-theme-btn').addEventListener('click', () => {
+        const islandToggle = document.getElementById('theme-island-toggle');
+        const fsToggle = document.getElementById('theme-fullscreen-toggle');
+        if (islandToggle) themeState.showIsland = islandToggle.checked;
+        if (fsToggle) themeState.isFullscreen = fsToggle.checked;
+
+        if (themeState.showIsland) {
+            document.body.classList.remove('hide-island');
+        } else {
+            document.body.classList.add('hide-island');
+        }
+
+        if (themeState.isFullscreen) {
+            document.body.classList.add('fullscreen-mode');
+        } else {
+            document.body.classList.remove('fullscreen-mode');
+        }
+
         // Apply Background
         const bgUrl = (UI.inputs.themeBgUrl && UI.inputs.themeBgUrl.value) ? UI.inputs.themeBgUrl.value.trim() : themeState.bgUrl;
         const screenEl = document.querySelector('.screen');
@@ -1742,9 +1809,10 @@ Reply naturally as your character in a chat app. Do not include your own name at
                 screenEl.style.backgroundImage = `url(${bgUrl})`;
                 screenEl.style.backgroundSize = 'cover';
                 screenEl.style.backgroundPosition = 'center';
+                screenEl.style.backgroundColor = 'transparent';
             } else {
                 screenEl.style.backgroundImage = 'none';
-                screenEl.style.backgroundColor = '#000'; // Default fallback
+                screenEl.style.backgroundColor = ''; // Restore to CSS default
             }
         }
 
@@ -1760,14 +1828,19 @@ Reply naturally as your character in a chat app. Do not include your own name at
 
     // Apply theme on load
     function applySavedTheme() {
+        if (themeState.showIsland === false) document.body.classList.add('hide-island');
+        if (themeState.isFullscreen === true) document.body.classList.add('fullscreen-mode');
+
         const screenEl = document.querySelector('.screen');
         if (screenEl) {
             if (themeState.bgUrl) {
                 screenEl.style.backgroundImage = `url(${themeState.bgUrl})`;
                 screenEl.style.backgroundSize = 'cover';
                 screenEl.style.backgroundPosition = 'center';
+                screenEl.style.backgroundColor = 'transparent';
             } else {
                 screenEl.style.backgroundImage = 'none';
+                screenEl.style.backgroundColor = ''; // Restore to CSS default
             }
         }
         themeState.apps.forEach(app => {
@@ -1951,9 +2024,11 @@ Reply naturally as your character in a chat app. Do not include your own name at
         let isMoved = false;
         let startX = 0;
         let startY = 0;
+        let moveCount = 0;
 
         el.addEventListener('pointerdown', (e) => {
             isMoved = false;
+            moveCount = 0;
             startX = e.clientX;
             startY = e.clientY;
 
@@ -1962,7 +2037,11 @@ Reply naturally as your character in a chat app. Do not include your own name at
                 // Ignore empty slots for dragging
                 if (el.classList.contains('empty-slot')) return;
                 
-                e.preventDefault(); // Prevent scrolling on mobile during drag start
+                // Prevent default ONLY if it's not a form element or contenteditable
+                if (!e.target.closest('[contenteditable="true"]') && e.target.tagName !== 'INPUT') {
+                    e.preventDefault(); 
+                }
+                
                 draggedElement = el;
                 isTouchDrag = true;
                 setTimeout(() => el.classList.add('dragging'), 0);
@@ -2000,16 +2079,23 @@ Reply naturally as your character in a chat app. Do not include your own name at
 
         // Track movement to cancel long press if they swipe
         el.addEventListener('pointermove', (e) => {
-            // Only count as movement if they moved more than a few pixels
-            if (Math.abs(e.clientX - startX) > 5 || Math.abs(e.clientY - startY) > 5) {
+            if (!pressTimer && !isTouchDrag) return;
+            moveCount++;
+            // Mobile touch jitter tolerance: Only count as movement if they moved more than 10 pixels
+            if (Math.abs(e.clientX - startX) > 10 || Math.abs(e.clientY - startY) > 10) {
                 isMoved = true;
+                if (!window.isJiggleMode && pressTimer) {
+                    clearTimeout(pressTimer);
+                    pressTimer = null;
+                }
             }
         });
 
         const cancelPress = (e) => {
-            clearTimeout(pressTimer);
+            if (pressTimer) clearTimeout(pressTimer);
+            pressTimer = null;
             
-            // If they didn't hold long enough, and didn't move, it's a click!
+            // If they didn't hold long enough, and didn't move much, it's a click!
             if (!window.preventAppClick && !window.isJiggleMode && !isMoved) {
                 // Fire a synthetic click since we might have prevented default somewhere,
                 // or touch devices might swallow the native click.
@@ -2126,11 +2212,12 @@ function playAnimations(oldPositions) {
     let dragMoveHandler = (e) => {
         if (!draggedElement || !window.isJiggleMode) return;
         
-        // Prevent scrolling while dragging
-        e.preventDefault();
+        // Prevent scrolling while dragging (if not cancelled by browser)
+        if (e.cancelable) e.preventDefault();
 
         const ghost = document.getElementById('drag-ghost');
         if (ghost) {
+            // Allow pointer events to pass through ghost so we can find element underneath
             ghost.style.left = (e.clientX - parseFloat(ghost.dataset.offsetX)) + 'px';
             ghost.style.top = (e.clientY - parseFloat(ghost.dataset.offsetY)) + 'px';
         }
@@ -2232,11 +2319,6 @@ function playAnimations(oldPositions) {
         // If we are dragging, handle it
         if (draggedElement && window.isJiggleMode) {
             dragMoveHandler(e);
-        } else {
-            // Cancel long press if moving too much before jiggle mode
-            if (!window.isJiggleMode && pressTimer) {
-                 clearTimeout(pressTimer);
-            }
         }
     }, { passive: false });
 

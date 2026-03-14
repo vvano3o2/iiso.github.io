@@ -737,6 +737,11 @@
             if(!channelState.liveSummaries) channelState.liveSummaries = [];
             channelState.liveSummaries.push(summaryObj);
             
+            // Generate World Book Entry
+            if (window.autoSaveSummaryToWorldBook) {
+                window.autoSaveSummaryToWorldBook(`${char.name} 直播记录`, summaryObj.content || summaryObj.summary || JSON.stringify(summaryObj));
+            }
+            
             // Update Char Subs
             if (summaryObj.newSubs && typeof summaryObj.newSubs === 'number') {
                 const currentSubsNum = parseSubs(char.subs);
@@ -1148,20 +1153,20 @@
             if (loadingEl) loadingEl.style.display = 'block';
             
             const prompt = `你是一个YouTube内容生成助手。现在有一个YouTuber，她的频道名称是："${currentSubChannelData.name}"，她的人设和简介是："${currentSubChannelData.desc || '未知'}"。
-请你根据她的设定，生成符合她人设风格的内容，返回严格的JSON格式数据。
+请你根据挂载的世界书，她的设定，生成符合她身份人设风格的内容，具有活人感，返回严格的JSON格式数据。
 要求JSON包含以下字段：
 1. currentLive: 对象，包含:
    - title(直播标题) 
    - views(观看人数，如"1.5万 人正在观看")
-   - initialBubbles: 字符串数组，模拟刚进入直播间时主播正在说的话（1-2句开场白或正在进行的话题）。
-   - comments: 数组，包含5-10个对象，每个对象有 name(观众昵称) 和 text(弹幕内容，要符合直播氛围)。
+   - initialBubbles: 字符串数组，模拟刚进入直播间时主播正在说的话（3-5句开场白或正在进行的话题）。
+   - comments: 数组，包含5-10个对象，每个对象有 name(观众昵称) 和 text(弹幕内容，要符合直播氛围，有网感活人感)。
 2. pastVideos: 数组，包含3个对象，每个对象有:
    - title(往期视频标题)
    - views(观看次数，如"45万次观看")
    - time(发布时间，如"2天前")
    - comments: 数组，包含3-5个对象，每个对象有 name(观众昵称) 和 text(评论内容)。
 3. communityPosts: 数组，包含1-3个对象，每个对象代表一条YouTube社区动态，有:
-   - content(动态正文内容，符合人设口吻)
+   - content(动态正文内容，符合人设，具有活人感，禁止使用emoji)
    - likes(点赞数字符串，如"3.2万")
    - commentsCount(评论数，如"1400")
    - time(发布时间，如"5小时前")

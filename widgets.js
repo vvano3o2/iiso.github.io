@@ -67,8 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         widgetWrapper.innerHTML = html;
         const widget = widgetWrapper.firstElementChild;
         
-        if (className.includes('time-widget')) bindTimeWidget(widget);
-        else if (className.includes('ins-profile-widget')) bindInsProfileWidget(widget);
+        if (className.includes('ins-profile-widget')) bindInsProfileWidget(widget);
         else if (className.includes('spotify-widget')) bindSpotifyWidget(widget);
         else if (className.includes('pet-widget')) bindPetWidget(widget);
         else if (className.includes('status-card-widget')) bindStatusCardWidget(widget);
@@ -90,98 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Save state immediately after adding
         if (window.saveDesktopState) window.saveDesktopState();
     };
-
-    function createTimeWidget() {
-        const widget = document.createElement('div');
-        widget.className = 'time-widget';
-        widget.id = 'time-widget-' + Date.now();
-        widget.innerHTML = `
-            <div class="delete-widget-btn"><i class="fas fa-times"></i></div>
-            <div class="time-widget-left">
-                <div class="time-bubble" contenteditable="true" spellcheck="false" style="cursor: text;"><i class="fas fa-cloud" style="color: #8e8e93;" contenteditable="false"></i> 26°C 阴天</div>
-                <div class="time-bubble time-display-bubble"><i class="far fa-clock" style="color: #8e8e93;"></i> <span>14:30</span></div>
-                <div class="time-bubble" contenteditable="true" spellcheck="false" style="cursor: text;"><i class="fas fa-pen" style="color: #8e8e93;" contenteditable="false"></i> Have a nice day</div>
-            </div>
-            <div class="binder-spine">
-                <div class="binder-ring"></div>
-                <div class="binder-ring"></div>
-                <div class="binder-ring"></div>
-            </div>
-            <div class="time-widget-right-wrapper">
-                <div class="time-widget-right">
-                    <div class="polaroid-tape"></div>
-                    <div class="time-widget-img-container">
-                        <img class="time-widget-img" id="desktop-time-widget-photo-${Date.now()}" src="" style="display:none; width:100%; height:100%; object-fit:cover;">
-                        <i class="fas fa-image" id="desktop-time-widget-icon-${Date.now()}"></i>
-                    </div>
-                    <input type="file" class="time-img-upload" id="desktop-time-widget-upload-${Date.now()}" accept="image/*" style="display:none;">
-                </div>
-            </div>
-        `;
-        bindTimeWidget(widget);
-        updateDiaryTime();
-        if (window.setupDraggable) window.setupDraggable(widget);
-        return widget;
-    }
-
-    function bindTimeWidget(widget) {
-        if (!widget) return;
-        const deleteBtn = widget.querySelector('.delete-widget-btn');
-        const imgContainer = widget.querySelector('.time-widget-right');
-        const upload = widget.querySelector('.time-img-upload');
-        const img = widget.querySelector('.time-widget-img');
-        const icon = widget.querySelector('.time-widget-img-container i');
-
-        if (deleteBtn) {
-            deleteBtn.addEventListener('pointerdown', (e) => {
-                e.stopPropagation();
-                e.preventDefault(); // prevent drag
-                if (window.isJiggleMode) {
-                    widget.remove();
-                    if (window.balanceGridSlots) window.balanceGridSlots();
-                    if (window.saveDesktopState) window.saveDesktopState();
-                }
-            });
-        }
-
-        if (imgContainer && upload) {
-            imgContainer.addEventListener('click', (e) => {
-                if (window.isJiggleMode || window.preventAppClick) return;
-                e.stopPropagation();
-                upload.click();
-            });
-
-            upload.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (ev) => {
-                        if (img) {
-                            img.src = ev.target.result;
-                            img.style.display = 'block';
-                        }
-                        if (icon) icon.style.display = 'none';
-                        if (window.saveDesktopState) window.saveDesktopState();
-                    };
-                    reader.readAsDataURL(file);
-                }
-                e.target.value = '';
-            });
-        }
-        
-        // Prevent drag on contenteditable and save on blur
-        const editables = widget.querySelectorAll('[contenteditable="true"]');
-        editables.forEach(editable => {
-            editable.addEventListener('pointerdown', (e) => {
-                if (!window.isJiggleMode) {
-                    e.stopPropagation();
-                }
-            });
-            editable.addEventListener('blur', () => {
-                if (window.saveDesktopState) window.saveDesktopState();
-            });
-        });
-    }
 
     function createSpotifyWidget() {
         const widget = document.createElement('div');
@@ -722,25 +629,35 @@ document.addEventListener('DOMContentLoaded', () => {
         widget.id = 'ins-profile-widget-' + wid;
         widget.innerHTML = `
             <div class="delete-widget-btn"><i class="fas fa-times"></i></div>
-            <div class="ins-widget-banner" id="ins-widget-banner-btn-${wid}">
-                <img src="" id="ins-widget-banner-img-${wid}" style="display: none;">
-                <i class="fas fa-camera"></i>
-                <input type="file" id="ins-widget-banner-upload-${wid}" accept="image/*" style="display:none;">
-            </div>
-            <div class="ins-widget-avatar-wrapper" id="ins-widget-avatar-btn-${wid}">
-                <div class="ins-widget-avatar">
-                    <img src="" id="ins-widget-avatar-img-${wid}" style="display: none;">
+            <div class="custom-widget-top">
+                <div class="custom-widget-avatar-wrapper" id="custom-avatar-btn-${wid}">
+                    <img src="" id="custom-avatar-img-${wid}" style="display: none;">
                     <i class="fas fa-user"></i>
+                    <input type="file" id="custom-avatar-upload-${wid}" accept="image/*" style="display:none;">
                 </div>
-                <input type="file" id="ins-widget-avatar-upload-${wid}" accept="image/*" style="display:none;">
+                <div class="custom-widget-stats">
+                    <div class="custom-widget-stat-item">
+                        <div class="custom-widget-stat-num" contenteditable="true" spellcheck="false">0</div>
+                        <div class="custom-widget-stat-label">Posts</div>
+                    </div>
+                    <div class="custom-widget-stat-item">
+                        <div class="custom-widget-stat-num" contenteditable="true" spellcheck="false">1314</div>
+                        <div class="custom-widget-stat-label">Followers</div>
+                    </div>
+                    <div class="custom-widget-stat-item">
+                        <div class="custom-widget-stat-num" contenteditable="true" spellcheck="false">520</div>
+                        <div class="custom-widget-stat-label">Following</div>
+                    </div>
+                </div>
             </div>
-            <div class="ins-widget-info">
-                <div class="ins-widget-name" id="ins-widget-name-${wid}" contenteditable="true" spellcheck="false">Your Name</div>
-                <div class="ins-widget-handle" id="ins-widget-handle-${wid}" contenteditable="true" spellcheck="false">@username</div>
-                <div class="ins-widget-bio" id="ins-widget-bio-${wid}" contenteditable="true" spellcheck="false">Write your bio here...</div>
-                <div class="ins-widget-location">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <span id="ins-widget-location-text-${wid}" contenteditable="true" spellcheck="false">New York</span>
+            <div class="custom-widget-name" id="custom-name-${wid}" contenteditable="true" spellcheck="false">name @iisonyoung</div>
+            <div class="custom-widget-edit-btn">Edit Profile</div>
+            <div class="custom-widget-bottom">
+                <div class="custom-widget-add-icon"><i class="fas fa-plus"></i></div>
+                <div class="custom-widget-small-avatar" id="custom-small-avatar-btn-${wid}">
+                    <img src="" id="custom-small-avatar-img-${wid}" style="display: none;">
+                    <i class="fas fa-image"></i>
+                    <input type="file" id="custom-small-avatar-upload-${wid}" accept="image/*" style="display:none;">
                 </div>
             </div>
         `;
@@ -765,35 +682,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Setup uploads
-        const bannerBtn = widget.querySelector('.ins-widget-banner');
-        const bannerUpload = bannerBtn ? bannerBtn.querySelector('input[type="file"]') : null;
-        const bannerImg = bannerBtn ? bannerBtn.querySelector('img') : null;
-        if (bannerBtn && bannerUpload) {
-            bannerBtn.addEventListener('click', (e) => {
-                if(!window.isJiggleMode) { e.stopPropagation(); bannerUpload.click(); }
-            });
-            bannerUpload.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (ev) => {
-                        if (bannerImg) { bannerImg.src = ev.target.result; bannerImg.style.display = 'block'; }
-                        if (window.saveDesktopState) window.saveDesktopState();
-                    };
-                    reader.readAsDataURL(file);
-                }
-                e.target.value = '';
-            });
-        }
-
-        const avatarBtn = widget.querySelector('.ins-widget-avatar-wrapper');
+        // Setup uploads for main avatar
+        const avatarBtn = widget.querySelector('.custom-widget-avatar-wrapper');
         const avatarUpload = avatarBtn ? avatarBtn.querySelector('input[type="file"]') : null;
         const avatarImg = avatarBtn ? avatarBtn.querySelector('img') : null;
-        const avatarIcon = avatarBtn ? avatarBtn.querySelector('.ins-widget-avatar i') : null;
+        const avatarIcon = avatarBtn ? avatarBtn.querySelector('i') : null;
         if (avatarBtn && avatarUpload) {
             avatarBtn.addEventListener('click', (e) => {
-                if(!window.isJiggleMode) { e.stopPropagation(); avatarUpload.click(); }
+                if(!window.isJiggleMode && !window.preventAppClick) { e.stopPropagation(); avatarUpload.click(); }
             });
             avatarUpload.addEventListener('change', (e) => {
                 const file = e.target.files[0];
@@ -802,6 +698,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     reader.onload = (ev) => {
                         if (avatarImg) { avatarImg.src = ev.target.result; avatarImg.style.display = 'block'; }
                         if (avatarIcon) avatarIcon.style.display = 'none';
+                        if (window.saveDesktopState) window.saveDesktopState();
+                    };
+                    reader.readAsDataURL(file);
+                }
+                e.target.value = '';
+            });
+        }
+
+        // Setup uploads for small bottom avatar
+        const smallAvatarBtn = widget.querySelector('.custom-widget-small-avatar');
+        const smallAvatarUpload = smallAvatarBtn ? smallAvatarBtn.querySelector('input[type="file"]') : null;
+        const smallAvatarImg = smallAvatarBtn ? smallAvatarBtn.querySelector('img') : null;
+        const smallAvatarIcon = smallAvatarBtn ? smallAvatarBtn.querySelector('i') : null;
+        if (smallAvatarBtn && smallAvatarUpload) {
+            smallAvatarBtn.addEventListener('click', (e) => {
+                if(!window.isJiggleMode && !window.preventAppClick) { e.stopPropagation(); smallAvatarUpload.click(); }
+            });
+            smallAvatarUpload.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        if (smallAvatarImg) { smallAvatarImg.src = ev.target.result; smallAvatarImg.style.display = 'block'; }
+                        if (smallAvatarIcon) smallAvatarIcon.style.display = 'none';
                         if (window.saveDesktopState) window.saveDesktopState();
                     };
                     reader.readAsDataURL(file);
@@ -819,58 +739,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (window.saveDesktopState) window.saveDesktopState();
             });
         });
-
-        // Set initial values from userState if empty
-        if (window.userState) {
-            const nameEl = widget.querySelector('.ins-widget-name');
-            const handleEl = widget.querySelector('.ins-widget-handle');
-            const bioEl = widget.querySelector('.ins-widget-bio');
-            const avatarImgTag = widget.querySelector('.ins-widget-avatar img');
-            const avatarIconTag = widget.querySelector('.ins-widget-avatar i');
-            
-            if(nameEl && nameEl.textContent === 'Your Name') nameEl.textContent = window.userState.name || 'User';
-            if(handleEl && handleEl.textContent === '@username') handleEl.textContent = '@' + (window.userState.name || 'user').toLowerCase().replace(/\s+/g, '');
-            if(bioEl && bioEl.textContent === 'Write your bio here...') bioEl.textContent = window.userState.persona || 'No bio';
-            if(avatarImgTag && (!avatarImgTag.src || avatarImgTag.src === window.location.href) && window.userState.avatarUrl) {
-                avatarImgTag.src = window.userState.avatarUrl;
-                avatarImgTag.style.display = 'block';
-                if(avatarIconTag) avatarIconTag.style.display = 'none';
-            }
-        }
     }
-
-    function updateDiaryTime() {
-        const now = new Date();
-        const month = now.getMonth() + 1;
-        const date = now.getDate();
-        const hours = now.getHours().toString().padStart(2, '0');
-        const minutes = now.getMinutes().toString().padStart(2, '0');
-        const timeStr = `${month}月${date}日 ${hours}:${minutes}`;
-
-        document.querySelectorAll('.time-display-bubble span').forEach(el => {
-            el.textContent = timeStr;
-        });
-        
-        const realTimeStr = `${hours}:${minutes}`;
-        document.querySelectorAll('.status-card-date').forEach(el => {
-            if (!el.matches(':focus')) {
-                el.textContent = realTimeStr;
-            }
-        });
-        
-        // Update preview in gallery
-        const previewTime = document.querySelector('#add-time-widget-btn .time-bubble:nth-child(2)');
-        if (previewTime) {
-            previewTime.innerHTML = `<i class="far fa-clock" style="color: #8e8e93;"></i> <span>${timeStr}</span>`;
-        }
-    }
-    
-    updateDiaryTime();
-    setInterval(updateDiaryTime, 60000);
 
     // Gallery Drag & Drop Logic
     const gallerySheet = document.getElementById('widget-gallery-sheet');
-    const timePreviewBtn = document.getElementById('add-time-widget-btn');
     const insPreviewBtn = document.getElementById('add-ins-profile-btn');
     const spotifyPreviewBtn = document.getElementById('add-spotify-widget-btn');
     const petPreviewBtn = document.getElementById('add-pet-widget-btn');
@@ -962,6 +834,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (slotsNeeded === 8) {
                 galleryGhost.style.width = '321px';
+            } else if (slotsNeeded === 12) {
+                galleryGhost.style.width = '321px';
+                galleryGhost.style.height = '240px';
             } else if (slotsNeeded === 16) {
                 galleryGhost.style.width = '321px';
                 galleryGhost.style.height = '325px';
@@ -1030,8 +905,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    setupGalleryDrag(timePreviewBtn, createTimeWidget, 8, 160, 75);
-    setupGalleryDrag(insPreviewBtn, createInsProfileWidget, 16, 160, 160);
+    setupGalleryDrag(insPreviewBtn, createInsProfileWidget, 12, 160, 120);
     setupGalleryDrag(spotifyPreviewBtn, createSpotifyWidget, 16, 160, 160);
     setupGalleryDrag(petPreviewBtn, createPetWidget, 4, 75, 75);
     setupGalleryDrag(statusCardPreviewBtn, createStatusCardWidget, 8, 160, 75);
@@ -1079,11 +953,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (grid2 && state.grid2) grid2.innerHTML = state.grid2;
                 
                 // Re-bind events to loaded elements
-                const allWidgets = document.querySelectorAll('.time-widget, .ins-profile-widget, .spotify-widget, .pet-widget, .status-card-widget, .complex-music-widget');
+                const allWidgets = document.querySelectorAll('.ins-profile-widget, .spotify-widget, .pet-widget, .status-card-widget, .complex-music-widget');
                 allWidgets.forEach(widget => {
                     const className = widget.className;
-                    if (className.includes('time-widget')) bindTimeWidget(widget);
-                    else if (className.includes('ins-profile-widget')) bindInsProfileWidget(widget);
+                    if (className.includes('ins-profile-widget')) bindInsProfileWidget(widget);
                     else if (className.includes('spotify-widget')) bindSpotifyWidget(widget);
                     else if (className.includes('pet-widget')) bindPetWidget(widget);
                     else if (className.includes('status-card-widget')) bindStatusCardWidget(widget);
@@ -1104,9 +977,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function bindInitialWidgets() {
         // Initialize default desktop widgets if no saved state
-        const defaultTime = document.getElementById('desktop-time-widget');
-        if (defaultTime) bindTimeWidget(defaultTime);
-        
         const defaultIns = document.getElementById('ins-profile-widget');
         if (defaultIns) bindInsProfileWidget(defaultIns);
         

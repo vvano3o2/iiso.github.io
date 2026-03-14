@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('ios_emulator_friends', JSON.stringify(imFriends));
         } catch(e) {
             console.error('Storage full or error', e);
-            showToast('保存失败，可能存储空间已满');
+            showToast('保存失败');
         }
     }
 
@@ -499,20 +499,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
             page.innerHTML = `
                 <!-- Sticky Header Container for Fade Effect -->
-                <div class="chat-sticky-container">
+                <div class="chat-sticky-container" style="background-color: #ffffff; border-bottom: 1px solid #f2f2f7; padding-bottom: 5px;">
                     <!-- Chat Top Bar -->
-                    <div class="chat-top-bar">
-                        <div class="chat-back-btn"><i class="fas fa-chevron-left"></i></div>
-                        <div class="chat-menu-btn"><i class="fas fa-bars"></i></div>
-                    </div>
-
-                    <!-- Ins Style Chat Header -->
-                    <div class="ins-chat-header">
-                        <div class="ins-chat-avatar">
-                            ${avatarHtml}
+                    <div class="chat-top-bar" style="position: relative; top: 0; padding: 0 16px; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                            <div class="chat-back-btn" style="cursor: pointer; padding: 5px 5px 5px 0;"><i class="fas fa-chevron-left"></i></div>
+                            <div style="position: relative; display: inline-block;">
+                                <div class="ins-chat-avatar" style="margin: 0; width: 44px; height: 44px;">
+                                    ${avatarHtml}
+                                </div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; justify-content: center;">
+                                <div class="ins-chat-name" style="font-size: 18px; line-height: 1.2;">${friend.nickname}</div>
+                                <div class="ins-chat-sign" style="font-size: 13px; color: #8e8e93; display: flex; align-items: center; gap: 4px;">在线</div>
+                            </div>
                         </div>
-                        <div class="ins-chat-name">${friend.nickname}</div>
-                        <div class="ins-chat-sign">${friend.signature || 'No Signature'}</div>
+                        <div class="chat-menu-btn" style="cursor: pointer; padding: 5px;"><i class="fas fa-bars"></i></div>
                     </div>
                 </div>
 
@@ -543,128 +545,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
             
-            // Edit Character on Header Click
-            const headerEl = page.querySelector('.ins-chat-header');
-            if (headerEl) {
-                headerEl.onclick = () => {
-                    const editSheet = document.getElementById('edit-char-persona-sheet');
-                    if (!editSheet) {
-                        console.error('Edit character sheet not found');
-                        return;
-                    }
-
-                    // Inputs
-                    const realNameInput = document.getElementById('char-realname-input');
-                    const nicknameInput = document.getElementById('char-nickname-input');
-                    const signatureInput = document.getElementById('char-signature-input');
-                    const personaInput = document.getElementById('char-persona-input');
-                    const avatarPreview = document.getElementById('char-edit-avatar-img');
-                    const avatarIcon = document.getElementById('char-edit-avatar-preview');
-                    let avatarI = null;
-                    if(avatarIcon) avatarI = avatarIcon.querySelector('i');
-                    
-                    // Temp avatar state
-                    let tempAvatarUrl = friend.avatarUrl;
-
-                    // Load current data
-                    if(realNameInput) realNameInput.value = friend.realName || '';
-                    if(nicknameInput) nicknameInput.value = friend.nickname || '';
-                    if(signatureInput) signatureInput.value = friend.signature || '';
-                    if(personaInput) personaInput.value = friend.persona || '';
-                    
-                    // Set Avatar
-                    if (friend.avatarUrl) {
-                        if(avatarPreview) { avatarPreview.src = friend.avatarUrl; avatarPreview.style.display = 'block'; }
-                        if(avatarI) avatarI.style.display = 'none';
-                    } else {
-                        if(avatarPreview) { avatarPreview.style.display = 'none'; avatarPreview.src = ''; }
-                        if(avatarI) avatarI.style.display = 'block';
-                    }
-
-                    // Avatar Upload Handler (Unique to this session)
-                    const avatarWrapper = document.getElementById('char-edit-avatar-wrapper');
-                    const avatarUpload = document.getElementById('char-edit-avatar-upload');
-                    
-                    if (avatarWrapper && avatarUpload) {
-                        // Clone to remove old listeners
-                        const newAvatarWrapper = avatarWrapper.cloneNode(true);
-                        avatarWrapper.parentNode.replaceChild(newAvatarWrapper, avatarWrapper);
-                        
-                    const newAvatarUpload = avatarUpload.cloneNode(true);
-                    avatarUpload.parentNode.replaceChild(newAvatarUpload, avatarUpload);
-
-                    newAvatarWrapper.addEventListener('click', (e) => {
-                        if (e.target.tagName !== 'INPUT') newAvatarUpload.click();
-                    });
-
-                    newAvatarUpload.addEventListener('change', (e) => {
-                            const file = e.target.files[0];
-                            if (file) {
-                                const reader = new FileReader();
-                                reader.onload = (ev) => {
-                                    tempAvatarUrl = ev.target.result;
-                                    const img = document.getElementById('char-edit-avatar-img');
-                                    const iconPreview = document.getElementById('char-edit-avatar-preview');
-                                    let iconI = null;
-                                    if(iconPreview) iconI = iconPreview.querySelector('i');
-                                    if(img) { img.src = tempAvatarUrl; img.style.display = 'block'; }
-                                    if(iconI) iconI.style.display = 'none';
-                                };
-                                reader.readAsDataURL(file);
-                            }
-                        });
-                    }
-
-                    // Confirm Action
-                    const confirmBtn = document.getElementById('confirm-char-persona-btn');
-                    if (confirmBtn) {
-                        // Clone to ensure clean event listener state
-                        const newConfirmBtn = confirmBtn.cloneNode(true);
-                        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
-                        
-                        newConfirmBtn.addEventListener('click', () => {
-                            // Save Data
-                            friend.realName = realNameInput ? realNameInput.value : '';
-                            friend.nickname = nicknameInput ? (nicknameInput.value || 'New Friend') : 'New Friend';
-                            friend.signature = signatureInput ? signatureInput.value : '';
-                            friend.persona = personaInput ? personaInput.value : '';
-                            friend.avatarUrl = tempAvatarUrl;
-                            
-                            saveFriends();
-                            
-                            // Update UI immediately for THIS SPECIFIC page
-                            const nameEl = page.querySelector('.ins-chat-name');
-                            const signEl = page.querySelector('.ins-chat-sign');
-                            const avatarContainer = page.querySelector('.ins-chat-avatar');
-                            
-                            if(nameEl) nameEl.textContent = friend.nickname;
-                            if(signEl) signEl.textContent = friend.signature || 'Signature/Bio';
-                            
-                            if (avatarContainer) {
-                                if (friend.avatarUrl) {
-                                    avatarContainer.innerHTML = `<img src="${friend.avatarUrl}" style="display: block; width: 100%; height: 100%; object-fit: cover;">`;
-                                } else {
-                                    avatarContainer.innerHTML = `<i class="fas fa-user"></i>`;
-                                }
-                            }
-                            
-                            renderFriendsList(); // Update side list
-                            renderChatsList(); // Update chats list preview
-                            
-                            showToast('角色修改成功');
-                            closeView(editSheet);
-                        });
-                    }
-
-                    openView(editSheet);
-                };
-            }
+            // Removed headerEl click editing for char profile as per P2 layout update
+            // Editing functionality is now moved to Chat Settings
 
             const menuBtn = page.querySelector('.chat-menu-btn');
             if (menuBtn) {
                 menuBtn.addEventListener('click', () => {
                     const chatSettingsSheet = document.getElementById('chat-settings-sheet');
                     if (chatSettingsSheet) {
+                        // Sync setting header info before opening
+                        const settingsAvatarImg = document.getElementById('chat-settings-avatar-img');
+                        const settingsAvatarIcon = document.getElementById('chat-settings-avatar-icon');
+                        const settingsName = document.getElementById('chat-settings-name');
+                        
+                        if (friend.avatarUrl) {
+                            if(settingsAvatarImg) { settingsAvatarImg.src = friend.avatarUrl; settingsAvatarImg.style.display = 'block'; }
+                            if(settingsAvatarIcon) settingsAvatarIcon.style.display = 'none';
+                        } else {
+                            if(settingsAvatarImg) { settingsAvatarImg.style.display = 'none'; settingsAvatarImg.src = ''; }
+                            if(settingsAvatarIcon) settingsAvatarIcon.style.display = 'block';
+                        }
+                        if (settingsName) settingsName.textContent = friend.nickname;
+
                         openView(chatSettingsSheet);
                         initChatSettingsForFriend(friend);
                     }
@@ -1205,6 +1107,133 @@ Reply naturally as your character in a chat app. Do not include your own name at
         });
     }
 
+    // Handle Editing Profile from Chat Settings Top Banner
+    const chatSettingsProfileTrigger = document.getElementById('chat-settings-profile-trigger');
+    if (chatSettingsProfileTrigger) {
+        chatSettingsProfileTrigger.addEventListener('click', () => {
+            if (!currentSettingsFriend) return;
+            const friend = currentSettingsFriend;
+            const editSheet = document.getElementById('edit-char-persona-sheet');
+            if (!editSheet) return;
+
+            // Inputs
+            const realNameInput = document.getElementById('char-realname-input');
+            const nicknameInput = document.getElementById('char-nickname-input');
+            const signatureInput = document.getElementById('char-signature-input');
+            const personaInput = document.getElementById('char-persona-input');
+            const avatarPreview = document.getElementById('char-edit-avatar-img');
+            const avatarIcon = document.getElementById('char-edit-avatar-preview');
+            let avatarI = null;
+            if(avatarIcon) avatarI = avatarIcon.querySelector('i');
+            
+            // Temp avatar state
+            let tempAvatarUrl = friend.avatarUrl;
+
+            // Load current data
+            if(realNameInput) realNameInput.value = friend.realName || '';
+            if(nicknameInput) nicknameInput.value = friend.nickname || '';
+            if(signatureInput) signatureInput.value = friend.signature || '';
+            if(personaInput) personaInput.value = friend.persona || '';
+            
+            // Set Avatar
+            if (friend.avatarUrl) {
+                if(avatarPreview) { avatarPreview.src = friend.avatarUrl; avatarPreview.style.display = 'block'; }
+                if(avatarI) avatarI.style.display = 'none';
+            } else {
+                if(avatarPreview) { avatarPreview.style.display = 'none'; avatarPreview.src = ''; }
+                if(avatarI) avatarI.style.display = 'block';
+            }
+
+            // Avatar Upload Handler
+            const avatarWrapper = document.getElementById('char-edit-avatar-wrapper');
+            const avatarUpload = document.getElementById('char-edit-avatar-upload');
+            
+            if (avatarWrapper && avatarUpload) {
+                const newAvatarWrapper = avatarWrapper.cloneNode(true);
+                avatarWrapper.parentNode.replaceChild(newAvatarWrapper, avatarWrapper);
+                
+                const newAvatarUpload = avatarUpload.cloneNode(true);
+                avatarUpload.parentNode.replaceChild(newAvatarUpload, avatarUpload);
+
+                newAvatarWrapper.addEventListener('click', (e) => {
+                    if (e.target.tagName !== 'INPUT') newAvatarUpload.click();
+                });
+
+                newAvatarUpload.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                            tempAvatarUrl = ev.target.result;
+                            const img = document.getElementById('char-edit-avatar-img');
+                            const iconPreview = document.getElementById('char-edit-avatar-preview');
+                            let iconI = null;
+                            if(iconPreview) iconI = iconPreview.querySelector('i');
+                            if(img) { img.src = tempAvatarUrl; img.style.display = 'block'; }
+                            if(iconI) iconI.style.display = 'none';
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            // Confirm Action
+            const confirmBtn = document.getElementById('confirm-char-persona-btn');
+            if (confirmBtn) {
+                const newConfirmBtn = confirmBtn.cloneNode(true);
+                confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+                
+                newConfirmBtn.addEventListener('click', () => {
+                    friend.realName = realNameInput ? realNameInput.value : '';
+                    friend.nickname = nicknameInput ? (nicknameInput.value || 'New Friend') : 'New Friend';
+                    friend.signature = signatureInput ? signatureInput.value : '';
+                    friend.persona = personaInput ? personaInput.value : '';
+                    friend.avatarUrl = tempAvatarUrl;
+                    
+                    saveFriends();
+                    
+                    // Update Chat Interface UI immediately
+                    const page = document.getElementById(`chat-interface-${friend.id}`);
+                    if (page) {
+                        const nameEl = page.querySelector('.ins-chat-name');
+                        const avatarContainer = page.querySelector('.ins-chat-avatar');
+                        
+                        if(nameEl) nameEl.textContent = friend.nickname;
+                        
+                        if (avatarContainer) {
+                            if (friend.avatarUrl) {
+                                avatarContainer.innerHTML = `<img src="${friend.avatarUrl}" style="display: block;">`;
+                            } else {
+                                avatarContainer.innerHTML = `<i class="fas fa-user"></i>`;
+                            }
+                        }
+                    }
+
+                    // Update settings header immediately
+                    const settingsAvatarImg = document.getElementById('chat-settings-avatar-img');
+                    const settingsAvatarIcon = document.getElementById('chat-settings-avatar-icon');
+                    const settingsName = document.getElementById('chat-settings-name');
+                    if (friend.avatarUrl) {
+                        if(settingsAvatarImg) { settingsAvatarImg.src = friend.avatarUrl; settingsAvatarImg.style.display = 'block'; }
+                        if(settingsAvatarIcon) settingsAvatarIcon.style.display = 'none';
+                    } else {
+                        if(settingsAvatarImg) { settingsAvatarImg.style.display = 'none'; settingsAvatarImg.src = ''; }
+                        if(settingsAvatarIcon) settingsAvatarIcon.style.display = 'block';
+                    }
+                    if (settingsName) settingsName.textContent = friend.nickname;
+                    
+                    renderFriendsList();
+                    renderChatsList();
+                    
+                    showToast('角色修改成功');
+                    closeView(editSheet);
+                });
+            }
+
+            openView(editSheet);
+        });
+    }
+
     function initChatSettingsForFriend(friend) {
         currentSettingsFriend = friend;
         if (bubbleStyleToggle) {
@@ -1359,4 +1388,160 @@ Reply naturally as your character in a chat app. Do not include your own name at
             cssPresetList.appendChild(item);
         });
     }
-});
+
+    // --- Context Menu Logic ---
+    const msgContextOverlay = document.getElementById('msg-context-overlay');
+    const msgContextMenu = document.getElementById('msg-context-menu');
+    let longPressTimer = null;
+    let currentActiveRow = null;
+
+    // Event delegation on chatsContent for long press
+    if (chatsContent) {
+        let startX, startY;
+        
+        const startPress = (e) => {
+            // Only allow touch events (mobile users)
+            if (!e.type.includes('touch')) return;
+
+            const row = e.target.closest('.chat-row');
+            if (!row) return;
+            
+            // clear old
+            if (longPressTimer) clearTimeout(longPressTimer);
+            
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+
+            longPressTimer = setTimeout(() => {
+                showContextMenu(row, e);
+            }, 500);
+        };
+
+        const cancelPress = (e) => {
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+        };
+
+        const movePress = (e) => {
+            if (!longPressTimer) return;
+            const currentX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
+            const currentY = e.type.includes('mouse') ? e.pageY : e.touches[0].clientY;
+            if (Math.abs(currentX - startX) > 10 || Math.abs(currentY - startY) > 10) {
+                cancelPress();
+            }
+        };
+
+        chatsContent.addEventListener('touchstart', startPress, {passive: true});
+        chatsContent.addEventListener('touchend', cancelPress);
+        chatsContent.addEventListener('touchmove', movePress, {passive: true});
+        chatsContent.addEventListener('mousedown', startPress);
+        chatsContent.addEventListener('mouseup', cancelPress);
+        chatsContent.addEventListener('mousemove', movePress);
+    }
+
+    function showContextMenu(row, e) {
+        if (!msgContextOverlay || !msgContextMenu) return;
+        
+        // Haptic feedback
+        if (navigator.vibrate) navigator.vibrate(50);
+        
+        currentActiveRow = row;
+        row.classList.add('message-active');
+        
+        const bubbleRect = row.querySelector('.chat-bubble').getBoundingClientRect();
+        // Get the phone screen container boundaries instead of full window
+        const screenEl = document.querySelector('.screen') || document.body;
+        const screenRect = screenEl.getBoundingClientRect();
+        
+        msgContextOverlay.style.display = 'flex';
+        msgContextOverlay.style.opacity = '1';
+        
+        // Calculate initial position relative to viewport
+        let top = bubbleRect.top + 20; 
+        let left = bubbleRect.left;
+        
+        // Adjust left to not go outside right screen boundary
+        if (left + 220 > screenRect.right - 10) {
+            left = screenRect.right - 230;
+            msgContextMenu.style.transformOrigin = 'top right';
+        } else {
+            msgContextMenu.style.transformOrigin = 'top left';
+        }
+
+        // Adjust left to not go outside left screen boundary
+        if (left < screenRect.left + 10) {
+            left = screenRect.left + 10;
+        }
+        
+        // Adjust top to not go outside bottom screen boundary
+        if (top + 350 > screenRect.bottom - 10) {
+            top = bubbleRect.top - 320;
+            // Prevent going above screen
+            if (top < screenRect.top + 50) {
+                top = screenRect.top + 50;
+            }
+            msgContextMenu.style.transformOrigin = msgContextMenu.style.transformOrigin.replace('top', 'bottom');
+        }
+        
+        msgContextMenu.style.top = top + 'px';
+        msgContextMenu.style.left = left + 'px';
+        
+        // Animation
+        requestAnimationFrame(() => {
+            msgContextMenu.style.opacity = '1';
+            msgContextMenu.style.transform = 'scale(1)';
+        });
+    }
+
+    function closeContextMenu() {
+        if (!msgContextOverlay || !msgContextMenu) return;
+        msgContextMenu.style.opacity = '0';
+        msgContextMenu.style.transform = 'scale(0.8)';
+        
+        if (currentActiveRow) {
+            currentActiveRow.classList.remove('message-active');
+            currentActiveRow = null;
+        }
+        
+        setTimeout(() => {
+            msgContextOverlay.style.display = 'none';
+        }, 200);
+    }
+
+    if (msgContextOverlay) {
+        msgContextOverlay.addEventListener('click', (e) => {
+            if (e.target === msgContextOverlay) {
+                closeContextMenu();
+            }
+        });
+    }
+
+    // Handle menu items
+    const menuItems = document.querySelectorAll('.msg-menu-item');
+    menuItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const action = item.getAttribute('data-action');
+            if (action === 'delete') {
+                if (currentActiveRow) {
+                    currentActiveRow.remove();
+                    if(window.showToast) window.showToast('已删除该消息');
+                }
+            } else {
+                if(window.showToast) window.showToast(action + ' 功能未实现');
+            }
+            closeContextMenu();
+        });
+    });
+    
+    // Handle reactions
+    const reactions = document.querySelectorAll('.msg-reaction');
+    reactions.forEach(reaction => {
+        reaction.addEventListener('click', () => {
+            if(window.showToast) window.showToast('已回应: ' + reaction.textContent);
+            closeContextMenu();
+        });
+    });
+
+}); // End of original DOMContentLoaded

@@ -72,8 +72,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Move indicator
         if (tkNavIndicator) {
-            tkNavIndicator.style.transform = `translateX(${index * 100}%)`;
-            tkNavIndicator.style.left = '0'; // reset left, use transform
+            // Get actual position and width of the clicked nav item
+            const targetItem = tkNavItems[index];
+            const navRect = targetItem.parentElement.getBoundingClientRect();
+            const itemRect = targetItem.getBoundingClientRect();
+            
+            // Calculate relative left position
+            const leftPos = itemRect.left - navRect.left;
+            
+            tkNavIndicator.style.width = `${itemRect.width}px`;
+            tkNavIndicator.style.left = `${leftPos}px`;
+            tkNavIndicator.style.transform = 'none'; // Clear previous transform logic
         }
 
         // Slide Tabs

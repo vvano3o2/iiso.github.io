@@ -116,131 +116,147 @@ body {
     background-color: rgba(255, 255, 255, 0.9);
 }
 
-/* 4x4 Ins Profile Widget */
+/* 4x3 Custom Profile Widget */
 .ins-profile-widget {
     grid-column: span 4;
-    grid-row: span 4;
+    grid-row: span 3;
     width: 100%;
-    height: 325px; /* 4 rows (85*4 - 15 gap roughly, approx 325px) */
-    background-color: rgba(255, 255, 255, 0.4);
+    height: 240px; /* 3 rows (85*3 - 15 gap roughly, approx 240px) */
+    background-color: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(25px) saturate(180%);
     -webkit-backdrop-filter: blur(25px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 36px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 32px;
+    box-shadow: none; /* Flat style as requested */
     display: flex;
     flex-direction: column;
-    overflow: hidden;
     position: relative;
     cursor: pointer;
+    padding: 20px;
 }
 
 .ins-profile-widget:active {
     transform: scale(0.98);
 }
 
-.ins-widget-banner {
-    width: 100%;
-    height: 45%;
-    background: linear-gradient(135deg, rgba(252, 228, 236, 0.8), rgba(243, 229, 245, 0.8));
+.custom-widget-top {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #aaa;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.custom-widget-avatar-wrapper {
     position: relative;
-    overflow: hidden;
-}
-
-.ins-widget-banner img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    position: absolute;
-    top: 0;
-    left: 0;
-}
-
-.ins-widget-avatar-wrapper {
-    position: absolute;
-    top: 45%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 10;
-}
-
-.ins-widget-avatar {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    border: 4px solid rgba(255, 255, 255, 0.6);
-    background: #e5e5ea;
+    border: 2px solid #e5e5ea;
+    background: #f2f2f7;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #fff;
-    font-size: 32px;
     overflow: hidden;
-    position: relative;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-.ins-widget-avatar img {
+.custom-widget-avatar-wrapper img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    position: absolute;
-    top: 0;
-    left: 0;
 }
 
-.ins-widget-info {
-    margin-top: 45px;
-    text-align: center;
+.custom-widget-avatar-wrapper i {
+    font-size: 32px;
+    color: #c7c7cc;
+}
+
+.custom-widget-stats {
+    display: flex;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.custom-widget-stat-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
-    padding: 0 16px;
+    gap: 4px;
 }
 
-.ins-widget-name {
-    font-weight: 700;
+.custom-widget-stat-num {
     font-size: 18px;
+    font-weight: 700;
     color: #000;
     outline: none;
 }
 
-.ins-widget-handle {
+.custom-widget-stat-label {
+    font-size: 13px;
     color: #8e8e93;
-    font-size: 13px;
+}
+
+.custom-widget-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #000;
+    margin-top: 10px;
     outline: none;
 }
 
-.ins-widget-bio {
-    color: #666;
+.custom-widget-edit-btn {
+    width: 100%;
+    padding: 6px 0;
+    background-color: transparent;
+    border: 1px solid #e5e5ea;
+    border-radius: 20px; /* Capsule shape */
     font-size: 13px;
-    margin-top: 4px;
-    outline: none;
-    line-height: 1.4;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    word-break: break-all;
+    font-weight: 600;
+    color: #000;
+    text-align: center;
+    margin-top: 10px;
 }
 
-.ins-widget-location {
+.custom-widget-bottom {
     display: flex;
+    justify-content: flex-start; /* Align left */
     align-items: center;
-    gap: 4px;
-    color: #8e8e93;
-    font-size: 12px;
-    margin-top: 4px;
-    outline: none;
+    gap: 15px; /* Tight gap */
+    margin-top: auto;
 }
 
-.ins-widget-location i {
-    font-size: 11px;
+.custom-widget-add-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #e5e5ea;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    color: #000;
+}
+
+.custom-widget-small-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #e5e5ea;
+    background: #f2f2f7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.custom-widget-small-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.custom-widget-small-avatar i {
+    font-size: 24px;
+    color: #c7c7cc;
 }
 
 /* Dynamic Island Notch */
@@ -385,6 +401,13 @@ body {
     100% { transform: rotate(-1.5deg); }
 }
 
+body.jiggle-mode {
+    touch-action: none; /* Prevent scroll on mobile during jiggle mode */
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
 .jiggle-mode .app-item:not(.empty-slot), 
 .jiggle-mode .music-widget, 
 .jiggle-mode .time-widget,
@@ -396,10 +419,15 @@ body {
 .jiggle-mode .dock-icon {
     animation: jiggle 0.3s infinite ease-in-out;
     cursor: grab;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
 }
 
 .app-item, .dock-icon {
     position: relative;
+    -webkit-touch-callout: none; /* Prevent long press menu globally for apps */
 }
 
 .dragging {
@@ -436,162 +464,6 @@ body {
 
 .drag-over {
     transform: scale(0.95);
-}
-
-/* Time Widget (Diary Style 2x4) */
-.time-widget {
-    grid-column: span 4;
-    grid-row: span 2;
-    width: 100%;
-    height: 155px;
-    align-self: center;
-    background-color: #ffffff;
-    border: 1px solid #e5e5ea;
-    border-radius: 28px;
-    display: flex;
-    flex-direction: row;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
-    cursor: pointer;
-    position: relative;
-    overflow: visible; /* to allow delete btn to show out of bounds */
-}
-
-.time-widget:active {
-    transform: scale(0.98);
-}
-
-.time-widget-left {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 16px;
-    gap: 12px;
-}
-
-.time-bubble {
-    background-color: #ffffff;
-    border-radius: 12px;
-    padding: 6px 10px;
-    font-size: 12px;
-    color: #666666;
-    font-weight: 500;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    border: 1px solid #e5e5ea;
-    outline: none;
-    width: 130px;
-    box-sizing: border-box;
-}
-
-.time-bubble i {
-    color: #8e8e93;
-    font-size: 13px;
-}
-
-/* Diary Binder Spine */
-.binder-spine {
-    width: 20px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    align-items: center;
-    padding: 10px 0;
-    position: relative;
-    z-index: 5;
-    background: linear-gradient(to right, transparent, rgba(0,0,0,0.02) 50%, transparent);
-}
-
-.binder-ring {
-    width: 18px;
-    height: 5px;
-    background: linear-gradient(to bottom, #e5e5ea, #c7c7cc, #e5e5ea);
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    position: relative;
-    margin-left: -4px;
-}
-
-.binder-ring::before {
-    content: '';
-    position: absolute;
-    left: -4px;
-    top: -1px;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #d1d1d6;
-    box-shadow: inset 1px 1px 3px rgba(0,0,0,0.15);
-}
-
-.binder-ring::after {
-    content: '';
-    position: absolute;
-    right: -2px;
-    top: 0px;
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: #d1d1d6;
-    box-shadow: inset -1px 1px 2px rgba(0,0,0,0.1);
-}
-
-/* Polaroid Style Right Section */
-.time-widget-right-wrapper {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.time-widget-right {
-    width: 110px;
-    height: 120px;
-    margin: 0;
-    border-radius: 4px;
-    background-color: #ffffff;
-    padding: 6px 6px 20px 6px;
-    position: relative;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    transform: rotate(3deg);
-    cursor: pointer;
-}
-
-.time-widget-img-container {
-    width: 100%;
-    height: 100%;
-    background-color: #e5e5ea;
-    overflow: hidden;
-    border-radius: 2px;
-}
-
-.time-widget-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.polaroid-tape {
-    position: absolute;
-    top: -8px;
-    left: 50%;
-    transform: translateX(-50%) rotate(-5deg);
-    width: 45px;
-    height: 18px;
-    background: rgba(255, 255, 255, 0.45);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    border: 1px solid rgba(255,255,255,0.3);
-    z-index: 10;
 }
 
 .music-widget.playing .tonearm {
@@ -2015,31 +1887,33 @@ input:checked + .slider:before {
     padding-right: 0;
 }
 
-/* Mobile Responsive */
-@media screen and (max-width: 450px) {
-    body {
-        align-items: flex-start;
-        background-color: #000;
-        margin: 0;
-    }
-    
-    .phone-frame {
-        width: 100vw;
-        height: 100dvh; /* use dvh for real mobile browsers to account for address bars */
-        border-radius: 0;
-        padding: 0;
-        box-shadow: none;
-    }
-    
-    .screen {
-        border-radius: 0;
-        /* Padding adjustment for mobile safe areas could be added here */
-    }
-    
-    .notch {
-        /* Optional: hide notch on real devices as they have their own */
-        /* display: none; */
-    }
+/* Fullscreen & Hide Island Modes */
+body.fullscreen-mode {
+    align-items: flex-start;
+    background-color: #000;
+    margin: 0;
+}
+
+body.fullscreen-mode .phone-frame {
+    width: 100vw;
+    height: 100dvh; /* use dvh for real mobile browsers */
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+}
+
+body.fullscreen-mode .screen {
+    border-radius: 0;
+}
+
+body.hide-island .notch {
+    display: none !important;
+}
+
+body.hide-island .screen {
+    padding-top: 30px; /* Reduced padding when island is hidden */
 }
 
 /* ==========================================

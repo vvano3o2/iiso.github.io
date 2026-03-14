@@ -11,9 +11,9 @@ const tkState = {
         status: '思考中...', // The bubble text above avatar
         bio: '点击添加个人简介',
         persona: '', // AI persona
-        following: 12,
-        followers: 128,
-        likes: 1024,
+        following: 0,
+        followers: 0,
+        likes: 0,
         posts: [] // { id, text, views }
     },
     // Array of character objects

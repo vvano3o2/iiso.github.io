@@ -20,6 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileBackBtn = document.getElementById('tk-profile-back-btn');
     const editSheet = document.getElementById('tk-edit-profile-sheet');
     const saveProfileBtn = document.getElementById('tk-save-profile-btn');
+    const tkAppView = document.getElementById('tiktok-view');
+    const editCharSheet = document.getElementById('tk-edit-char-sheet');
+    const subProfileEditTrigger = document.getElementById('tk-sub-profile-edit-trigger');
     
     // Edit Form Elements
     const editNameInput = document.getElementById('tk-edit-name');
@@ -62,11 +65,55 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    if (subProfileEditTrigger) {
+        subProfileEditTrigger.addEventListener('click', () => {
+            if (currentSubCharId) {
+                // Open edit char sheet
+                const title = document.getElementById('tk-char-sheet-title');
+                if (title) title.textContent = '编辑角色';
+                
+                const charNameInput = document.getElementById('tk-char-name');
+                const charStatusInput = document.getElementById('tk-char-status');
+                const charPersonaInput = document.getElementById('tk-char-persona');
+                const deleteCharBtn = document.getElementById('tk-delete-char-btn');
+                const charAvatarImg = document.getElementById('tk-char-avatar-img');
+                const charAvatarIcon = document.querySelector('#tk-char-avatar-preview i');
+                
+                const char = window.tkGetChar(currentSubCharId);
+                if (char) {
+                    if(charNameInput) charNameInput.value = char.name || '';
+                    if(charStatusInput) charStatusInput.value = char.status || '';
+                    if(charPersonaInput) charPersonaInput.value = char.persona || '';
+                    if(deleteCharBtn) deleteCharBtn.style.display = 'block';
+                    
+                    if (char.avatar) {
+                        if(charAvatarImg) { charAvatarImg.src = char.avatar; charAvatarImg.style.display = 'block'; }
+                        if(charAvatarIcon) charAvatarIcon.style.display = 'none';
+                    } else {
+                        if(charAvatarImg) { charAvatarImg.src = ''; charAvatarImg.style.display = 'none'; }
+                        if(charAvatarIcon) charAvatarIcon.style.display = 'block';
+                    }
+                }
+                
+                // We need to set editingCharId in 4_chat.js context indirectly, or just trust the save button handles it.
+                // A better way is to dispatch a custom event or call a global func.
+                // Since 4_chat.js handles the save for this sheet, and relies on its own editingCharId scope, 
+                // we should expose a global function in 4_chat.js to open it properly.
+                if (window.tkOpenEditChar) {
+                    window.tkOpenEditChar(currentSubCharId);
+                } else {
+                    window.openView(editCharSheet);
+                }
+            }
+        });
+    }
+
     // Open Sub Profile Function
     window.tkOpenSubProfile = function(charId) {
         const char = window.tkGetChar(charId);
         if (!char || !subProfileView) return;
         currentSubCharId = charId;
+        window.currentTkSubProfileCharId = charId;
 
         // Render info
         subProfileName.textContent = char.name || 'User';
@@ -103,23 +150,18 @@ document.addEventListener('DOMContentLoaded', () => {
             subProfileFollowBtn.className = 'tk-btn-primary';
         }
 
-        // Generate Grid Content
+        // Render initially with "videos" target
+        const activeTab = document.querySelector('#tk-sub-profile-view .tk-ptab.active');
+        const target = activeTab ? activeTab.getAttribute('data-target') : 'videos';
+        
+        let charVideos = tkState.videos.filter(v => v.authorId === charId);
+        let likedVideos = [];
+        if (char.likedVideoIds) {
+            likedVideos = tkState.videos.filter(v => char.likedVideoIds.includes(v.id));
+        }
+        
         if (subProfileGrid) {
-            const charVideos = tkState.videos.filter(v => v.authorId === charId);
-            subProfileGrid.innerHTML = '';
-            if (charVideos.length > 0) {
-                charVideos.forEach(v => {
-                    const el = document.createElement('div');
-                    el.className = 'tk-grid-item';
-                    el.innerHTML = `
-                        <div class="tk-grid-text">${v.sceneText ? v.sceneText.substring(0, 20) + '...' : '视频片段'}</div>
-                        <div class="tk-grid-views"><i class="fas fa-play"></i> ${v.likes || 0}</div>
-                    `;
-                    subProfileGrid.appendChild(el);
-                });
-            } else {
-                subProfileGrid.innerHTML = '<div style="grid-column: span 3; padding: 40px 0; text-align: center; color: #999; font-size: 13px;">点击右上角魔法棒生成内容</div>';
-            }
+            renderGrid(target, subProfileGrid, charVideos, likedVideos);
         }
 
         subProfileView.classList.add('active');
@@ -172,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const char = window.tkGetChar(charId);
         if(!char) return;
 
-        window.showToast('正在生成内容...');
+        window.showToast('正在生成角色主页内容...');
         
         let wbContext = '';
         if (window.getWorldBooks) {
@@ -189,23 +231,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const prompt = `
-你现在是一个 TikTok 视频内容生成器。请根据以下角色的设定和世界观，生成 3 条关于这个角色的 TikTok 视频数据。
+你现在是一个 TikTok 视频内容生成器。请根据以下角色的设定和挂载的世界书，为该角色生成主页内容：至少 2 条发布的视频内容和至少 2 条点赞过的视频。
 角色名字：${char.name}
 角色设定：${char.persona}
-要求：整体风格符合该角色的性格和设定，视频画面用文字描述，富有镜头感。
-必须返回严格的 JSON 格式（不要有 markdown 代码块标记，不要多余文字），格式如下：
-[
-  {
-    "desc": "视频文案（简短，带tag）",
-    "sceneText": "画面内容文字描述（例如：镜头特写...）",
-    "likes": 1234,
-    "commentsCount": 5,
-    "shares": 12,
-    "comments": [
-      { "authorName": "评论者A", "text": "评论内容", "likes": 12 }
-    ]
-  }
-]
+
+要求：
+1. 整体风格符合该角色的性格和人物设定，视频画面用文字描述，富有镜头感或气泡文字表现感，必须以第三人称视角描述简要的环境氛围、动作和语言描述，字数严格控制在 40-80 字之间。
+2.符合世界观，仿真实tk网络视频，内容多样化，文案要具有“活人感”（例如碎碎念、吐槽、玩梗,也可以是一句摘的抄文学语录），切忌机器播报感。
+3. 返回严格的 JSON 格式（不要有 markdown 代码块标记，不要多余文字），格式必须如下：
+{
+  "posts": [
+    {
+      "desc": "视频文案（简短，带tag）",
+      "sceneText": "画面内容文字描述（气泡内容或镜头描述）",
+      "likes": 1234,
+      "commentsCount": 5,
+      "shares": 12,
+      "comments": [
+        { "authorName": "评论者A", "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=c1", "text": "评论内容", "likes": 12 }
+      ]
+    }
+  ],
+  "likedVideos": [
+    {
+      "authorName": "随机创作者名",
+      "authorAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=v1",
+      "desc": "点赞视频文案",
+      "sceneText": "点赞视频的画面内容",
+      "likes": 5678,
+      "commentsCount": 30,
+      "shares": 20,
+      "comments": []
+    }
+  ]
+}
 
 ${wbContext}
 `;
@@ -239,14 +298,17 @@ ${wbContext}
             let aiReply = data.choices[0].message.content;
             
             aiReply = aiReply.replace(/```json/g, '').replace(/```/g, '').trim();
-            const parsedVideos = JSON.parse(aiReply);
+            const parsedData = JSON.parse(aiReply);
             
-            if (Array.isArray(parsedVideos)) {
-                parsedVideos.forEach(v => {
+            let hasNewContent = false;
+
+            if (parsedData.posts && Array.isArray(parsedData.posts)) {
+                parsedData.posts.forEach(v => {
                     tkState.videos.unshift({
                         id: 'v_' + Date.now() + Math.floor(Math.random() * 1000),
                         authorId: charId,
                         authorName: char.name,
+                        authorAvatar: char.avatar || null,
                         desc: v.desc || '',
                         sceneText: v.sceneText || '',
                         likes: v.likes || Math.floor(Math.random() * 1000),
@@ -256,13 +318,38 @@ ${wbContext}
                         comments: v.comments || []
                     });
                 });
-                
+                hasNewContent = true;
+            }
+
+            if (parsedData.likedVideos && Array.isArray(parsedData.likedVideos)) {
+                if (!char.likedVideoIds) char.likedVideoIds = [];
+                parsedData.likedVideos.forEach(v => {
+                    const newId = 'v_liked_' + Date.now() + Math.floor(Math.random() * 1000);
+                    tkState.videos.unshift({
+                        id: newId,
+                        authorId: 'user_' + Date.now() + Math.floor(Math.random() * 100),
+                        authorName: v.authorName || 'User',
+                        authorAvatar: v.authorAvatar || null,
+                        desc: v.desc || '',
+                        sceneText: v.sceneText || '',
+                        likes: v.likes || Math.floor(Math.random() * 10000),
+                        commentsCount: (v.comments && v.comments.length) || v.commentsCount || 0,
+                        shares: v.shares || Math.floor(Math.random() * 100),
+                        isLiked: false, // The *user* hasn't necessarily liked it, but the char has
+                        comments: v.comments || []
+                    });
+                    char.likedVideoIds.push(newId);
+                });
+                hasNewContent = true;
+            }
+
+            if (hasNewContent) {
                 window.saveGlobalData();
                 if(window.tkRenderHome) window.tkRenderHome();
                 window.showToast('生成成功');
                 if(callback) callback();
             } else {
-                throw new Error('JSON is not an array');
+                throw new Error('No posts or likedVideos array in JSON');
             }
 
         } catch (error) {
@@ -303,7 +390,10 @@ ${wbContext}
             avatarIcon.style.display = 'block';
         }
 
-        renderGrid();
+        // Render initially with "videos" target for main profile
+        const activeTab = document.querySelector('#tk-profile-tab .tk-ptab.active');
+        const target = activeTab ? activeTab.getAttribute('data-target') : 'videos';
+        renderGrid(target, document.getElementById('tk-profile-grid'), tkState.profile.posts || [], tkState.videos.filter(v => v.isLiked));
     };
 
     // Edit Status
@@ -372,47 +462,188 @@ ${wbContext}
     // Top Left Button -> Add Character / Import
     if (profileBackBtn) {
         profileBackBtn.addEventListener('click', () => {
-            if (window.tkOpenImportSheet) window.tkOpenImportSheet();
+            if (tkAppView) {
+                window.closeView(tkAppView);
+            }
         });
     }
 
-    // Edit Profile Logic
-    if (editBtn) {
-        editBtn.addEventListener('click', () => {
-            const p = tkState.profile;
-            editNameInput.value = p.name || '';
-            editHandleInput.value = p.handle || '';
-            editBioInput.value = p.bio || '';
-            editPersonaInput.value = p.persona || '';
-            
-            if(editFollowingInput) editFollowingInput.value = p.following || 0;
-            if(editFollowersInput) editFollowersInput.value = p.followers || 0;
-            if(editLikesInput) editLikesInput.value = p.likes || 0;
-            
-            window.openView(editSheet);
-        });
-    }
+    // --- Global Event Delegation for Edit Profile & Actions (Bulletproof) ---
+    if (!window.tkProfileDelegationBound) {
+        window.tkProfileDelegationBound = true;
+        document.addEventListener('click', (e) => {
+            // 点击空白处关闭各种 sheet
+            const sheets = [
+                'tk-edit-profile-sheet',
+                'tk-upload-video-sheet',
+                'tk-edit-char-sheet',
+                'tk-create-action-sheet'
+            ];
+            sheets.forEach(id => {
+                const sheet = document.getElementById(id);
+                if (sheet && sheet.classList.contains('active')) {
+                    if (e.target === sheet) {
+                        window.closeView(sheet);
+                    }
+                }
+            });
 
-    if (saveProfileBtn) {
-        saveProfileBtn.addEventListener('click', () => {
-            tkState.profile.name = editNameInput.value.trim() || 'User';
-            tkState.profile.handle = editHandleInput.value.trim() || 'user123';
-            tkState.profile.bio = editBioInput.value.trim() || '';
-            tkState.profile.persona = editPersonaInput.value.trim() || '';
+            // 1. Edit Profile Button
+            if (e.target.closest('#tk-profile-edit-btn')) {
+                try {
+                    const p = tkState.profile;
+                    const elName = document.getElementById('tk-edit-name');
+                    if(elName) elName.value = p.name || '';
+                    const elHandle = document.getElementById('tk-edit-handle');
+                    if(elHandle) elHandle.value = p.handle || '';
+                    const elBio = document.getElementById('tk-edit-bio');
+                    if(elBio) elBio.value = p.bio || '';
+                    const elPersona = document.getElementById('tk-edit-persona');
+                    if(elPersona) elPersona.value = p.persona || '';
+                    
+                    const elFollowing = document.getElementById('tk-edit-following');
+                    if(elFollowing) elFollowing.value = p.following || 0;
+                    const elFollowers = document.getElementById('tk-edit-followers');
+                    if(elFollowers) elFollowers.value = p.followers || 0;
+                    const elLikes = document.getElementById('tk-edit-likes');
+                    if(elLikes) elLikes.value = p.likes || 0;
+                    
+                    const sheet = document.getElementById('tk-edit-profile-sheet');
+                    if(sheet) window.openView(sheet);
+                    else if(window.showToast) window.showToast('无法找到编辑面板容器');
+                } catch(err) {
+                    console.error('打开编辑资料报错:', err);
+                    if(window.showToast) window.showToast('打开编辑失败:' + err.message);
+                }
+            }
             
-            if(editFollowingInput) tkState.profile.following = parseInt(editFollowingInput.value) || 0;
-            if(editFollowersInput) tkState.profile.followers = parseInt(editFollowersInput.value) || 0;
-            if(editLikesInput) tkState.profile.likes = parseInt(editLikesInput.value) || 0;
+            // Save Profile Button
+            if (e.target.closest('#tk-save-profile-btn')) {
+                const elName = document.getElementById('tk-edit-name');
+                const elHandle = document.getElementById('tk-edit-handle');
+                const elBio = document.getElementById('tk-edit-bio');
+                const elPersona = document.getElementById('tk-edit-persona');
+                
+                const elFollowing = document.getElementById('tk-edit-following');
+                const elFollowers = document.getElementById('tk-edit-followers');
+                const elLikes = document.getElementById('tk-edit-likes');
+                
+                tkState.profile.name = elName ? elName.value.trim() : 'User';
+                tkState.profile.handle = elHandle ? elHandle.value.trim() : 'user123';
+                tkState.profile.bio = elBio ? elBio.value.trim() : '';
+                tkState.profile.persona = elPersona ? elPersona.value.trim() : '';
+                
+                if(elFollowing) tkState.profile.following = elFollowing.value || 0;
+                if(elFollowers) tkState.profile.followers = elFollowers.value || 0;
+                if(elLikes) tkState.profile.likes = elLikes.value || 0;
 
-            // Sync to main
-            if (window.userState) {
-                window.userState.name = tkState.profile.name;
+                if (window.userState) {
+                    window.userState.name = tkState.profile.name;
+                }
+
+                window.saveGlobalData();
+                window.tkRenderProfile();
+                const sheet = document.getElementById('tk-edit-profile-sheet');
+                if(sheet) window.closeView(sheet);
+                window.showToast('资料已保存');
+            }
+            
+            // 2. Profile Create Trigger (the little caret)
+            if (e.target.closest('#tk-profile-tab .tk-btn-icon')) {
+                const sheet = document.getElementById('tk-create-action-sheet');
+                if (sheet && window.openView) window.openView(sheet);
+            }
+            
+            // Open Upload Video Sheet Button
+            if (e.target.closest('#tk-btn-open-upload-video')) {
+                const createActionSheet = document.getElementById('tk-create-action-sheet');
+                if(createActionSheet) window.closeView(createActionSheet);
+                
+                const descInput = document.getElementById('tk-upload-desc-input');
+                const sceneInput = document.getElementById('tk-upload-scene-input');
+                const coverImg = document.getElementById('tk-upload-cover-img');
+                const coverBtn = document.getElementById('tk-upload-cover-btn');
+                
+                if(descInput) descInput.value = '';
+                if(sceneInput) sceneInput.value = '';
+                if(coverImg) {
+                    coverImg.src = '';
+                    coverImg.style.display = 'none';
+                }
+                if(coverBtn) {
+                    const div = coverBtn.querySelector('div');
+                    if(div) div.style.display = 'flex';
+                }
+                
+                const sheet = document.getElementById('tk-upload-video-sheet');
+                if(sheet) window.openView(sheet);
             }
 
-            window.saveGlobalData();
-            window.tkRenderProfile();
-            window.closeView(editSheet);
-            window.showToast('资料已保存');
+            // Confirm Upload Button
+            if (e.target.closest('#tk-confirm-upload-btn')) {
+                const descInput = document.getElementById('tk-upload-desc-input');
+                const sceneInput = document.getElementById('tk-upload-scene-input');
+                const coverImg = document.getElementById('tk-upload-cover-img');
+                
+                const desc = descInput ? descInput.value.trim() : '';
+                const scene = sceneInput ? sceneInput.value.trim() : '';
+                const cover = coverImg ? coverImg.src : null;
+
+                if (!tkState.profile.posts) tkState.profile.posts = [];
+                
+                const newPost = {
+                    id: 'post_' + Date.now(),
+                    desc: desc,
+                    sceneText: scene,
+                    cover: (coverImg && coverImg.style.display === 'block') ? cover : null,
+                    likes: 0,
+                    comments: []
+                };
+                
+                tkState.profile.posts.unshift(newPost);
+                window.saveGlobalData();
+                window.tkRenderProfile();
+                const sheet = document.getElementById('tk-upload-video-sheet');
+                if(sheet) window.closeView(sheet);
+                window.showToast('视频已发布');
+            }
+            
+            // 3. Sub Profile Edit Trigger
+            if (e.target.closest('#tk-sub-profile-edit-trigger')) {
+                const charId = window.currentTkSubProfileCharId;
+                if (charId) {
+                    const title = document.getElementById('tk-char-sheet-title');
+                    if (title) title.textContent = '编辑角色';
+                    
+                    const charNameInput = document.getElementById('tk-char-name');
+                    const charStatusInput = document.getElementById('tk-char-status');
+                    const charPersonaInput = document.getElementById('tk-char-persona');
+                    const deleteCharBtn = document.getElementById('tk-delete-char-btn');
+                    const charAvatarImg = document.getElementById('tk-char-avatar-img');
+                    const charAvatarIcon = document.querySelector('#tk-char-avatar-preview i');
+                    
+                    const char = window.tkGetChar(charId);
+                    if (char) {
+                        if(charNameInput) charNameInput.value = char.name || '';
+                        if(charStatusInput) charStatusInput.value = char.status || '';
+                        if(charPersonaInput) charPersonaInput.value = char.persona || '';
+                        if(deleteCharBtn) deleteCharBtn.style.display = 'block';
+                        
+                        if (char.avatar) {
+                            if(charAvatarImg) { charAvatarImg.src = char.avatar; charAvatarImg.style.display = 'block'; }
+                            if(charAvatarIcon) charAvatarIcon.style.display = 'none';
+                        } else {
+                            if(charAvatarImg) { charAvatarImg.src = ''; charAvatarImg.style.display = 'none'; }
+                            if(charAvatarIcon) charAvatarIcon.style.display = 'block';
+                        }
+                    }
+                    if (window.tkOpenEditChar) window.tkOpenEditChar(charId);
+                    else {
+                        const s = document.getElementById('tk-edit-char-sheet');
+                        if(s) window.openView(s);
+                    }
+                }
+            }
         });
     }
 
@@ -423,48 +654,157 @@ ${wbContext}
         });
     }
 
-    // Grid Tabs Logic
-    const profileTabs = document.querySelectorAll('.tk-ptab');
-    const indicator = document.querySelector('.tk-ptab-indicator');
-    const gridContainer = document.getElementById('tk-profile-grid');
+    // Grid Tabs Logic - Main Profile
+    const mainProfileTabs = document.querySelectorAll('#tk-profile-tab .tk-ptab');
+    const mainIndicator = document.querySelector('#tk-profile-tab .tk-ptab-indicator');
+    const mainGridContainer = document.getElementById('tk-profile-grid');
 
-    profileTabs.forEach((tab, index) => {
+    mainProfileTabs.forEach((tab, index) => {
         tab.addEventListener('click', () => {
-            profileTabs.forEach(t => t.classList.remove('active'));
+            mainProfileTabs.forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
-            indicator.style.transform = `translateX(${index * 100}%)`;
+            mainIndicator.style.transform = `translateX(${index * 100}%)`;
             
-            // Re-render grid based on tab
             const target = tab.getAttribute('data-target');
-            renderGrid(target);
+            renderGrid(target, mainGridContainer, tkState.profile.posts || [], tkState.videos.filter(v => v.isLiked));
         });
     });
 
-    function renderGrid(target = 'videos') {
-        if (!gridContainer) return;
-        gridContainer.innerHTML = '';
+    // Grid Tabs Logic - Sub Profile
+    const subProfileTabs = document.querySelectorAll('#tk-sub-profile-view .tk-ptab');
+    const subIndicator = document.querySelector('#tk-sub-profile-view .tk-ptab-indicator');
+    const subGridContainer = document.getElementById('tk-sub-profile-grid');
+
+    subProfileTabs.forEach((tab, index) => {
+        tab.addEventListener('click', () => {
+            subProfileTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            subIndicator.style.transform = `translateX(${index * 100}%)`;
+            
+            const target = tab.getAttribute('data-target');
+            let charVideos = [];
+            let likedVideos = [];
+            if (currentSubCharId) {
+                const char = window.tkGetChar(currentSubCharId);
+                charVideos = tkState.videos.filter(v => v.authorId === currentSubCharId);
+                if (char && char.likedVideoIds) {
+                    likedVideos = tkState.videos.filter(v => char.likedVideoIds.includes(v.id));
+                }
+            }
+            renderGrid(target, subGridContainer, charVideos, likedVideos);
+        });
+    });
+
+    function renderGrid(target = 'videos', container, videosList = [], likedList = []) {
+        if (!container) return;
+        container.innerHTML = '';
         
         let items = [];
         if (target === 'videos') {
-            items = tkState.profile.posts || [];
+            items = videosList;
         } else if (target === 'liked') {
-            items = tkState.videos.filter(v => v.isLiked);
+            items = likedList;
         }
         
         if (items.length === 0) {
-            gridContainer.innerHTML = '<div style="grid-column: span 3; padding: 40px 0; text-align: center; color: #999; font-size: 13px;">暂无内容</div>';
+            container.innerHTML = '<div style="grid-column: span 3; padding: 40px 0; text-align: center; color: #999; font-size: 13px;">暂无内容</div>';
             return;
         }
 
         items.forEach(item => {
             const el = document.createElement('div');
             el.className = 'tk-grid-item';
-            // Simple mockup of a video cover
-            el.innerHTML = `
-                <div class="tk-grid-text">${item.sceneText ? item.sceneText.substring(0, 20) + '...' : '视频片段'}</div>
-                <div class="tk-grid-views"><i class="fas fa-play"></i> ${item.likes || Math.floor(Math.random()*1000)}</div>
-            `;
-            gridContainer.appendChild(el);
+            
+            if (item.cover || item.bgImage) {
+                let imgUrl = item.cover ? item.cover : item.bgImage;
+                el.innerHTML = `
+                    <img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div class="tk-grid-views" style="text-shadow: none;"><i class="fas fa-play" style="text-shadow: none;"></i> ${item.likes || Math.floor(Math.random()*1000)}</div>
+                `;
+            } else {
+                let bgStyleStr = item.bgColor ? item.bgColor : '#ffffff';
+
+                el.innerHTML = `
+                    <div class="tk-grid-text" style="position: relative; left: 0; top: 0; transform: none; background: ${bgStyleStr}; color:#111111; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding: 8px; width: 100%; height: 100%; box-sizing: border-box; border: none; box-shadow: none !important; text-shadow: none;">
+                        ${item.sceneText ? item.sceneText.substring(0, 15) + '...' : (item.desc ? item.desc.substring(0, 15) + '...' : '视频')}
+                    </div>
+                    <div class="tk-grid-views" style="color: #fff; text-shadow: none;"><i class="fas fa-play" style="text-shadow: none;"></i> ${item.likes || Math.floor(Math.random()*1000)}</div>
+                `;
+            }
+            
+            el.addEventListener('click', () => {
+                if (window.tkOpenFullscreenVideo) {
+                    window.tkOpenFullscreenVideo(item.id);
+                } else {
+                    console.error("tkOpenFullscreenVideo 不存在");
+                    if (window.showToast) window.showToast('错误: 全屏视频组件未就绪');
+                }
+            });
+            
+            container.appendChild(el);
         });
     }
+
+    // Upload Video Logic (Cover Button remaining functionality)
+    const coverBtn = document.getElementById('tk-upload-cover-btn');
+    const coverInput = document.getElementById('tk-upload-cover-input');
+    const coverImg = document.getElementById('tk-upload-cover-img');
+
+    if (coverBtn && coverInput) {
+        coverBtn.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'INPUT') coverInput.click();
+        });
+        
+        coverInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    if (coverImg) {
+                        coverImg.src = ev.target.result;
+                        coverImg.style.display = 'block';
+                    }
+                    const div = coverBtn.querySelector('div');
+                    if (div) div.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+            e.target.value = '';
+        });
+    }
+
+    // 强行绑定编辑按钮，防止委托失效或者层级拦截
+    setInterval(() => {
+        const editBtn = document.getElementById('tk-profile-edit-btn');
+        if (editBtn && !editBtn.dataset.forceBound) {
+            editBtn.dataset.forceBound = "true";
+            editBtn.onclick = (e) => {
+                e.stopPropagation();
+                try {
+                    const p = tkState.profile;
+                    const elName = document.getElementById('tk-edit-name');
+                    if(elName) elName.value = p.name || '';
+                    const elHandle = document.getElementById('tk-edit-handle');
+                    if(elHandle) elHandle.value = p.handle || '';
+                    const elBio = document.getElementById('tk-edit-bio');
+                    if(elBio) elBio.value = p.bio || '';
+                    const elPersona = document.getElementById('tk-edit-persona');
+                    if(elPersona) elPersona.value = p.persona || '';
+                    
+                    const elFollowing = document.getElementById('tk-edit-following');
+                    if(elFollowing) elFollowing.value = p.following || 0;
+                    const elFollowers = document.getElementById('tk-edit-followers');
+                    if(elFollowers) elFollowers.value = p.followers || 0;
+                    const elLikes = document.getElementById('tk-edit-likes');
+                    if(elLikes) elLikes.value = p.likes || 0;
+                    
+                    const sheet = document.getElementById('tk-edit-profile-sheet');
+                    if(sheet) window.openView(sheet);
+                } catch(err) {
+                    console.error('打开编辑资料报错:', err);
+                }
+            };
+        }
+    }, 1000);
+
 });
