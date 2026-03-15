@@ -237,6 +237,10 @@
     z-index: 100;
 }
 
+body.fullscreen-mode .line-bottom-nav-container {
+    bottom: calc(30px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
 .line-bottom-nav {
     background-color: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(20px);
@@ -792,6 +796,10 @@
     background-color: transparent;
     border-top: none;
     z-index: 30;
+}
+
+body.fullscreen-mode .ins-chat-input-container {
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 24px)) !important;
 }
 
 .ins-chat-input-wrapper {

@@ -427,6 +427,10 @@
     z-index: 100;
 }
 
+body.fullscreen-mode .yt-bottom-nav-container {
+    bottom: calc(30px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
 .yt-bottom-nav {
     background-color: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(20px);

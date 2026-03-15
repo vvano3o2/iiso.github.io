@@ -1229,6 +1229,19 @@ body.fullscreen-mode .big-header {
     padding-top: 10px !important; /* 因为容器已经用了 env(safe-area-inset-top)，内部不再需要额外大留白 */
 }
 
+/* 全屏模式下修复主界面的底部栏遮挡问题 */
+body.fullscreen-mode .dock-container {
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+body.fullscreen-mode .page-indicators {
+    bottom: calc(125px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+body.fullscreen-mode .home-search-pill {
+    bottom: calc(150px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
 .edit-view {
     z-index: 160;
 }
