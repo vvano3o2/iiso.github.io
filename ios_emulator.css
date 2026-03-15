@@ -1312,7 +1312,7 @@ body.fullscreen-mode .home-search-pill {
 }
 
 body.fullscreen-mode .settings-content {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-bottom: 0 !important;
 }
 
 .settings-content.no-top-padding {
