@@ -105,7 +105,7 @@
     overflow-y: auto;
     overflow-x: hidden;
     position: relative;
-    padding-bottom: 90px; /* Space for bottom nav */
+    padding-bottom: 60px; /* Space for bottom nav */
     padding-top: 90px; /* Make room for floating header */
 }
 
