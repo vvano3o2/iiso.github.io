@@ -1930,6 +1930,12 @@ body.fullscreen-mode .screen {
     margin: 0;
 }
 
+/* 在全屏模式下，强制隐藏假灵动岛和状态栏，以贴合真实手机 */
+body.fullscreen-mode .notch,
+body.fullscreen-mode .status-bar {
+    display: none !important;
+}
+
 body.hide-island .notch {
     display: none !important;
 }
