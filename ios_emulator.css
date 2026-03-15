@@ -1312,7 +1312,7 @@ body.fullscreen-mode .home-search-pill {
 }
 
 body.fullscreen-mode .settings-content {
-    padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .settings-content.no-top-padding {
@@ -1968,9 +1968,10 @@ body.fullscreen-mode .screen {
     margin: 0;
 }
 
-/* 在全屏模式下，强制隐藏假灵动岛和状态栏，以贴合真实手机 */
+/* 在全屏模式下，强制隐藏假灵动岛、状态栏和虚拟Home条，以贴合真实手机 */
 body.fullscreen-mode .notch,
-body.fullscreen-mode .status-bar {
+body.fullscreen-mode .status-bar,
+body.fullscreen-mode .home-bar {
     display: none !important;
 }
 
