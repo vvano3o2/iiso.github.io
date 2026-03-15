@@ -238,7 +238,8 @@
 }
 
 body.fullscreen-mode .line-bottom-nav-container {
-    bottom: calc(20px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: 0 !important;
+    padding-bottom: env(safe-area-inset-bottom, 10px) !important;
 }
 
 .line-bottom-nav {

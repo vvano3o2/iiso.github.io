@@ -1229,17 +1229,22 @@ body.fullscreen-mode .big-header {
     padding-top: 10px !important; /* 因为容器已经用了 env(safe-area-inset-top)，内部不再需要额外大留白 */
 }
 
-/* 全屏模式下修复主界面的底部栏遮挡问题 */
+/* 全屏模式下修复主界面的底部栏遮挡问题：让Dock和指示器完美贴底 */
 body.fullscreen-mode .dock-container {
-    bottom: calc(20px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: 0 !important;
+    padding-bottom: env(safe-area-inset-bottom, 10px) !important;
+    /* 给 dock 内部加一点底边距避免太贴边 */
+}
+body.fullscreen-mode .dock {
+    margin-bottom: 10px; /* 补偿视觉距离 */
 }
 
 body.fullscreen-mode .page-indicators {
-    bottom: calc(120px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(110px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 body.fullscreen-mode .home-search-pill {
-    bottom: calc(145px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(135px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 .edit-view {
@@ -1312,18 +1317,24 @@ body.fullscreen-mode .home-search-pill {
 }
 
 body.fullscreen-mode .settings-content {
-    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
-/* 统一覆盖所有全屏模式下可能出现底部大白条的滚动容器 */
+/* 统一覆盖所有全屏模式下可能出现底部大白条的滚动容器。
+   给内容区留出足够空间(如90px)，避免被贴底的导航栏遮挡。 */
 body.fullscreen-mode #yt-trending-list,
 body.fullscreen-mode #yt-messages-list,
 body.fullscreen-mode .tk-main-content,
-body.fullscreen-mode .detail-sheet-content,
+body.fullscreen-mode .tk-chat-scrollable,
+body.fullscreen-mode .tk-profile-scrollable,
 body.fullscreen-mode .app-view > div[style*="padding-bottom: 80px"],
 body.fullscreen-mode .app-view > div[style*="padding-bottom: 90px"],
 body.fullscreen-mode .app-view > div[style*="padding-bottom: 100px"] {
-    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+body.fullscreen-mode .detail-sheet-content {
+    padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 .settings-content.no-top-padding {
@@ -1937,6 +1948,11 @@ input:checked + .slider:before {
 }
 
 /* Fullscreen & Hide Island Modes */
+body.fullscreen-mode, 
+html:has(body.fullscreen-mode) {
+    background-color: #000; /* 确保最底层不漏白，使用纯黑或深灰，防止屏幕底部露白 */
+}
+
 body.fullscreen-mode {
     position: fixed;
     top: 0;
@@ -1947,7 +1963,7 @@ body.fullscreen-mode {
     padding: 0;
     width: 100%;
     height: 100dvh;
-    background-color: transparent; /* 去掉全屏模式的黑色背景，透出真实背景 */
+    background-color: #000; /* 全屏模式下外壳变黑，内部app背景由具体app决定 */
     overflow: hidden;
 }
 
