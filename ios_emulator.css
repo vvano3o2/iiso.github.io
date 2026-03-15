@@ -40,6 +40,9 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    /* 强化防缩放与防拉扯效应 */
+    overscroll-behavior-y: none;
+    touch-action: pan-y;
 }
 
 /* Phone Frame */
@@ -1206,6 +1209,24 @@ body.jiggle-mode {
     padding-top: 40px; /* Reduced to sit under status bar nicely */
     transform: translateX(100%);
     transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* 全屏模式下的应用视图：消除死板的 40px 顶部留白，改用真实手机的 Safe Area 环境变量 */
+body.fullscreen-mode .app-view, 
+body.fullscreen-mode .settings-view, 
+body.fullscreen-mode .edit-view,
+body.fullscreen-mode .sub-channel-view {
+    padding-top: env(safe-area-inset-top, 44px) !important; 
+}
+
+/* 全屏模式下主屏幕网格也需要往上推，以利用原来假状态栏的空间 */
+body.fullscreen-mode .main-grid {
+    margin-top: env(safe-area-inset-top, 44px) !important;
+}
+
+/* 全屏模式下大标题（比如Settings头部）处理 */
+body.fullscreen-mode .big-header {
+    padding-top: 10px !important; /* 因为容器已经用了 env(safe-area-inset-top)，内部不再需要额外大留白 */
 }
 
 .edit-view {
