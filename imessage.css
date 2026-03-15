@@ -238,7 +238,7 @@
 }
 
 body.fullscreen-mode .line-bottom-nav-container {
-    bottom: calc(30px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 .line-bottom-nav {

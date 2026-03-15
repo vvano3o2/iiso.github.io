@@ -1231,15 +1231,15 @@ body.fullscreen-mode .big-header {
 
 /* 全屏模式下修复主界面的底部栏遮挡问题 */
 body.fullscreen-mode .dock-container {
-    bottom: calc(24px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 body.fullscreen-mode .page-indicators {
-    bottom: calc(125px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(110px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 body.fullscreen-mode .home-search-pill {
-    bottom: calc(150px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(135px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 .edit-view {
