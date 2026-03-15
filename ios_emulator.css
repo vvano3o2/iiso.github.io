@@ -1231,15 +1231,15 @@ body.fullscreen-mode .big-header {
 
 /* 全屏模式下修复主界面的底部栏遮挡问题 */
 body.fullscreen-mode .dock-container {
-    bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 body.fullscreen-mode .page-indicators {
-    bottom: calc(110px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(120px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 body.fullscreen-mode .home-search-pill {
-    bottom: calc(135px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(145px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 .edit-view {
@@ -1312,7 +1312,18 @@ body.fullscreen-mode .home-search-pill {
 }
 
 body.fullscreen-mode .settings-content {
-    padding-bottom: 0 !important;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* 统一覆盖所有全屏模式下可能出现底部大白条的滚动容器 */
+body.fullscreen-mode #yt-trending-list,
+body.fullscreen-mode #yt-messages-list,
+body.fullscreen-mode .tk-main-content,
+body.fullscreen-mode .detail-sheet-content,
+body.fullscreen-mode .app-view > div[style*="padding-bottom: 80px"],
+body.fullscreen-mode .app-view > div[style*="padding-bottom: 90px"],
+body.fullscreen-mode .app-view > div[style*="padding-bottom: 100px"] {
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 .settings-content.no-top-padding {
@@ -1970,9 +1981,13 @@ body.fullscreen-mode .screen {
 
 /* 在全屏模式下，强制隐藏假灵动岛、状态栏和虚拟Home条，以贴合真实手机 */
 body.fullscreen-mode .notch,
-body.fullscreen-mode .status-bar,
-body.fullscreen-mode .home-bar {
+body.fullscreen-mode .status-bar {
     display: none !important;
+}
+
+/* 如果在真机全屏模式下仍然显示虚拟横条，需要贴底 */
+body.fullscreen-mode .home-bar {
+    display: none !important; /* 真机自带，所以隐藏虚拟的。若需显示，改为 block 并设 bottom: env(safe-area-inset-bottom, 2px) */
 }
 
 body.hide-island .notch {

@@ -238,7 +238,7 @@
 }
 
 body.fullscreen-mode .line-bottom-nav-container {
-    bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 .line-bottom-nav {
@@ -799,7 +799,7 @@ body.fullscreen-mode .line-bottom-nav-container {
 }
 
 body.fullscreen-mode .ins-chat-input-container {
-    padding-bottom: calc(10px + env(safe-area-inset-bottom, 24px)) !important;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 .ins-chat-input-wrapper {
