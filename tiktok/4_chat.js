@@ -24,6 +24,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const charNameInput = document.getElementById('tk-char-name');
     const charStatusInput = document.getElementById('tk-char-status');
     const charPersonaInput = document.getElementById('tk-char-persona');
+    const charBioInput = document.getElementById('tk-char-bio');
+    const charFollowingInput = document.getElementById('tk-char-following');
+    const charFollowersInput = document.getElementById('tk-char-followers');
+    const charLikesInput = document.getElementById('tk-char-likes');
     const saveCharBtn = document.getElementById('tk-save-char-btn');
     const deleteCharBtn = document.getElementById('tk-delete-char-btn');
     
@@ -223,8 +227,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.tkOpenEditChar = function(charId = null) {
         editingCharId = charId;
         const title = document.getElementById('tk-char-sheet-title');
-        const signatureInput = document.getElementById('tk-char-signature');
-        const ipInput = document.getElementById('tk-char-ip');
         
         if (charId) {
             if(title) title.textContent = '编辑角色';
@@ -233,8 +235,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(charNameInput) charNameInput.value = char.name || '';
                 if(charStatusInput) charStatusInput.value = char.status || '';
                 if(charPersonaInput) charPersonaInput.value = char.persona || '';
-                if(signatureInput) signatureInput.value = char.signature || '';
-                if(ipInput) ipInput.value = char.ip || '';
+                if(charBioInput) charBioInput.value = char.bio || '';
+                if(charFollowingInput) charFollowingInput.value = char.following || 0;
+                if(charFollowersInput) charFollowersInput.value = char.followers || 0;
+                if(charLikesInput) charLikesInput.value = char.likes || 0;
+                
                 setCharAvatarPreview(char.avatar);
                 if(deleteCharBtn) deleteCharBtn.style.display = 'block';
             }
@@ -243,8 +248,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if(charNameInput) charNameInput.value = '';
             if(charStatusInput) charStatusInput.value = '';
             if(charPersonaInput) charPersonaInput.value = '';
-            if(signatureInput) signatureInput.value = '';
-            if(ipInput) ipInput.value = '';
+            if(charBioInput) charBioInput.value = '';
+            if(charFollowingInput) charFollowingInput.value = 0;
+            if(charFollowersInput) charFollowersInput.value = 0;
+            if(charLikesInput) charLikesInput.value = 0;
             setCharAvatarPreview(null);
             if(deleteCharBtn) deleteCharBtn.style.display = 'none';
         }
@@ -296,10 +303,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const status = charStatusInput.value.trim();
             const persona = charPersonaInput.value.trim();
             const avatar = charAvatarImg.style.display === 'block' ? charAvatarImg.src : null;
-            const signatureInput = document.getElementById('tk-char-signature');
-            const ipInput = document.getElementById('tk-char-ip');
-            const signature = signatureInput ? signatureInput.value.trim() : '';
-            const ip = ipInput ? ipInput.value.trim() : '';
+            const bio = charBioInput ? charBioInput.value.trim() : '';
+            const following = charFollowingInput ? charFollowingInput.value : 0;
+            const followers = charFollowersInput ? charFollowersInput.value : 0;
+            const likes = charLikesInput ? charLikesInput.value : 0;
             
             if (editingCharId) {
                 const char = window.tkGetChar(editingCharId);
@@ -308,8 +315,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     char.status = status;
                     char.persona = persona;
                     char.avatar = avatar;
-                    char.signature = signature;
-                    char.ip = ip;
+                    char.bio = bio;
+                    char.following = following;
+                    char.followers = followers;
+                    char.likes = likes;
                 }
             } else {
                 const newId = 'char_' + Date.now();
@@ -320,8 +329,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     status: status,
                     persona: persona,
                     avatar: avatar,
-                    signature: signature,
-                    ip: ip,
+                    bio: bio,
+                    following: following,
+                    followers: followers,
+                    likes: likes,
                     isFollowed: true
                 });
             }
@@ -502,7 +513,7 @@ document.addEventListener('DOMContentLoaded', () => {
         msgDiv.style.background = sender === 'user' ? '#333333' : '#e5e5ea'; // char的背景改为浅灰色
         msgDiv.style.color = sender === 'user' ? '#ffffff' : '#111111';
         msgDiv.style.padding = '6px 10px';
-        msgDiv.style.borderRadius = sender === 'user' ? '12px 12px 2px 12px' : '12px 12px 12px 2px';
+        msgDiv.style.borderRadius = '16px';
         msgDiv.style.fontSize = '12px';
         msgDiv.style.maxWidth = '85%';
         msgDiv.style.wordBreak = 'break-word';
@@ -553,11 +564,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (isSelf) {
                         bubble.style.background = '#111111'; // 用户黑色气泡
                         bubble.style.color = '#ffffff';
-                        bubble.style.borderRadius = '16px 16px 2px 16px';
+                        bubble.style.borderRadius = '16px';
                     } else {
                         bubble.style.background = '#e5e5ea'; // 角色浅灰色气泡
                         bubble.style.color = '#111111';
-                        bubble.style.borderRadius = '16px 16px 16px 2px';
+                        bubble.style.borderRadius = '16px';
                     }
                     
                     bubble.textContent = m.text;
@@ -1112,8 +1123,12 @@ ${chatHistoryStr}
                 lastSender = null; // Reset sender so first msg after time always has avatar/normal spacing
             }
 
+            // Look ahead to check if the next message is also from the same sender
+            const hasNext = (index < dm.messages.length - 1 && dm.messages[index + 1].sender === msg.sender && dm.messages[index + 1].timestamp !== lastTimeStr /* approximation */);
             const isConsecutive = (lastSender === msg.sender);
-            const marginBottom = isConsecutive ? '2px' : '15px';
+            
+            // Tight gap if there's a next message from same sender
+            const marginBottom = hasNext ? '2px' : '15px';
             lastSender = msg.sender;
 
             const row = document.createElement('div');
@@ -1124,7 +1139,20 @@ ${chatHistoryStr}
             // Build bubble style and content based on whether it's a shared video
             let bubbleStyle = `background: ${isSelf ? '#111' : '#f0f0f0'}; color: ${isSelf ? '#fff' : '#111'}; padding: 10px 14px; font-size: 15px; max-width: 75%; line-height: 1.4; word-break: break-word; position: relative;`;
             
-            bubbleStyle += `border-radius: 20px;`;
+            // Dynamic border radius for Red Note / WeChat style group bubbles
+            let borderRadius = '20px';
+            if (isSelf) {
+                if (isConsecutive && hasNext) borderRadius = '20px 4px 4px 20px';
+                else if (isConsecutive && !hasNext) borderRadius = '20px 4px 20px 20px';
+                else if (!isConsecutive && hasNext) borderRadius = '20px 20px 4px 20px';
+                else borderRadius = '20px 20px 4px 20px'; // isolated
+            } else {
+                if (isConsecutive && hasNext) borderRadius = '4px 20px 20px 4px';
+                else if (isConsecutive && !hasNext) borderRadius = '4px 20px 20px 20px';
+                else if (!isConsecutive && hasNext) borderRadius = '20px 20px 20px 4px';
+                else borderRadius = '20px 20px 20px 4px'; // isolated
+            }
+            bubbleStyle += `border-radius: ${borderRadius};`;
 
             let msgContentHtml = msg.text;
 
@@ -1186,15 +1214,16 @@ ${chatHistoryStr}
                 let avatarHtml = '';
                 if (!isConsecutive) {
                     avatarHtml = charAvatar
-                        ? `<img src="${charAvatar}" style="width: 36px; height: 36px; border-radius: 50%; margin-right: 10px; object-fit: cover; background: #f0f0f0; flex-shrink: 0; align-self: flex-start;">`
-                        : `<div style="width: 36px; height: 36px; border-radius: 50%; background: #f0f0f0; display: flex; justify-content: center; align-items: center; margin-right: 10px; color: #999; flex-shrink: 0; align-self: flex-start;"><i class="fas fa-user"></i></div>`;
+                        ? `<img src="${charAvatar}" style="width: 36px; height: 36px; border-radius: 50%; margin-right: 10px; object-fit: cover; background: #f0f0f0; flex-shrink: 0; align-self: flex-end;">`
+                        : `<div style="width: 36px; height: 36px; border-radius: 50%; background: #f0f0f0; display: flex; justify-content: center; align-items: center; margin-right: 10px; color: #999; flex-shrink: 0; align-self: flex-end;"><i class="fas fa-user"></i></div>`;
                 } else {
-                    // Placeholder block with same width
-                    avatarHtml = `<div style="width: 36px; height: 36px; margin-right: 10px; flex-shrink: 0;"></div>`;
+                    // Remove height constraint to avoid expanding the row unexpectedly
+                    avatarHtml = `<div style="width: 36px; margin-right: 10px; flex-shrink: 0;"></div>`;
                 }
 
                 row.style.justifyContent = 'flex-start';
-                row.style.alignItems = 'flex-start';
+                // Align items flex-end makes the avatar anchor at the bottom of the group like real apps do
+                row.style.alignItems = 'flex-end';
                 row.innerHTML = `
                     ${avatarHtml}
                     <div style="${bubbleStyle}">
@@ -1342,7 +1371,7 @@ ${chatHistoryStr}
 
 要求：
 1. 一句一发，不要一大串。调用一次必须生成 3 到 6 条气泡回复。
-2. 如果 User 分享了视频，请务必读取视频内容和文案进行针对性吐槽、玩梗、感叹或讨论（视频的作者不一定是user，读取视频创作者名字）。
+2. 如果 User 分享了视频，请务必读取视频内容和文案进行针对性玩梗、感叹或讨论（视频的作者不一定是user，读取视频创作者名字）。
 3. 绝对不要发emoji，也绝对不要使用句号结尾，要有十足的"活人感"和网感，就像真实朋友在连发微信一样。
 4. 结合上下文和当前人设，语言简练自然。
 5. 必须返回严格的 JSON 数组格式（不要带有 markdown 代码块标记），格式如下：

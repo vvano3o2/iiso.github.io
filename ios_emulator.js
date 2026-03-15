@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let themeState = {
         bgUrl: null,
         showIsland: !isMobileUser,
+        showStatusBar: true,
         isFullscreen: isMobileUser,
         apps: [
             { id: 'app-icon-1', name: 'Pay', icon: null },
@@ -69,6 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.themeState) {
                     themeState = data.themeState;
                     if (themeState.showIsland === undefined) themeState.showIsland = !isMobileUser;
+                    if (themeState.showStatusBar === undefined) themeState.showStatusBar = true;
                     if (themeState.isFullscreen === undefined) themeState.isFullscreen = isMobileUser;
                     // Migration for default app names
                     if (themeState.apps) {
@@ -1596,8 +1598,10 @@ Reply naturally as your character in a chat app. Do not include your own name at
         e.stopPropagation();
         
         const islandToggle = document.getElementById('theme-island-toggle');
+        const statusBarToggle = document.getElementById('theme-statusbar-toggle');
         const fsToggle = document.getElementById('theme-fullscreen-toggle');
         if (islandToggle) islandToggle.checked = themeState.showIsland;
+        if (statusBarToggle) statusBarToggle.checked = themeState.showStatusBar;
         if (fsToggle) fsToggle.checked = themeState.isFullscreen;
 
         renderThemeAppList();
@@ -1784,14 +1788,22 @@ Reply naturally as your character in a chat app. Do not include your own name at
     // Confirm Theme Settings
     document.getElementById('confirm-theme-btn').addEventListener('click', () => {
         const islandToggle = document.getElementById('theme-island-toggle');
+        const statusBarToggle = document.getElementById('theme-statusbar-toggle');
         const fsToggle = document.getElementById('theme-fullscreen-toggle');
+        
         if (islandToggle) themeState.showIsland = islandToggle.checked;
+        if (statusBarToggle) themeState.showStatusBar = statusBarToggle.checked;
         if (fsToggle) themeState.isFullscreen = fsToggle.checked;
 
         if (themeState.showIsland) {
             document.body.classList.remove('hide-island');
         } else {
             document.body.classList.add('hide-island');
+        }
+        
+        const statusBar = document.querySelector('.status-bar');
+        if (statusBar) {
+            statusBar.style.display = themeState.showStatusBar ? 'flex' : 'none';
         }
 
         if (themeState.isFullscreen) {
@@ -1830,6 +1842,11 @@ Reply naturally as your character in a chat app. Do not include your own name at
     function applySavedTheme() {
         if (themeState.showIsland === false) document.body.classList.add('hide-island');
         if (themeState.isFullscreen === true) document.body.classList.add('fullscreen-mode');
+        
+        const statusBar = document.querySelector('.status-bar');
+        if (statusBar) {
+            statusBar.style.display = themeState.showStatusBar === false ? 'none' : 'flex';
+        }
 
         const screenEl = document.querySelector('.screen');
         if (screenEl) {

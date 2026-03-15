@@ -5,7 +5,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 50px 20px 10px;
+    padding: 10px 20px 10px;
+    position: absolute;
+    top: 44px;
+    left: 0;
+    width: 100%;
     background-color: transparent;
     z-index: 10;
 }
@@ -32,7 +36,7 @@
 }
 
 .line-content {
-    padding: 0 20px 100px; /* Bottom padding for nav */
+    padding: 90px 20px 100px; /* Top padding for floating header, Bottom padding for nav */
     overflow-y: auto;
     flex: 1;
 }
@@ -323,6 +327,7 @@
 .chats-list-container {
     flex: 1;
     overflow-y: auto;
+    padding-top: 50px;
     padding-bottom: 90px;
 }
 
@@ -443,7 +448,7 @@
     display: none;
     flex-direction: column;
     height: 100%;
-    padding-top: 50px;
+    padding-top: 90px;
 }
 
 .calls-header {
@@ -531,11 +536,11 @@
 
 .chat-sticky-container {
     position: absolute;
-    top: 0;
+    top: 44px;
     left: 0;
     width: 100%;
     z-index: 20;
-    padding-top: 40px; /* Aligned for standard notch */
+    padding-top: 0; /* Aligned for standard notch */
     padding-bottom: 10px;
     background-color: transparent; 
     pointer-events: none; /* Allow scroll through empty space */
@@ -551,7 +556,7 @@
 
 .chat-top-bar {
     position: absolute;
-    top: 40px; /* Aligned with standard notch/header area */
+    top: 0; /* Aligned with standard notch/header area */
     left: 0;
     width: 100%;
     display: flex;

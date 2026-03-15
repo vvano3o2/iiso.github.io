@@ -14,7 +14,11 @@
     justify-content: space-between;
     align-items: center;
     /* 优化：调整 top padding，使顶栏整体下移，避开刘海屏 */
-    padding: 60px 16px 10px; 
+    padding: 10px 16px 10px; 
+    position: absolute;
+    top: 44px;
+    left: 0;
+    width: 100%;
     background-color: #ffffff;
     z-index: 100; /* 提高整个头部的层级 */
     /* Removed border-bottom */
@@ -25,11 +29,11 @@
 #sub-channel-view .yt-header {
     background-color: transparent !important;
     position: absolute;
-    top: 0;
+    top: 44px;
     left: 0;
     width: 100%;
     z-index: 20;
-    padding-top: 45px;
+    padding-top: 0;
     pointer-events: none; /* 让大部分区域可穿透点击 */
 }
 
@@ -102,6 +106,7 @@
     overflow-x: hidden;
     position: relative;
     padding-bottom: 90px; /* Space for bottom nav */
+    padding-top: 90px; /* Make room for floating header */
 }
 
 .yt-tab-content {
@@ -710,6 +715,10 @@
 #yt-video-player-view {
     background-color: #ffffff !important;
     color: #0f0f0f !important;
+}
+
+#yt-video-player-view .yt-header {
+    padding-top: 0;
 }
 
 #yt-video-player-view .yt-header-left {

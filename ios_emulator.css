@@ -1889,34 +1889,45 @@ input:checked + .slider:before {
 
 /* Fullscreen & Hide Island Modes */
 body.fullscreen-mode {
-    align-items: flex-start;
-    background-color: transparent; /* 去掉全屏模式的黑色背景，透出真实背景 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     margin: 0;
     padding: 0;
-    width: 100vw;
-    height: 100vh;
-    height: 100dvh;
+    width: 100%;
+    height: 100%;
+    background-color: transparent; /* 去掉全屏模式的黑色背景，透出真实背景 */
     overflow: hidden;
 }
 
 body.fullscreen-mode .phone-frame {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    max-width: 100%;
-    max-height: 100%;
+    max-width: none;
+    max-height: none;
     border-radius: 0;
     padding: 0;
+    margin: 0;
     box-shadow: none;
     border: none;
     background-color: transparent; /* 去除原本的外壳黑边 */
 }
 
 body.fullscreen-mode .screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     border-radius: 0;
     padding-top: 0 !important; /* 强制去掉顶部留白 */
     padding-bottom: 0 !important; /* 强制去掉底部留白 */
-    width: 100%;
-    height: 100%;
+    margin: 0;
 }
 
 body.hide-island .notch {

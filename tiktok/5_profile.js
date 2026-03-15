@@ -75,6 +75,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const charNameInput = document.getElementById('tk-char-name');
                 const charStatusInput = document.getElementById('tk-char-status');
                 const charPersonaInput = document.getElementById('tk-char-persona');
+                const charBioInput = document.getElementById('tk-char-bio');
+                const charFollowingInput = document.getElementById('tk-char-following');
+                const charFollowersInput = document.getElementById('tk-char-followers');
+                const charLikesInput = document.getElementById('tk-char-likes');
                 const deleteCharBtn = document.getElementById('tk-delete-char-btn');
                 const charAvatarImg = document.getElementById('tk-char-avatar-img');
                 const charAvatarIcon = document.querySelector('#tk-char-avatar-preview i');
@@ -84,6 +88,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     if(charNameInput) charNameInput.value = char.name || '';
                     if(charStatusInput) charStatusInput.value = char.status || '';
                     if(charPersonaInput) charPersonaInput.value = char.persona || '';
+                    if(charBioInput) charBioInput.value = char.bio || '';
+                    if(charFollowingInput) charFollowingInput.value = char.following || 0;
+                    if(charFollowersInput) charFollowersInput.value = char.followers || 0;
+                    if(charLikesInput) charLikesInput.value = char.likes || 0;
+                    
                     if(deleteCharBtn) deleteCharBtn.style.display = 'block';
                     
                     if (char.avatar) {
@@ -118,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Render info
         subProfileName.textContent = char.name || 'User';
         subProfileHandle.textContent = '@' + (char.handle || charId);
-        subProfileBio.textContent = char.persona || '暂无简介';
+        subProfileBio.textContent = char.bio || '暂无简介';
         
         if (char.status) {
             subProfileStatusBubble.style.display = 'block';
@@ -127,9 +136,9 @@ document.addEventListener('DOMContentLoaded', () => {
             subProfileStatusBubble.style.display = 'none';
         }
 
-        subStatFollowing.textContent = Math.floor(Math.random() * 100);
-        subStatFollowers.textContent = Math.floor(Math.random() * 10000);
-        subStatLikes.textContent = Math.floor(Math.random() * 50000);
+        subStatFollowing.textContent = char.following || 0;
+        subStatFollowers.textContent = char.followers || 0;
+        subStatLikes.textContent = char.likes || 0;
 
         if (char.avatar) {
             subProfileAvatarImg.src = char.avatar;
@@ -618,6 +627,10 @@ ${wbContext}
                     const charNameInput = document.getElementById('tk-char-name');
                     const charStatusInput = document.getElementById('tk-char-status');
                     const charPersonaInput = document.getElementById('tk-char-persona');
+                    const charBioInput = document.getElementById('tk-char-bio');
+                    const charFollowingInput = document.getElementById('tk-char-following');
+                    const charFollowersInput = document.getElementById('tk-char-followers');
+                    const charLikesInput = document.getElementById('tk-char-likes');
                     const deleteCharBtn = document.getElementById('tk-delete-char-btn');
                     const charAvatarImg = document.getElementById('tk-char-avatar-img');
                     const charAvatarIcon = document.querySelector('#tk-char-avatar-preview i');
@@ -627,6 +640,10 @@ ${wbContext}
                         if(charNameInput) charNameInput.value = char.name || '';
                         if(charStatusInput) charStatusInput.value = char.status || '';
                         if(charPersonaInput) charPersonaInput.value = char.persona || '';
+                        if(charBioInput) charBioInput.value = char.bio || '';
+                        if(charFollowingInput) charFollowingInput.value = char.following || 0;
+                        if(charFollowersInput) charFollowersInput.value = char.followers || 0;
+                        if(charLikesInput) charLikesInput.value = char.likes || 0;
                         if(deleteCharBtn) deleteCharBtn.style.display = 'block';
                         
                         if (char.avatar) {

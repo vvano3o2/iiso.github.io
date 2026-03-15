@@ -13,17 +13,17 @@
     z-index: 100;
     display: flex;
     flex-direction: column;
-    transform: translateY(100%) scale(0.9);
+    transform: translateY(100%);
     opacity: 0;
-    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s ease;
-    border-radius: 40px;
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s ease;
+    border-radius: 0;
     overflow: hidden;
     color: #333333;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 .tiktok-view.active {
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
     opacity: 1;
 }
 
@@ -124,11 +124,11 @@
 /* --- HOME TAB --- */
 .tk-home-topbar {
     position: absolute;
-    top: 0;
+    top: 44px;
     left: 0;
     width: 100%;
-    height: 90px;
-    padding-top: 45px;
+    height: 44px;
+    padding-top: 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -393,8 +393,9 @@
     top: 0;
     left: 0;
     width: 100%;
-    height: 90px;
-    padding-top: 45px;
+    height: 44px;
+    padding-top: 0;
+    box-sizing: border-box;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -494,6 +495,9 @@
     top: 0;
     left: 0;
     width: 100%;
+    height: 44px;
+    padding-top: 0;
+    box-sizing: border-box;
     background: transparent;
     border-bottom: none;
     pointer-events: none;
@@ -524,8 +528,8 @@
     flex: 1;
     overflow-y: auto;
     padding-bottom: 100px;
-    /* Adjust padding to align with profile tab */
-    padding-top: 80px; 
+    /* Adjust padding to align with header */
+    padding-top: 44px; 
 }
 
 /* Following Bar (Avatars with bubbles) */
@@ -698,8 +702,9 @@
 
 /* --- PROFILE TAB --- */
 .tk-profile-header {
-    height: 90px;
-    padding-top: 45px;
+    height: 44px;
+    padding-top: 0;
+    box-sizing: border-box;
     border-bottom: none;
 }
 
@@ -707,7 +712,7 @@
     flex: 1;
     overflow-y: auto;
     padding-bottom: 100px;
-    padding-top: 80px; /* Align with user profile */
+    padding-top: 44px; /* Align with header */
 }
 
 .tk-profile-avatar-section {
@@ -1205,6 +1210,20 @@
 
 .tk-sub-profile-view {
     z-index: 300 !important;
+}
+
+/* Adjust sub-views header position */
+.tk-sub-profile-view .tk-header,
+.tk-sub-profile-view .tk-home-topbar {
+    top: 44px !important;
+}
+
+/* Override Chat Row gaps for TK DM */
+#tk-dm-messages-container .chat-row {
+    margin-top: 2px !important; /* Force tight gap for consecutive messages */
+}
+#tk-dm-messages-container .chat-row:not(.has-prev) {
+    margin-top: 15px !important; /* Larger gap when speaker changes or new group starts */
 }
 
 /* Force text-shadow and box-shadow removal across video views */
