@@ -44,6 +44,7 @@ body {
     /* 强化防缩放与防拉扯效应 */
     overscroll-behavior-y: none;
     touch-action: pan-y;
+    overflow: hidden;
 }
 
 /* Phone Frame */
@@ -56,6 +57,7 @@ body {
     box-shadow: 0 20px 40px rgba(0,0,0,0.2);
     position: relative;
     overflow: hidden; /* Ensure nothing spills out */
+    transition: all 0.3s ease;
 }
 
 .screen {
@@ -1212,41 +1214,6 @@ body.jiggle-mode {
     transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
-/* 全屏模式下的应用视图：消除死板的 40px 顶部留白，改用真实手机的 Safe Area 环境变量 */
-body.fullscreen-mode .app-view, 
-body.fullscreen-mode .settings-view, 
-body.fullscreen-mode .edit-view,
-body.fullscreen-mode .sub-channel-view {
-    padding-top: env(safe-area-inset-top, 44px) !important; 
-}
-
-/* 全屏模式下主屏幕网格也需要往上推，以利用原来假状态栏的空间 */
-body.fullscreen-mode .main-grid {
-    margin-top: env(safe-area-inset-top, 44px) !important;
-}
-
-/* 全屏模式下大标题（比如Settings头部）处理 */
-body.fullscreen-mode .big-header {
-    padding-top: 10px !important; /* 因为容器已经用了 env(safe-area-inset-top)，内部不再需要额外大留白 */
-}
-
-/* 全屏模式下修复主界面的底部栏遮挡问题：让Dock和指示器完美贴底 */
-body.fullscreen-mode .dock-container {
-    bottom: env(safe-area-inset-bottom, 0px) !important;
-    padding-bottom: 0 !important;
-}
-body.fullscreen-mode .dock {
-    margin-bottom: 10px; /* 补偿视觉距离 */
-}
-
-body.fullscreen-mode .page-indicators {
-    bottom: calc(110px + env(safe-area-inset-bottom, 0px)) !important;
-}
-
-body.fullscreen-mode .home-search-pill {
-    bottom: calc(135px + env(safe-area-inset-bottom, 0px)) !important;
-}
-
 .edit-view {
     z-index: 160;
 }
@@ -1314,30 +1281,6 @@ body.fullscreen-mode .home-search-pill {
     flex: 1;
     overflow-y: auto;
     padding-bottom: 30px;
-}
-
-body.fullscreen-mode .settings-content {
-    padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px)) !important;
-}
-
-/* 统一覆盖所有全屏模式下可能出现底部大白条的滚动容器。
-   给内容区留出足够空间，避免被贴底的导航栏遮挡。 */
-body.fullscreen-mode #yt-trending-list,
-body.fullscreen-mode #yt-messages-list,
-body.fullscreen-mode .tk-chat-scrollable,
-body.fullscreen-mode .tk-profile-scrollable,
-body.fullscreen-mode .app-view > div[style*="padding-bottom: 80px"],
-body.fullscreen-mode .app-view > div[style*="padding-bottom: 90px"],
-body.fullscreen-mode .app-view > div[style*="padding-bottom: 100px"] {
-    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
-}
-
-body.fullscreen-mode .tk-main-content {
-    padding-bottom: 0 !important;
-}
-
-body.fullscreen-mode .detail-sheet-content {
-    padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 .settings-content.no-top-padding {
@@ -1951,63 +1894,30 @@ input:checked + .slider:before {
 }
 
 /* Fullscreen & Hide Island Modes */
-body.fullscreen-mode, 
-html:has(body.fullscreen-mode) {
-    background-color: #000; /* 确保最底层不漏白，使用纯黑或深灰，防止屏幕底部露白 */
-}
-
 body.fullscreen-mode {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    height: 100dvh;
-    background-color: #000; /* 全屏模式下外壳变黑，内部app背景由具体app决定 */
-    overflow: hidden;
+    background-color: #000;
 }
 
 body.fullscreen-mode .phone-frame {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    max-width: none;
-    max-height: none;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
     border-radius: 0;
     padding: 0;
-    margin: 0;
     box-shadow: none;
-    border: none;
-    background-color: transparent; /* 去除原本的外壳黑边 */
 }
 
 body.fullscreen-mode .screen {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
     border-radius: 0;
-    padding-top: 0 !important; /* 强制去掉顶部留白 */
-    padding-bottom: 0 !important; /* 强制去掉底部留白 */
-    margin: 0;
+    padding-top: env(safe-area-inset-top, 0px) !important; 
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important; 
 }
 
-/* 在全屏模式下，强制隐藏假灵动岛、状态栏和虚拟Home条，以贴合真实手机 */
+/* 在全屏模式下，隐藏模拟器原本的假刘海、状态栏和底部横条 */
 body.fullscreen-mode .notch,
-body.fullscreen-mode .status-bar {
-    display: none !important;
-}
-
-/* 如果在真机全屏模式下仍然显示虚拟横条，需要贴底 */
+body.fullscreen-mode .status-bar,
 body.fullscreen-mode .home-bar {
-    display: none !important; /* 真机自带，所以隐藏虚拟的。若需显示，改为 block 并设 bottom: env(safe-area-inset-bottom, 2px) */
+    display: none !important;
 }
 
 body.hide-island .notch {
