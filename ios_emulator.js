@@ -2491,4 +2491,33 @@ window.exitJiggleMode = exitJiggleMode;
     if (typeof syncInsWidgetToUserState === 'function') {
         syncInsWidgetToUserState();
     }
+
+    // ==========================================
+    // 12. MOBILE KEYBOARD FIX
+    // ==========================================
+    // Prevent fullscreen layout from being pushed up by keyboard
+    const inputs = document.querySelectorAll('input, textarea');
+    inputs.forEach(input => {
+        input.addEventListener('focus', () => {
+            if (document.body.classList.contains('fullscreen-mode')) {
+                // Force scroll to top to prevent layout shift
+                setTimeout(() => window.scrollTo(0, 0), 100);
+            }
+        });
+        
+        input.addEventListener('blur', () => {
+             if (document.body.classList.contains('fullscreen-mode')) {
+                setTimeout(() => window.scrollTo(0, 0), 100);
+            }
+        });
+    });
+
+    // Global visual viewport listener for more robust handling
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', () => {
+            if (document.body.classList.contains('fullscreen-mode')) {
+                window.scrollTo(0, 0);
+            }
+        });
+    }
 });
