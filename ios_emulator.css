@@ -1896,12 +1896,22 @@ input:checked + .slider:before {
 /* Fullscreen & Hide Island Modes */
 body.fullscreen-mode {
     background-color: #000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
 
 body.fullscreen-mode .phone-frame {
-    width: 100vw;
-    height: 100vh;
-    height: 100dvh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
     border-radius: 0;
     padding: 0;
     box-shadow: none;

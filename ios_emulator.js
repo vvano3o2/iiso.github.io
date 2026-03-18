@@ -2491,39 +2491,4 @@ window.exitJiggleMode = exitJiggleMode;
     if (typeof syncInsWidgetToUserState === 'function') {
         syncInsWidgetToUserState();
     }
-
-    // ==========================================
-    // 12. MOBILE KEYBOARD FIX (Lightweight)
-    // ==========================================
-    // Prevent layout shift when keyboard appears on mobile
-    const inputs = document.querySelectorAll('input, textarea');
-    let scrollCorrectionInterval;
-
-    inputs.forEach(input => {
-        input.addEventListener('focus', () => {
-            // Continuously force scroll to 0 while typing to fight iOS default behavior
-            scrollCorrectionInterval = setInterval(() => {
-                if (document.body.scrollTop > 0 || document.documentElement.scrollTop > 0) {
-                    window.scrollTo(0, 0);
-                    document.body.scrollTop = 0;
-                }
-            }, 50);
-        });
-        
-        input.addEventListener('blur', () => {
-            clearInterval(scrollCorrectionInterval);
-            setTimeout(() => {
-                window.scrollTo(0, 0);
-                document.body.scrollTop = 0;
-            }, 10);
-        });
-    });
-
-    // Use visualViewport if available as an extra safeguard
-    if (window.visualViewport) {
-        window.visualViewport.addEventListener('resize', () => {
-            window.scrollTo(0, 0);
-            document.body.scrollTop = 0;
-        });
-    }
 });
