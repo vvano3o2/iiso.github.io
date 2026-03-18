@@ -105,7 +105,7 @@
     overflow-y: auto;
     overflow-x: hidden;
     position: relative;
-    padding-bottom: 60px; /* Space for bottom nav */
+    padding-bottom: 90px; /* Space for bottom nav */
     padding-top: 90px; /* Make room for floating header */
 }
 
@@ -428,8 +428,7 @@
 }
 
 body.fullscreen-mode .yt-bottom-nav-container {
-    bottom: 0 !important;
-    padding-bottom: env(safe-area-inset-bottom, 10px) !important;
+    bottom: 30px !important;
 }
 
 .yt-bottom-nav {

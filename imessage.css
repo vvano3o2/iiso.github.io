@@ -238,8 +238,7 @@
 }
 
 body.fullscreen-mode .line-bottom-nav-container {
-    bottom: env(safe-area-inset-bottom, 0px) !important;
-    padding-bottom: 0 !important;
+    bottom: 30px !important;
 }
 
 .line-bottom-nav {
@@ -799,9 +798,6 @@ body.fullscreen-mode .line-bottom-nav-container {
     z-index: 30;
 }
 
-body.fullscreen-mode .ins-chat-input-container {
-    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
-}
 
 .ins-chat-input-wrapper {
     display: flex;

@@ -38,8 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
         apps: [
             { id: 'app-icon-1', name: 'Pay', icon: null },
             { id: 'app-icon-2', name: 'TikTok', icon: null },
-            { id: 'app-icon-3', name: 'Notes', icon: null },
-            { id: 'app-icon-4', name: 'Calendar', icon: null },
+            { id: 'app-icon-3', name: 'b.stage', icon: null },
+            { id: 'app-icon-4', name: 'X', icon: null },
             { id: 'dock-icon-settings', name: '设置', icon: null },
             { id: 'dock-icon-imessage', name: '信息', icon: null },
             { id: 'dock-icon-youtube', name: 'YouTube', icon: null }
@@ -81,10 +81,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (app2 && app2.name === 'App 2') app2.name = 'TikTok';
                         
                         const app3 = themeState.apps.find(a => a.id === 'app-icon-3');
-                        if (app3 && app3.name === 'App 3') app3.name = 'Notes';
+                        if (app3 && (app3.name === 'App 3' || app3.name === 'Notes')) app3.name = 'b.stage';
                         
                         const app4 = themeState.apps.find(a => a.id === 'app-icon-4');
-                        if (app4 && app4.name === 'App 4') app4.name = 'Calendar';
+                        if (app4 && (app4.name === 'App 4' || app4.name === 'Calendar')) app4.name = 'X';
                     }
                 }
                 if (data.wbGroups) wbGroups = data.wbGroups;
@@ -1778,8 +1778,8 @@ Reply naturally as your character in a chat app. Do not include your own name at
             else if (app.id === 'dock-icon-youtube') { iconDiv.style.background = '#ffffff'; iconDiv.style.color = '#1c1c1e'; if (iEl) iEl.className = 'fab fa-youtube'; }
             else if (app.id === 'app-icon-1') { iconDiv.style.background = 'linear-gradient(180deg, #3a3a3c 0%, #1c1c1e 100%)'; iconDiv.style.color = '#ffffff'; if (iEl) iEl.className = 'fas fa-wallet'; }
             else if (app.id === 'app-icon-2') { iconDiv.style.background = '#000000'; iconDiv.style.color = '#ffffff'; if (iEl) iEl.className = 'fab fa-tiktok'; } // TikTok Style
-            else if (app.id === 'app-icon-3') { iconDiv.style.background = 'linear-gradient(180deg, #ffffff 0%, #f2f2f7 100%)'; iconDiv.style.color = '#1c1c1e'; if (iEl) iEl.className = 'fas fa-sticky-note'; }
-            else if (app.id === 'app-icon-4') { iconDiv.style.background = '#ffffff'; iconDiv.style.color = '#1c1c1e'; if (iEl) iEl.className = 'fas fa-calendar-alt'; }
+            else if (app.id === 'app-icon-3') { iconDiv.style.background = '#000000'; iconDiv.style.color = '#ffffff'; if (iEl) iEl.className = 'fas fa-star'; } // b.stage Style
+            else if (app.id === 'app-icon-4') { iconDiv.style.background = '#000000'; iconDiv.style.color = '#ffffff'; if (iEl) iEl.className = 'fab fa-twitter'; }
             
             if (iEl) iEl.style.display = '';
         }
@@ -2098,8 +2098,8 @@ Reply naturally as your character in a chat app. Do not include your own name at
         el.addEventListener('pointermove', (e) => {
             if (!pressTimer && !isTouchDrag) return;
             moveCount++;
-            // Mobile touch jitter tolerance: Only count as movement if they moved more than 10 pixels
-            if (Math.abs(e.clientX - startX) > 10 || Math.abs(e.clientY - startY) > 10) {
+            // Mobile touch jitter tolerance: Only count as movement if they moved more than 15 pixels
+            if (Math.abs(e.clientX - startX) > 15 || Math.abs(e.clientY - startY) > 15) {
                 isMoved = true;
                 if (!window.isJiggleMode && pressTimer) {
                     clearTimeout(pressTimer);
@@ -2114,17 +2114,7 @@ Reply naturally as your character in a chat app. Do not include your own name at
             
             // If they didn't hold long enough, and didn't move much, it's a click!
             if (!window.preventAppClick && !window.isJiggleMode && !isMoved) {
-                // Fire a synthetic click since we might have prevented default somewhere,
-                // or touch devices might swallow the native click.
-                // We dispatch it manually to ensure listeners trigger.
-                setTimeout(() => {
-                    const clickEvent = new MouseEvent('click', {
-                        view: window,
-                        bubbles: true,
-                        cancelable: true
-                    });
-                    el.dispatchEvent(clickEvent);
-                }, 10);
+                // Do nothing, let native click fire
             } else if (window.preventAppClick && !window.isJiggleMode) {
                 // Was long press, but jiggle hasn't started or we just cancelled it
                 setTimeout(() => window.preventAppClick = false, 100);
