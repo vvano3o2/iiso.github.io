@@ -2493,31 +2493,37 @@ window.exitJiggleMode = exitJiggleMode;
     }
 
     // ==========================================
-    // 12. MOBILE KEYBOARD FIX
+    // 12. MOBILE KEYBOARD FIX (Lightweight)
     // ==========================================
-    // Prevent fullscreen layout from being pushed up by keyboard
+    // Prevent layout shift when keyboard appears on mobile
     const inputs = document.querySelectorAll('input, textarea');
+    let scrollCorrectionInterval;
+
     inputs.forEach(input => {
         input.addEventListener('focus', () => {
-            if (document.body.classList.contains('fullscreen-mode')) {
-                // Force scroll to top to prevent layout shift
-                setTimeout(() => window.scrollTo(0, 0), 100);
-            }
+            // Continuously force scroll to 0 while typing to fight iOS default behavior
+            scrollCorrectionInterval = setInterval(() => {
+                if (document.body.scrollTop > 0 || document.documentElement.scrollTop > 0) {
+                    window.scrollTo(0, 0);
+                    document.body.scrollTop = 0;
+                }
+            }, 50);
         });
         
         input.addEventListener('blur', () => {
-             if (document.body.classList.contains('fullscreen-mode')) {
-                setTimeout(() => window.scrollTo(0, 0), 100);
-            }
+            clearInterval(scrollCorrectionInterval);
+            setTimeout(() => {
+                window.scrollTo(0, 0);
+                document.body.scrollTop = 0;
+            }, 10);
         });
     });
 
-    // Global visual viewport listener for more robust handling
+    // Use visualViewport if available as an extra safeguard
     if (window.visualViewport) {
         window.visualViewport.addEventListener('resize', () => {
-            if (document.body.classList.contains('fullscreen-mode')) {
-                window.scrollTo(0, 0);
-            }
+            window.scrollTo(0, 0);
+            document.body.scrollTop = 0;
         });
     }
 });
