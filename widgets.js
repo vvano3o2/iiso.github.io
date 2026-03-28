@@ -1,3 +1,4 @@
+
 document.addEventListener('DOMContentLoaded', () => {
     // Helper to get element by mouse coordinates across both grids
     function getGridSlotByMouse(x, y) {
@@ -6,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentGrid = document.getElementById(pageIndex === 0 ? 'main-grid-1' : 'main-grid-2');
         if (!currentGrid) return null;
         
-        const elements = [...currentGrid.querySelectorAll('.app-item, .time-widget, .ins-profile-widget, .spotify-widget, .pet-widget, .status-card-widget, .complex-music-widget')];
+        const elements = [...currentGrid.querySelectorAll('.app-item, .time-widget, .ins-profile-widget, .spotify-widget, .pet-widget, .couple-widget, .status-card-widget, .complex-music-widget, .photo-profile-widget, .diary-widget, .custom-music-widget')];
         for (let child of elements) {
             const box = child.getBoundingClientRect();
             if (x >= box.left && x <= box.right && y >= box.top && y <= box.bottom) {
@@ -15,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         // If no specific element found under mouse, still return the grid to append to first available slot
         return { element: null, isLeft: false, grid: currentGrid };
-    }
+     }
 
     // Exported function for clicking to add widgets
     window.addWidgetToGrid = function(html, className, slotsNeeded) {
@@ -70,8 +71,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (className.includes('ins-profile-widget')) bindInsProfileWidget(widget);
         else if (className.includes('spotify-widget')) bindSpotifyWidget(widget);
         else if (className.includes('pet-widget')) bindPetWidget(widget);
+        else if (className.includes('couple-widget')) bindCoupleWidget(widget);
         else if (className.includes('status-card-widget')) bindStatusCardWidget(widget);
         else if (className.includes('complex-music-widget')) bindComplexMusicWidget(widget);
+        else if (className.includes('custom-music-widget')) bindCustomMusicWidget(widget);
         
         if (window.setupDraggable) window.setupDraggable(widget);
         
@@ -534,6 +537,380 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function createCoupleWidget() {
+        const widget = document.createElement('div');
+        widget.className = 'couple-widget';
+        const wid = Date.now();
+        widget.id = 'couple-widget-' + wid;
+        
+        widget.innerHTML = `
+            <div class="delete-widget-btn"><i class="fas fa-times"></i></div>
+            
+            <div class="couple-avatar-container">
+                <div class="couple-bubble" contenteditable="true" spellcheck="false">ㅠㅠ</div>
+                <div class="couple-img-wrapper" id="couple-img-container-1-${wid}">
+                    <img src="" id="couple-img-1-${wid}">
+                    <i class="fas fa-image" id="couple-icon-1-${wid}"></i>
+                    <input type="file" id="couple-upload-1-${wid}" accept="image/*" style="display:none;">
+                </div>
+            </div>
+            
+            <div class="couple-avatar-container">
+                <div class="couple-bubble" contenteditable="true" spellcheck="false">ㅎㅎ</div>
+                <div class="couple-img-wrapper" id="couple-img-container-2-${wid}">
+                    <img src="" id="couple-img-2-${wid}">
+                    <i class="fas fa-image" id="couple-icon-2-${wid}"></i>
+                    <input type="file" id="couple-upload-2-${wid}" accept="image/*" style="display:none;">
+                </div>
+            </div>
+        `;
+        bindCoupleWidget(widget);
+        if (window.setupDraggable) window.setupDraggable(widget);
+        return widget;
+    }
+
+    function bindCoupleWidget(widget) {
+        if (!widget) return;
+        const deleteBtn = widget.querySelector('.delete-widget-btn');
+
+        if (deleteBtn) {
+            deleteBtn.addEventListener('pointerdown', (e) => {
+                e.stopPropagation();
+                e.preventDefault(); // prevent drag
+                if (window.isJiggleMode) {
+                    widget.remove();
+                    if (window.balanceGridSlots) window.balanceGridSlots();
+                    if (window.saveDesktopState) window.saveDesktopState();
+                }
+            });
+        }
+
+        // Setup upload for left image
+        const imgContainer1 = widget.querySelectorAll('.couple-img-wrapper')[0];
+        const upload1 = imgContainer1 ? imgContainer1.querySelector('input[type="file"]') : null;
+        const img1 = imgContainer1 ? imgContainer1.querySelector('img') : null;
+        const icon1 = imgContainer1 ? imgContainer1.querySelector('i') : null;
+        
+        if (imgContainer1 && upload1) {
+            imgContainer1.addEventListener('click', (e) => {
+                if(!window.isJiggleMode && !window.preventAppClick) { e.stopPropagation(); upload1.click(); }
+            });
+            upload1.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        if (img1) { img1.src = ev.target.result; img1.style.display = 'block'; }
+                        if (icon1) { icon1.style.display = 'none'; }
+                        if (window.saveDesktopState) window.saveDesktopState();
+                    };
+                    reader.readAsDataURL(file);
+                }
+                e.target.value = '';
+            });
+        }
+
+        // Setup upload for right image
+        const imgContainer2 = widget.querySelectorAll('.couple-img-wrapper')[1];
+        const upload2 = imgContainer2 ? imgContainer2.querySelector('input[type="file"]') : null;
+        const img2 = imgContainer2 ? imgContainer2.querySelector('img') : null;
+        const icon2 = imgContainer2 ? imgContainer2.querySelector('i') : null;
+        
+        if (imgContainer2 && upload2) {
+            imgContainer2.addEventListener('click', (e) => {
+                if(!window.isJiggleMode && !window.preventAppClick) { e.stopPropagation(); upload2.click(); }
+            });
+            upload2.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        if (img2) { img2.src = ev.target.result; img2.style.display = 'block'; }
+                        if (icon2) { icon2.style.display = 'none'; }
+                        if (window.saveDesktopState) window.saveDesktopState();
+                    };
+                    reader.readAsDataURL(file);
+                }
+                e.target.value = '';
+            });
+        }
+
+        const editables = widget.querySelectorAll('[contenteditable="true"]');
+        editables.forEach(editable => {
+            editable.addEventListener('pointerdown', (e) => {
+                if (!window.isJiggleMode) e.stopPropagation();
+            });
+            editable.addEventListener('blur', () => {
+                if (window.saveDesktopState) window.saveDesktopState();
+            });
+        });
+    }
+
+    function createPhotoProfileWidget() {
+        const widget = document.createElement('div');
+        widget.className = 'photo-profile-widget';
+        const wid = Date.now();
+        widget.id = 'photo-profile-widget-' + wid;
+        
+        widget.innerHTML = `
+            <div class="delete-widget-btn"><i class="fas fa-times"></i></div>
+            
+            <div class="ppw-top-half" id="ppw-bg-btn-${wid}" style="background-color: #333;">
+                <img src="" class="ppw-bg-img" id="ppw-bg-img-${wid}">
+                
+                <div class="ppw-top-content">
+                    <div class="ppw-avatar-container" id="ppw-avatar-btn-${wid}">
+                        <img src="" id="ppw-avatar-img-${wid}">
+                        <i class="fas fa-user" id="ppw-avatar-icon-${wid}"></i>
+                        <input type="file" id="ppw-avatar-upload-${wid}" accept="image/*" style="display:none;">
+                    </div>
+                    
+                    <div class="ppw-info">
+                        <div class="ppw-name-row" contenteditable="true" spellcheck="false">iisonyoung</div>
+                        <div class="ppw-sign-row" contenteditable="true" spellcheck="false">☆* iwish..★행복.●・)♡</div>
+                    </div>
+                    
+                    <div class="ppw-action-btn" contenteditable="true" spellcheck="false">关注中</div>
+                </div>
+            </div>
+            
+            <div class="ppw-bottom-half">
+                <div class="ppw-photo-slot" id="ppw-photo-btn-1-${wid}">
+                    <img src="" id="ppw-photo-img-1-${wid}">
+                    <i class="fas fa-image" id="ppw-photo-icon-1-${wid}"></i>
+                    <input type="file" id="ppw-photo-upload-1-${wid}" accept="image/*" style="display:none;">
+                </div>
+                <div class="ppw-photo-slot" id="ppw-photo-btn-2-${wid}">
+                    <img src="" id="ppw-photo-img-2-${wid}">
+                    <i class="fas fa-image" id="ppw-photo-icon-2-${wid}"></i>
+                    <input type="file" id="ppw-photo-upload-2-${wid}" accept="image/*" style="display:none;">
+                </div>
+                <div class="ppw-photo-slot" id="ppw-photo-btn-3-${wid}">
+                    <img src="" id="ppw-photo-img-3-${wid}">
+                    <i class="fas fa-image" id="ppw-photo-icon-3-${wid}"></i>
+                    <input type="file" id="ppw-photo-upload-3-${wid}" accept="image/*" style="display:none;">
+                </div>
+            </div>
+        `;
+        bindPhotoProfileWidget(widget);
+        if (window.setupDraggable) window.setupDraggable(widget);
+        return widget;
+    }
+
+    function createDiaryWidget() {
+        const widget = document.createElement('div');
+        widget.className = 'diary-widget';
+        const wid = Date.now();
+        widget.id = 'diary-widget-' + wid;
+        
+        widget.innerHTML = `
+            <div class="delete-widget-btn"><i class="fas fa-times"></i></div>
+            <div style="display: flex; gap: 12px; align-items: flex-start; z-index: 2;">
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                    <div id="diary-avatar-btn-${wid}" style="width: 50px; height: 50px; border: 1px solid #e5e5ea; border-radius: 50%; display: flex; justify-content: center; align-items: center; position: relative; overflow: hidden; background: #fff;">
+                        <img src="" id="diary-avatar-img-${wid}" style="width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top: 0; left: 0;">
+                        <i class="fas fa-image" id="diary-avatar-icon-${wid}" style="font-size: 24px; color: #ccc;"></i>
+                        <input type="file" id="diary-avatar-upload-${wid}" accept="image/*" style="display:none;">
+                    </div>
+                </div>
+                <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 4px; padding-top: 4px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 14px; font-weight: 600; color: #333;" contenteditable="true" spellcheck="false">iisonyoung</div>
+                        <div style="font-size: 12px; color: #8e8e93; display: flex; align-items: center; justify-content: flex-end; flex: 1;">
+                            <span class="diary-date-display" id="diary-date-${wid}"></span>
+                        </div>
+                    </div>
+                    <div style="font-size: 13px; color: #b0b0b0;" contenteditable="true" spellcheck="false">@iis_onnny</div>
+                </div>
+            </div>
+            <div style="margin-top: 12px; background-color: #ffffff; padding: 14px 16px; border-radius: 16px; font-size: 14px; color: #333; font-weight: 600; position: relative; outline: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); z-index: 2;" contenteditable="true" spellcheck="false">
+                <style>
+                    #diary-widget-${wid} .diary-bubble-tail {
+                        content: '';
+                        position: absolute;
+                        top: -8px;
+                        left: 20px;
+                        border-width: 0 10px 10px 10px;
+                        border-style: solid;
+                        border-color: transparent transparent #ffffff transparent;
+                    }
+                </style>
+                <div class="diary-bubble-tail"></div>
+                我們吞咽了太多秘密，其實生命只需要呼吸
+            </div>
+        `;
+        
+        // 设置当前日期
+        const dateEl = widget.querySelector(`#diary-date-${wid}`);
+        if (dateEl) {
+            const today = new Date();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            dateEl.textContent = `${month}月${day}日`;
+        }
+
+        bindDiaryWidget(widget);
+        if (window.setupDraggable) window.setupDraggable(widget);
+        return widget;
+    }
+
+    function bindDiaryWidget(widget) {
+        if (!widget) return;
+        const deleteBtn = widget.querySelector('.delete-widget-btn');
+
+        if (deleteBtn) {
+            deleteBtn.addEventListener('pointerdown', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                if (window.isJiggleMode) {
+                    widget.remove();
+                    if (window.balanceGridSlots) window.balanceGridSlots();
+                    if (window.saveDesktopState) window.saveDesktopState();
+                }
+            });
+        }
+
+        // Setup upload for avatar
+        const wid = widget.id.split('-').pop();
+        const avatarBtn = widget.querySelector(`#diary-avatar-btn-${wid}`);
+        const avatarUpload = widget.querySelector(`#diary-avatar-upload-${wid}`);
+        const avatarImg = widget.querySelector(`#diary-avatar-img-${wid}`);
+        const avatarIcon = widget.querySelector(`#diary-avatar-icon-${wid}`);
+        
+        if (avatarBtn && avatarUpload) {
+            avatarBtn.addEventListener('click', (e) => {
+                if(!window.isJiggleMode && !window.preventAppClick) { 
+                    e.stopPropagation(); 
+                    avatarUpload.click(); 
+                }
+            });
+            avatarUpload.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        if (avatarImg) { avatarImg.src = ev.target.result; avatarImg.style.display = 'block'; }
+                        if (avatarIcon) { avatarIcon.style.display = 'none'; }
+                        if (window.saveDesktopState) window.saveDesktopState();
+                    };
+                    reader.readAsDataURL(file);
+                }
+                e.target.value = '';
+            });
+        }
+
+        const editables = widget.querySelectorAll('[contenteditable="true"]');
+        editables.forEach(editable => {
+            editable.addEventListener('pointerdown', (e) => {
+                if (!window.isJiggleMode) e.stopPropagation();
+            });
+            editable.addEventListener('blur', () => {
+                if (window.saveDesktopState) window.saveDesktopState();
+            });
+        });
+    }
+
+    function createCustomMusicWidget() {
+        const widget = document.createElement('div');
+        widget.className = 'custom-music-widget';
+        const wid = Date.now();
+        widget.id = 'custom-music-widget-' + wid;
+        
+        widget.innerHTML = `
+            <div class="delete-widget-btn"><i class="fas fa-times"></i></div>
+            <div style="position: absolute; top: 12px; left: 12px; width: 28px; height: 28px; border-radius: 50%; background-color: #e5e5ea; display: flex; justify-content: center; align-items: center; color: #000; font-size: 14px; box-shadow: none; z-index: 5;">
+                <i class="fas fa-ellipsis-h"></i>
+            </div>
+            
+            <div style="display: flex; flex: 1; align-items: center; gap: 15px; margin-bottom: 12px; padding-top: 10px; padding-left: 36px;">
+                <!-- Left: Uploadable Image -->
+                <div id="cm-cover-btn-${wid}" style="width: 90px; height: 90px; border-radius: 16px; background-color: #e5e5ea; display: flex; justify-content: center; align-items: center; position: relative; overflow: hidden; flex-shrink: 0; box-shadow: none; border: 1px solid rgba(0,0,0,0.05);">
+                    <img src="" id="cm-cover-img-${wid}" style="width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top: 0; left: 0;">
+                    <i class="fas fa-image" id="cm-cover-icon-${wid}" style="font-size: 30px; color: #ccc;"></i>
+                    <input type="file" id="cm-cover-upload-${wid}" accept="image/*" style="display:none;">
+                </div>
+                
+                <!-- Right: Centered Text -->
+                <div style="flex: 1; display: flex; align-items: center; justify-content: center; height: 100%;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 3px; height: 20px; background-color: #000; border-radius: 2px; box-shadow: none;"></div>
+                        <div contenteditable="true" spellcheck="false" style="font-size: 18px; font-weight: 600; color: #333; outline: none; white-space: nowrap;">iisonyoung</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bottom: Progress and Controls -->
+            <div style="display: flex; align-items: center; gap: 10px; width: 100%; padding: 0 8px; box-sizing: border-box;">
+                <div style="font-size: 11px; color: #8e8e93; font-weight: 500;">2:04</div>
+                <div style="flex: 1; height: 5px; background-color: rgba(0,0,0,0.1); border-radius: 3px; position: relative;">
+                    <div style="position: absolute; top: 0; left: 0; height: 100%; width: 68%; background-color: #ccc; border-radius: 3px;"></div>
+                </div>
+                <div style="font-size: 11px; color: #8e8e93; font-weight: 500;">-0:56</div>
+                <div style="margin-left: 8px; color: #000; font-size: 18px; display: flex; align-items: center; justify-content: center; width: 24px;">
+                    <i class="fas fa-pause"></i>
+                </div>
+            </div>
+        `;
+        bindCustomMusicWidget(widget);
+        if (window.setupDraggable) window.setupDraggable(widget);
+        return widget;
+    }
+
+    function bindCustomMusicWidget(widget) {
+        if (!widget) return;
+        const deleteBtn = widget.querySelector('.delete-widget-btn');
+
+        if (deleteBtn) {
+            deleteBtn.addEventListener('pointerdown', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                if (window.isJiggleMode) {
+                    widget.remove();
+                    if (window.balanceGridSlots) window.balanceGridSlots();
+                    if (window.saveDesktopState) window.saveDesktopState();
+                }
+            });
+        }
+
+        // Handle image upload
+        const coverBtn = widget.querySelector('[id^="cm-cover-btn-"]');
+        const uploadInput = widget.querySelector('[id^="cm-cover-upload-"]');
+        const coverImg = widget.querySelector('[id^="cm-cover-img-"]');
+        const coverIcon = widget.querySelector('[id^="cm-cover-icon-"]');
+        
+        if (coverBtn && uploadInput) {
+            coverBtn.addEventListener('click', (e) => {
+                if(!window.isJiggleMode && !window.preventAppClick) { 
+                    e.stopPropagation(); 
+                    uploadInput.click(); 
+                }
+            });
+            uploadInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        if (coverImg) { coverImg.src = ev.target.result; coverImg.style.display = 'block'; }
+                        if (coverIcon) { coverIcon.style.display = 'none'; }
+                        if (window.saveDesktopState) window.saveDesktopState();
+                    };
+                    reader.readAsDataURL(file);
+                }
+                e.target.value = '';
+            });
+        }
+
+        const editables = widget.querySelectorAll('[contenteditable="true"]');
+        editables.forEach(editable => {
+            editable.addEventListener('pointerdown', (e) => {
+                if (!window.isJiggleMode) e.stopPropagation();
+            });
+            editable.addEventListener('blur', () => {
+                if (window.saveDesktopState) window.saveDesktopState();
+            });
+        });
+    }
+
     function createPetWidget() {
         const widget = document.createElement('div');
         widget.className = 'pet-widget';
@@ -746,8 +1123,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const insPreviewBtn = document.getElementById('add-ins-profile-btn');
     const spotifyPreviewBtn = document.getElementById('add-spotify-widget-btn');
     const petPreviewBtn = document.getElementById('add-pet-widget-btn');
+    const couplePreviewBtn = document.getElementById('add-couple-widget-btn');
     const statusCardPreviewBtn = document.getElementById('add-status-card-btn');
     const complexMusicPreviewBtn = document.getElementById('add-complex-music-btn');
+    const customMusicPreviewBtn = document.getElementById('add-custom-music-btn');
+    const diaryPreviewBtn = document.getElementById('add-diary-widget-btn');
 
     function setupGalleryDrag(btn, createWidgetFn, slotsNeeded, offsetW, offsetH) {
         if (!btn) return;
@@ -908,8 +1288,11 @@ document.addEventListener('DOMContentLoaded', () => {
     setupGalleryDrag(insPreviewBtn, createInsProfileWidget, 12, 160, 120);
     setupGalleryDrag(spotifyPreviewBtn, createSpotifyWidget, 16, 160, 160);
     setupGalleryDrag(petPreviewBtn, createPetWidget, 4, 75, 75);
+    setupGalleryDrag(couplePreviewBtn, createCoupleWidget, 4, 75, 75);
     setupGalleryDrag(statusCardPreviewBtn, createStatusCardWidget, 8, 160, 75);
     setupGalleryDrag(complexMusicPreviewBtn, createComplexMusicWidget, 16, 160, 160);
+    setupGalleryDrag(customMusicPreviewBtn, createCustomMusicWidget, 8, 160, 75);
+    setupGalleryDrag(diaryPreviewBtn, createDiaryWidget, 8, 160, 75);
 
     // ==========================================
     // DATA PERSISTENCE FOR WIDGETS
@@ -931,7 +1314,7 @@ document.addEventListener('DOMContentLoaded', () => {
             grid2: document.getElementById('main-grid-2').innerHTML
         };
 
-        localStorage.setItem('ios_emulator_desktop_state_v3', JSON.stringify(state));
+        localStorage.setItem('ios_emulator_desktop_state_v9', JSON.stringify(state));
 
         // Restore jiggle mode if it was active
         if (wasJiggling) {
@@ -942,25 +1325,30 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.loadDesktopState = function() {
-        const savedStateStr = localStorage.getItem('ios_emulator_desktop_state_v3');
+        const savedStateStr = localStorage.getItem('ios_emulator_desktop_state_v9');
         if (savedStateStr) {
             try {
                 const state = JSON.parse(savedStateStr);
                 const grid1 = document.getElementById('main-grid-1');
                 const grid2 = document.getElementById('main-grid-2');
+                const grid3 = document.getElementById('main-grid-3');
                 
                 if (grid1 && state.grid1) grid1.innerHTML = state.grid1;
                 if (grid2 && state.grid2) grid2.innerHTML = state.grid2;
+                if (grid3 && state.grid3) grid3.innerHTML = state.grid3;
                 
                 // Re-bind events to loaded elements
-                const allWidgets = document.querySelectorAll('.ins-profile-widget, .spotify-widget, .pet-widget, .status-card-widget, .complex-music-widget');
+                const allWidgets = document.querySelectorAll('.ins-profile-widget, .spotify-widget, .pet-widget, .couple-widget, .status-card-widget, .complex-music-widget, .custom-music-widget, .diary-widget');
                 allWidgets.forEach(widget => {
                     const className = widget.className;
                     if (className.includes('ins-profile-widget')) bindInsProfileWidget(widget);
                     else if (className.includes('spotify-widget')) bindSpotifyWidget(widget);
                     else if (className.includes('pet-widget')) bindPetWidget(widget);
+                    else if (className.includes('couple-widget')) bindCoupleWidget(widget);
                     else if (className.includes('status-card-widget')) bindStatusCardWidget(widget);
                     else if (className.includes('complex-music-widget')) bindComplexMusicWidget(widget);
+                    else if (className.includes('custom-music-widget')) bindCustomMusicWidget(widget);
+                    else if (className.includes('diary-widget')) bindDiaryWidget(widget);
                 });
 
                 if (window.refreshDraggables) window.refreshDraggables();
@@ -988,6 +1376,28 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const defaultStatusCard = document.getElementById('status-card-desktop');
         if (defaultStatusCard) bindStatusCardWidget(defaultStatusCard);
+
+        const defaultStatusCard2 = document.getElementById('status-card-desktop-2');
+        if (defaultStatusCard2) bindStatusCardWidget(defaultStatusCard2);
+
+        const defaultCouple = document.getElementById('couple-widget-desktop-2');
+        if (defaultCouple) bindCoupleWidget(defaultCouple);
+
+        const defaultCustomMusic = document.getElementById('custom-music-widget-desktop-2');
+        if (defaultCustomMusic) bindCustomMusicWidget(defaultCustomMusic);
+
+        const defaultDiary = document.getElementById('diary-widget-desktop-2');
+        if (defaultDiary) {
+            // Update date on initial load
+            const dateEl = defaultDiary.querySelector('.diary-date-display');
+            if (dateEl) {
+                const today = new Date();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                dateEl.textContent = `${month}月${day}日`;
+            }
+            bindDiaryWidget(defaultDiary);
+        }
     }
 
     // Call load on script execute

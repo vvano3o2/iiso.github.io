@@ -1,3 +1,38 @@
+/* Global Variables */
+:root {
+    --ios-bg: #f2f2f7;
+    --ios-header: #f9f9f9;
+    --ios-border: #c6c6c8;
+    --ios-blue: #007aff;
+    --ios-green: #34c759;
+    --ios-gray: #8e8e93;
+    --ios-bubble-receive: #e9e9eb;
+    --ios-bubble-send: #95ec69; /* WeChat Green */
+}
+
+/* Reset & Base */
+* {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* App Container */
+#imessage-view {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    display: flex;
+    /* display: none; Removed to allow transition from .app-view */
+    flex-direction: column;
+    z-index: 200;
+    padding-top: 0 !important; /* Override .app-view padding */
+}
+
+
 /* iMessage (LINE Style) Styles */
 
 /* 1. Header */
@@ -874,7 +909,7 @@ body.fullscreen-mode .line-bottom-nav-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 14px 16px;
+    padding: 12px 16px;
     font-size: 16px;
     font-weight: 500;
     color: #000;
@@ -891,21 +926,1750 @@ body.fullscreen-mode .line-bottom-nav-container {
     color: #ff3b30;
 }
 
-.msg-menu-item i {
-    font-size: 18px;
-    opacity: 0.8;
+.msg-menu-item.destructive i {
+    color: #ff3b30 !important;
+}
+
+.msg-reaction {
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .msg-reaction:active {
     transform: scale(1.3);
+    background: rgba(0,0,0,0.05);
 }
 
+/* Chat Row modifications during active state */
 .chat-row {
-    transition: transform 0.2s, filter 0.2s;
-    transform-origin: center center;
+    transition: transform 0.2s, opacity 0.2s;
 }
 
 .chat-row.message-active {
-    z-index: 1001;
+    opacity: 0; /* Hide the original row while context menu is open, since we clone the bubble */
+}
+
+/* Overlay / Modal */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1000;
+    display: none;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.overlay.active {
+    display: flex;
+}
+
+.bottom-sheet {
+    width: 100%;
+    background-color: #f2f2f7;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: 80%;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+/* Styles for Add Friend Inputs (Commented to prevent global conflict) */
+/*
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.form-group label {
+    font-size: 14px;
+    color: #8e8e93;
+    margin-left: 5px;
+}
+
+.form-input {
+    padding: 12px;
+    border: 1px solid #c6c6c8;
+    border-radius: 8px;
+    font-size: 16px;
+    outline: none;
+}
+*/
+
+/* Toggle Switch (Commented to use ios_emulator.css version) */
+/*
+.toggle-switch {
     position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 30px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--ios-green);
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px);
+}
+*/
+
+/* Moments (朋友圈) Styling */
+#moments-content {
+    flex: 1;
+    background-color: #fff;
+    display: none;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.moments-top-bar {
+    height: 114px; /* 60px + 54px */
+    padding-top: 54px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 15px;
+    padding-right: 15px;
+    color: #fff; /* White icons on cover */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 20;
+    /* background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent); */
+}
+
+.moments-scroll-container {
+    flex: 1;
+    overflow-y: auto;
+    background-color: #fff;
+    padding-bottom: 80px;
+}
+
+.moments-cover-wrapper {
+    width: 100%;
+    height: 180px; /* 缩短高度，仿微信 */
+    position: relative;
+    background-color: #333;
+    cursor: pointer;
+}
+
+.moments-cover-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.moments-user-info {
+    position: absolute;
+    bottom: -20px;
+    right: 15px;
+    display: flex;
+    align-items: flex-end;
+    gap: 15px;
+    z-index: 10;
+}
+
+.moments-user-name {
+    color: #fff;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 30px; /* Push up from bottom edge of avatar */
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.moments-user-avatar-wrapper {
+    width: 70px;
+    height: 70px;
+    border-radius: 8px;
+    background: #fff;
+    padding: 2px; /* Border effect */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.moments-user-avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 6px;
+    object-fit: cover;
+}
+
+.moments-user-avatar-icon {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #e5e5ea;
+    color: #8e8e93;
+    font-size: 30px;
+    border-radius: 6px;
+}
+
+.main-moments-signature {
+    position: absolute;
+    right: 15px;
+    bottom: -42px;
+    width: calc(100% - 110px);
+    text-align: right;
+    font-size: 12px;
+    color: #8e8e93;
+    line-height: 1.4;
+    word-break: break-word;
+    display: none;
+    z-index: 11;
+}
+
+.moments-list {
+    padding-top: 52px; /* Space for avatar + signature hanging */
+}
+
+.moment-item {
+    display: flex;
+    padding: 15px;
+    border-bottom: 1px solid #f2f2f2;
+    gap: 10px;
+}
+
+.moment-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    background: #ddd;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.moment-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.moment-main {
+    flex: 1;
+}
+
+.moment-name {
+    color: #576b95; /* WeChat Name Color */
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.moment-text {
+    font-size: 15px;
+    color: #000;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.moment-images {
+    margin-bottom: 8px;
+}
+
+.moment-images.single {
+    display: block;
+}
+
+.moment-images.single .moment-img-wrapper {
+    width: auto;
+    height: auto;
+    max-width: 70%;
+    max-height: 200px;
+    background: #f2f2f7;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.moment-images.single .moment-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.moment-images.double, .moment-images.grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.moment-img-wrapper {
+    background: #f2f2f7; /* Prevent pure transparent showing weird colors behind */
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.moment-images.double .moment-img-wrapper,
+.moment-images.grid .moment-img-wrapper {
+    width: 80px;
+    height: 80px;
+}
+
+.moment-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center; /* Ensure image covers fully centered */
+    display: block;
+}
+
+.moment-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    margin-top: 5px;
+}
+
+.moment-time {
+    font-size: 12px;
+    color: #8e8e93;
+}
+
+.moment-action-btn {
+    width: 32px;
+    height: 20px;
+    background: #f7f7f7;
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #576b95;
+    cursor: pointer;
+}
+
+/* Action Menu Popup */
+.moment-action-menu {
+    position: absolute;
+    right: 40px;
+    top: -5px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    padding: 0;
+    overflow: hidden;
+    width: 0;
+    transition: width 0.2s ease-out;
+}
+
+.moment-action-menu.active {
+    width: 250px; /* Expanded width */
+}
+
+.moment-action-item {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #333;
+    font-size: 13px;
+    padding: 10px 0;
+    white-space: nowrap;
+    cursor: pointer;
+    gap: 5px;
+}
+
+.moment-action-item:active {
+    background: rgba(0,0,0,0.05);
+}
+
+.moment-interaction-area {
+    background: #f7f7f7;
+    border-radius: 4px;
+    padding: 5px 8px;
+    margin-top: 8px;
+    font-size: 13px;
+    position: relative;
+}
+
+.moment-interaction-area::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 10px;
+    border-width: 0 5px 5px 5px;
+    border-style: solid;
+    border-color: transparent transparent #f7f7f7 transparent;
+}
+
+.moment-likes {
+    color: #576b95;
+    margin-bottom: 2px;
+    word-break: break-all;
+}
+
+.moment-comment {
+    color: #000;
+    margin-top: 2px;
+}
+
+.moment-comment-name {
+    color: #576b95;
+    font-weight: 500;
+}
+
+/* Custom Modal */
+.custom-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+    z-index: 2000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.custom-modal {
+    width: 80%;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: popIn 0.2s ease-out;
+}
+
+@keyframes popIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.custom-modal-content {
+    padding: 20px;
+    text-align: center;
+}
+
+.custom-modal-title {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.custom-modal-message {
+    font-size: 14px;
+    color: #000;
+    margin-bottom: 15px;
+}
+
+.custom-modal-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+}
+
+.custom-modal-actions {
+    display: flex;
+    border-top: 1px solid #dcdcdc;
+}
+
+.custom-modal-btn {
+    flex: 1;
+    padding: 12px;
+    text-align: center;
+    font-size: 16px;
+    color: #007aff;
+    cursor: pointer;
+    border-right: 1px solid #dcdcdc;
+    background: #fff;
+}
+
+.custom-modal-btn:last-child {
+    border-right: none;
+}
+
+.custom-modal-btn:active {
+    background: #f2f2f2;
+}
+
+.custom-modal-btn.destructive {
+    color: #ff3b30;
+}
+
+/* Moment Detail Overlay - 全白背景、内容居中 */
+#moment-detail-overlay .bottom-sheet {
+    background: #fff !important;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch; /* 修改为 stretch 以便内部元素控制宽度 */
+    padding: 0; /* 移除外层 padding */
+}
+
+#moment-detail-overlay .bottom-sheet > * {
+    max-width: 100%;
+}
+
+.moment-detail-container {
+    padding: 20px 24px; /* 增加内边距 */
+}
+
+/* 放大详情文字 */
+.moment-detail-text {
+    font-size: 18px !important; /* 字体放大 */
+    line-height: 1.6 !important;
+    color: #333;
+    margin-top: 15px;
+    margin-bottom: 20px;
+}
+
+.moment-detail-header {
+    margin-bottom: 20px !important;
+}
+
+/* 微信朋友圈详情排版对齐 */
+.moment-detail-content {
+    margin-left: 0 !important; /* 取消左边距，让文字顶格对齐头像左侧（微信样式） */
+}
+
+.moment-detail-name {
+    font-size: 18px !important; /* 名字放大 */
+}
+
+.moment-detail-avatar {
+    width: 48px !important;
+    height: 48px !important;
+}
+
+/* Char Moments Settings Sheet - 圆角气泡按钮 */
+#char-moments-settings-sheet .moment-action-sheet-item {
+    background: #fff;
+    padding: 12px 16px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 500;
+    color: #8e8e93;
+    cursor: pointer;
+    border-bottom: none;
+    margin-bottom: 8px;
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+#char-moments-settings-sheet .moment-action-sheet-item:last-child {
+    margin-bottom: 0;
+}
+
+#char-moments-settings-sheet .moment-action-sheet-item:active {
+    background: #f2f2f7;
+}
+
+/* 详情页更多按钮界面圆角包裹 */
+#moment-detail-action-sheet .bottom-sheet {
+    background: transparent !important;
+    padding: 0 10px 10px 10px;
+}
+
+#moment-detail-action-sheet .moment-action-sheet-item {
+    background: #fff;
+    padding: 12px 16px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 500;
+    color: #8e8e93;
+    cursor: pointer;
+    border-bottom: none;
+    margin-bottom: 8px;
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+#moment-detail-action-sheet .moment-action-sheet-item:last-child {
+    margin-bottom: 0;
+}
+
+#moment-detail-action-sheet .moment-action-sheet-item:active {
+    background: #f2f2f7;
+}
+
+#moment-detail-action-sheet .bottom-sheet-cancel {
+    margin-top: 8px;
+}
+
+.moment-action-btn-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px; /* Very tight gap */
+    flex: 1;
+    font-size: 10px; /* Smallest legible font */
+    color: #8e8e93; /* Gray color */
+}
+
+.moment-action-icon-box {
+    width: 40px; /* Even smaller box */
+    height: 40px;
+    background: #fff;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px; /* Even smaller icon */
+    color: #8e8e93; /* Gray icon */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    cursor: pointer;
+}
+
+.moment-action-icon-box:active {
+    background: #f2f2f7;
+}
+
+/* User Moments Page (Detailed) */
+#user-moments-view {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    z-index: 300;
+    display: none;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.35s ease;
+    opacity: 0;
+}
+
+#user-moments-view.active {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+#user-moments-view.closing {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+.user-moments-top-bar {
+    height: 98px; /* 44px + 54px */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 20;
+    padding-top: 54px;
+}
+
+.user-moments-scroll-container {
+    flex: 1;
+    overflow-y: auto;
+    background: #fff;
+}
+
+/* User Moments Layout (Time Line) */
+.user-moments-list {
+    padding-top: 0px; /* Shift up */
+}
+
+.user-moment-group {
+    display: flex;
+    padding: 8px 15px; /* Tighter padding */
+}
+
+.user-moment-date-col {
+    width: 60px; /* Narrower date column */
+    padding-right: 8px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 2px; /* Tighter gap between day and month */
+}
+
+.user-moment-day {
+    font-size: 22px; /* Slightly smaller */
+    font-weight: 600;
+    color: #000;
+    line-height: 1;
+    background: transparent !important;
+    padding: 0 !important;
+    border: none !important;
+}
+
+.user-moment-month {
+    font-size: 11px; /* Smaller */
+    color: #000;
+    font-weight: 600;
+    margin-top: 8px; /* Align with day text baseline somewhat */
+}
+
+.user-moment-content-col {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.pinned-group .user-moment-content-col {
+    display: flex;
+    flex-direction: row; /* Horizontal layout for pinned */
+    overflow-x: auto; /* Allow scrolling if many */
+    gap: 5px;
+    padding-bottom: 5px; /* Space for scrollbar if any */
+}
+
+/* Hide scrollbar for clean look */
+.pinned-group .user-moment-content-col::-webkit-scrollbar {
+    display: none;
+}
+
+.user-moment-item {
+    display: flex;
+    gap: 8px;
+    max-width: 80px;
+    cursor: pointer;
+}
+
+.user-moment-media {
+    width: 60px;
+    height: 60px;
+    background: #f2f2f2;
+    overflow: hidden;
+}
+
+.user-moment-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.user-moment-text-preview {
+    background: #f2f2f7;
+    padding: 8px;
+    font-size: 13px;
+    color: #333;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    width: 100%;
+}
+
+/* Text Only Square for Pinned/Grid */
+.text-only-moment-square {
+    width: 80px;
+    height: 80px;
+    background-color: #e5e5ea;
+    color: #000;
+    font-size: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 5px;
+    overflow: hidden;
+    line-height: 1.2;
+}
+
+/* Pinned Bubble Style - CHANGED to text only */
+.pinned-bubble {
+    font-size: 24px;
+    font-weight: 600;
+    color: #000;
+    line-height: 1;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+}
+
+/* Publish Moment View */
+#publish-moment-view {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    z-index: 400;
+    display: none;
+    flex-direction: column;
+}
+
+.publish-top-bar {
+    height: 98px; /* 44px + 54px */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 15px;
+    padding-top: 54px;
+    background: #fff;
+    border-bottom: 1px solid #f2f2f2;
+}
+
+.publish-content {
+    padding: 20px;
+    flex: 1;
+}
+
+.publish-textarea {
+    width: 100%;
+    height: 100px;
+    border: none;
+    resize: none;
+    font-size: 16px;
+    outline: none;
+    margin-bottom: 20px;
+}
+
+.publish-images-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.publish-add-btn {
+    width: 100%;
+    aspect-ratio: 1;
+    background: #f2f2f2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    color: #ccc;
+    cursor: pointer;
+}
+
+.publish-submit-btn {
+    padding: 6px 12px;
+    border-radius: 4px;
+    background: #f2f2f2;
+    color: #b2b2b2;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.publish-submit-btn.active {
+    background: #07c160; /* WeChat Green */
+    color: #fff;
+}
+
+/* Settings Sheet Overrides for Chat (Commented to prevent global conflict) */
+/*
+.settings-header {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-bottom: 1px solid #f2f2f2;
+    cursor: pointer; 
+}
+
+.settings-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 6px;
+    background: #eee;
+    overflow: hidden;
+}
+
+.settings-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.settings-name {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.settings-group {
+    background: #fff;
+    margin-top: 10px;
+}
+
+.settings-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #f2f2f2;
+    font-size: 16px;
+    color: #000;
+    cursor: pointer;
+}
+
+.settings-item i {
+    color: #c7c7cc;
+}
+
+.settings-item.destructive {
+    color: #ff3b30;
+    justify-content: center;
+}
+*/
+
+/* Preset CSS List */
+#css-preset-list {
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.account-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.delete-icon {
+    color: #ff3b30;
+    padding: 10px;
+    cursor: pointer;
+}
+
+/* Moment Message List */
+#moments-message-view {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    z-index: 350;
+    display: none;
+    flex-direction: column;
+}
+
+/* Moment Forward Sheet Tweaks */
+#moment-forward-sheet .bottom-sheet-content {
+    /* Horizontal scroll for friends */
+}
+
+#moment-forward-list {
+    display: flex;
+    overflow-x: auto;
+    gap: 15px;
+    padding: 10px 0;
+}
+
+.bottom-sheet-cancel {
+    margin-top: 10px;
+    padding: 12px;
+    background: #fff !important; /* Explicitly no dark background */
+    border-radius: 16px !important; /* Rounded corners */
+    text-align: center;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    color: #000 !important;
+}
+
+.bottom-sheet-cancel:active {
+    background: #f2f2f2 !important;
+}
+
+/* Moment Forward Bubble Style */
+.moment-forward-bubble {
+    padding: 10px !important;
+    background: #fff !important;
+    border: 1px solid #e5e5ea !important;
+    min-width: 200px;
+}
+
+.user-row .moment-forward-bubble {
+    background: #fff !important; /* Keep white even for user */
+}
+
+/* Pinned Chat Override */
+.pinned-chat {
+    background-color: #f7f7f7 !important; /* Slightly distinct bg for pinned chat interface */
+}
+
+/* Moment Details Modal Styles */
+.moment-detail-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #fff; /* Full screen white */
+    z-index: 500;
+    display: none;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.moment-detail-container {
+    padding: 24px 20px;
+    padding-top: calc(env(safe-area-inset-top) + 20px);
+}
+
+.moment-detail-header {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 15px;
+    align-items: flex-start;
+}
+
+.moment-detail-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 6px;
+    background: #eee;
+    overflow: hidden;
+}
+
+.moment-detail-name-area {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-top: 2px;
+}
+
+.moment-detail-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: #576b95;
+}
+
+.moment-detail-pinned-tag {
+    font-size: 10px;
+    background: #f2f2f7;
+    color: #8e8e93;
+    padding: 2px 4px;
+    border-radius: 2px;
+    align-self: flex-start;
+    display: none;
+}
+
+.moment-detail-content {
+    margin-left: 0; /* align with name */
+    margin-top: 15px;
+}
+
+.moment-detail-text {
+    font-size: 18px;
+    color: #000;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+.moment-detail-images {
+    margin-bottom: 15px;
+}
+
+.moment-detail-img-wrapper {
+    background: transparent;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.moment-detail-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.moment-detail-images.grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+}
+.moment-detail-images.grid .moment-detail-img-wrapper {
+    aspect-ratio: 1/1;
+}
+
+.moment-detail-images.single .moment-detail-img-wrapper img {
+    max-width: 80%;
+    max-height: 300px;
+    width: auto;
+    height: auto;
+}
+
+.moment-detail-images.double {
+    display: flex;
+    gap: 5px;
+}
+.moment-detail-images.double .moment-detail-img-wrapper {
+    width: 120px;
+    height: 120px;
+}
+
+.moment-detail-time-area {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.moment-detail-time {
+    font-size: 12px;
+    color: #8e8e93;
+}
+
+.moment-detail-more {
+    color: #576b95;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.moment-detail-interaction {
+    background: #f7f7f7;
+    border-radius: 4px;
+    padding: 8px 10px;
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+.moment-detail-likes {
+    color: #576b95;
+    margin-bottom: 5px;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.moment-detail-comment {
+    margin-top: 4px;
+}
+
+.moment-detail-comment-name {
+    color: #576b95;
+    font-weight: 500;
+}
+
+/* Moment Action Sheet Items */
+#moment-action-sheet .bottom-sheet {
+    background: transparent !important;
+    padding: 0 10px 10px 10px;
+}
+
+#moment-action-sheet .moment-action-sheet-item {
+    background: #fff;
+    padding: 12px 16px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 500;
+    color: #8e8e93;
+    cursor: pointer;
+    border-bottom: none;
+    margin-bottom: 8px;
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+#moment-action-sheet .moment-action-sheet-item:last-child {
+    margin-bottom: 0;
+}
+
+#moment-action-sheet .moment-action-sheet-item:active {
+    background: #f2f2f7;
+}
+
+#moment-action-sheet #moment-action-cancel {
+    margin-top: 8px;
+    background: #fff;
+    padding: 16px 20px;
+    text-align: center;
+    font-size: 17px;
+    font-weight: 600;
+    color: #007aff;
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+#moment-action-sheet .moment-action-sheet-title {
+    background: #fff;
+    padding: 15px;
+    border-radius: 14px;
+    margin-bottom: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* Action Sheet Share Friends List */
+#moment-share-friends-list {
+    display: flex;
+    overflow-x: auto;
+    gap: 15px;
+    padding: 0;
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.moment-share-friend-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    min-width: 60px;
+    cursor: pointer;
+}
+
+.moment-share-friend-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 6px;
+    background: #eee;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    color: #8e8e93;
+}
+.moment-share-friend-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.moment-share-friend-name {
+    font-size: 11px;
+    text-align: center;
+    width: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Popup for Pinned Moments List */
+#pinned-moments-popup {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 600;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.pinned-popup-content {
+    width: 80%;
+    max-height: 70%;
+    background: #fff;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.pinned-popup-header {
+    padding: 15px;
+    text-align: center;
+    font-weight: 600;
+    border-bottom: 1px solid #f2f2f2;
+    position: relative;
+}
+
+.pinned-popup-close {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #8e8e93;
+}
+
+.pinned-popup-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.pinned-popup-item {
+    display: flex;
+    gap: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f2f2f2;
+}
+.pinned-popup-item:last-child {
+    border-bottom: none;
+}
+
+.pinned-popup-media {
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
+    background: #f2f2f2;
+}
+
+.pinned-popup-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Moments Signature Row */
+.moments-signature-row {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 16px 0 0;
+    margin-top: 8px;
+    margin-bottom: 20px;
+}
+
+.user-moments-signature {
+    width: calc(100% - 110px);
+    max-width: calc(100% - 110px);
+    margin-left: auto;
+    text-align: right;
+    color: #8e8e93;
+    font-size: 13px;
+    line-height: 1.4;
+    word-break: break-word;
+    display: none;
+}
+
+/* Char Settings Segment */
+.char-settings-sheet {
+    max-height: 90%;
+}
+
+.char-settings-content {
+    padding-bottom: 20px;
+}
+
+.char-settings-segment-wrap {
+    padding: 0 16px 16px;
+}
+
+.char-settings-segment {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    background: #e9e9eb;
+    border-radius: 999px;
+}
+
+.char-settings-tab {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.char-settings-tab.active {
+    background: #fff;
+    color: #111827;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.char-settings-panel {
+    display: none;
+}
+
+.char-settings-panel.active {
+    display: block;
+}
+
+/* Memory Panels - scoped to chat settings only */
+#chat-settings-sheet .char-memory-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    padding: 0 16px 16px;
+}
+
+#chat-settings-sheet .char-memory-card {
+    border: none;
+    background: #fff;
+    border-radius: 18px;
+    padding: 14px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2937;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#chat-settings-sheet .char-memory-card.active {
+    background: #1c1c1e;
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(28, 28, 30, 0.2);
+}
+
+#chat-settings-sheet .char-memory-panels {
+    padding: 0 16px 4px;
+}
+
+#chat-settings-sheet .char-memory-section {
+    display: none;
+}
+
+#chat-settings-sheet .char-memory-section.active {
+    display: block;
+    animation: imFadeIn 0.2s ease;
+}
+
+#chat-settings-sheet .char-memory-collapsible {
+    margin: 0 16px 16px;
+    border-radius: 20px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+#chat-settings-sheet .char-memory-collapse-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #111827;
+    cursor: pointer;
+}
+
+#chat-settings-sheet .char-memory-collapse-header i {
+    font-size: 13px;
+    color: #8e8e93;
+    transition: transform 0.2s ease;
+}
+
+#chat-settings-sheet .char-memory-collapse-header.expanded i {
+    transform: rotate(180deg);
+}
+
+#chat-settings-sheet .char-memory-collapse-body {
+    display: none;
+    padding: 0 16px 16px;
+    border-top: none;
+}
+
+/* Remove all gray backgrounds and separators in chat settings for a pure white look */
+#chat-settings-sheet .settings-group {
+    background-color: #ffffff !important;
+}
+
+#chat-settings-sheet .settings-item {
+    background-color: #ffffff !important;
+}
+
+#chat-settings-sheet .settings-item::after {
+    display: none !important;
+}
+
+#chat-settings-sheet .char-memory-collapse-body.expanded {
+    display: block;
+    animation: imFadeIn 0.2s ease;
+}
+
+/* Relationship Preview Nodes */
+.relationship-node {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    z-index: 10;
+}
+
+.relationship-node img,
+.relationship-node i {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border: 2px solid #fff;
+}
+
+.relationship-node i {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #8e8e93;
+    font-size: 20px;
+}
+
+.relationship-node.main-node img,
+.relationship-node.main-node i {
+    width: 50px;
+    height: 50px;
+    border: 2px solid var(--ios-blue);
+}
+
+.node-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #333;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 2px 6px;
+    border-radius: 8px;
+    white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+/* Relationship Sheet */
+.relationship-item {
+    background: #fff;
+    border-radius: 18px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+#relationship-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0 16px 16px;
+}
+
+#relationship-empty-state {
+    padding: 12px 16px 20px;
+    color: #8e8e93;
+    font-size: 13px;
+    text-align: center;
+}
+
+.relationship-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #e5e5ea;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #8e8e93;
+    flex-shrink: 0;
+}
+
+.relationship-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.relationship-meta {
+    flex: 1;
+    min-width: 0;
+}
+
+.relationship-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 4px;
+}
+
+.relationship-desc {
+    font-size: 12px;
+    color: #8e8e93;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.relationship-input {
+    width: 120px;
+    border: none;
+    outline: none;
+    background: #f2f2f7;
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-size: 13px;
+    text-align: right;
+    color: #111827;
+}
+
+.relationship-input::placeholder {
+    color: #b0b0b0;
+}
+
+#relationship-picker {
+    display: none;
+    padding: 0 16px 16px;
+}
+
+#relationship-picker-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+#relationship-picker .relationship-item {
+    min-height: 72px;
+}
+
+#relationship-list .relationship-item {
+    justify-content: space-between;
+}
+
+@media (max-width: 420px) {
+    #relationship-list .relationship-item {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .relationship-input {
+        width: 100%;
+        margin-left: 56px;
+        text-align: left;
+    }
+}
+
+/* Stickers View */
+.stickers-view .header-btn {
+    z-index: 100;
+    position: relative;
+}
+
+.sticker-category-card {
+    background: #fff;
+    border-radius: 24px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.sticker-category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    position: relative;
+}
+
+.sticker-category-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.sticker-category-cover {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background: #f2f2f7;
+    object-fit: cover;
+}
+
+.sticker-category-delete {
+    color: #ff3b30;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+}
+
+.sticker-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.sticker-item {
+    aspect-ratio: 1;
+    background: #f2f2f7;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.sticker-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.sticker-preview-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: #e5e5ea;
+    flex-shrink: 0;
 }

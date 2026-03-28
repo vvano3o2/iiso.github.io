@@ -104,7 +104,7 @@ body {
 /* Page Indicators */
 .page-indicators {
     position: absolute;
-    bottom: 125px;
+    bottom: 155px; /* Moved up to make room for lowered search pill */
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -321,7 +321,7 @@ body {
 /* Home Search Pill */
 .home-search-pill {
     position: absolute;
-    bottom: 150px; /* Moved up slightly to make room for dots */
+    bottom: 120px; /* Moved down slightly as requested */
     left: 50%;
     transform: translateX(-50%);
     background-color: rgba(255, 255, 255, 0.4); /* 更浅的半透明白底 */
@@ -386,12 +386,13 @@ body {
 .app-icon {
     width: 60px;
     height: 60px;
-    background-color: #f2f2f7;
+    background-color: #333333;
     background-image: var(--app-icon-bg-image);
     background-size: cover;
     background-position: center;
     border-radius: 14px; /* iOS standard squircle approx */
     box-shadow: var(--shadow-icon);
+    color: #ffffff;
 }
 
 .app-name {
@@ -420,8 +421,12 @@ body.jiggle-mode {
 .jiggle-mode .ins-profile-widget,
 .jiggle-mode .spotify-widget,
 .jiggle-mode .pet-widget,
+.jiggle-mode .couple-widget,
 .jiggle-mode .status-card-widget,
 .jiggle-mode .complex-music-widget,
+.jiggle-mode .photo-profile-widget,
+.jiggle-mode .diary-widget,
+.jiggle-mode .custom-music-widget,
 .jiggle-mode .dock-icon {
     animation: jiggle 0.3s infinite ease-in-out;
     cursor: grab;
@@ -1122,6 +1127,344 @@ body.jiggle-mode {
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
+/* Couple Widget Styles */
+.couple-widget {
+    grid-column: span 2;
+    grid-row: span 2;
+    width: 155px;
+    height: 155px;
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    cursor: pointer;
+}
+
+.couple-widget:active {
+    transform: scale(0.98);
+}
+
+.couple-avatar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    width: 70px;
+}
+
+.couple-bubble {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    padding: 6px 12px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    font-size: 13px;
+    color: #666;
+    font-weight: 600;
+    outline: none;
+    white-space: nowrap;
+    position: relative;
+    margin-bottom: 6px;
+    z-index: 3;
+    text-align: center;
+}
+
+.couple-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 10px;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 2px 2px 2px rgba(0,0,0,0.05);
+}
+
+.couple-img-wrapper {
+    width: 66px;
+    height: 66px;
+    border-radius: 50%;
+    border: 3px solid #e5e5ea;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+}
+
+.couple-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.couple-img-wrapper i {
+    font-size: 24px;
+    color: #ccc;
+}
+
+/* Custom Music Widget Styles (4x2) */
+.custom-music-widget {
+    grid-column: span 4;
+    grid-row: span 2;
+    width: 100%;
+    height: 155px; /* 2 rows high */
+    background-color: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(25px) saturate(180%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 28px;
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    cursor: pointer;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+.custom-music-widget:active {
+    transform: scale(0.98);
+}
+
+.cmw-top-section {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+}
+
+.cmw-album-art {
+    width: 90px;
+    height: 90px;
+    border-radius: 18px;
+    background-color: #e5e5ea;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.cmw-album-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.cmw-album-art i {
+    font-size: 32px;
+    color: #ccc;
+}
+
+.cmw-text-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.cmw-title {
+    font-size: 20px;
+    font-weight: 500;
+    color: #000;
+    outline: none;
+    text-align: center;
+    width: 100%;
+    word-break: break-word;
+}
+
+.cmw-bottom-section {
+    display: flex;
+    align-items: center;
+    margin-top: 12px;
+    gap: 16px;
+}
+
+.cmw-progress-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.cmw-progress-bar {
+    width: 100%;
+    height: 4px;
+    background: #d1d1d6;
+    border-radius: 2px;
+    position: relative;
+}
+
+.cmw-progress-fill {
+    width: 30%;
+    height: 100%;
+    background: #8e8e93;
+    border-radius: 2px;
+}
+
+.cmw-time-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #666;
+}
+
+.cmw-play-btn {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #000;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+/* Diary Widget Styles (4x2) */
+.diary-widget {
+    grid-column: span 4;
+    grid-row: span 2;
+    width: 100%;
+    height: 155px;
+    background-color: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(25px) saturate(180%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 28px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    position: relative;
+    cursor: pointer;
+}
+
+.diary-widget:active {
+    transform: scale(0.98);
+}
+
+.dw-top {
+    display: flex;
+    gap: 12px;
+}
+
+.dw-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.dw-avatar-box {
+    width: 50px;
+    height: 50px;
+    border: 1px solid #e5e5ea;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.dw-avatar-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.dw-avatar-box i {
+    font-size: 24px;
+    color: #ccc;
+}
+
+.dw-left-text {
+    font-size: 10px;
+    color: #8e8e93;
+}
+
+.dw-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.dw-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dw-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    outline: none;
+}
+
+.dw-date {
+    font-size: 12px;
+    color: #8e8e93;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.dw-handle {
+    font-size: 13px;
+    color: #b0b0b0;
+    outline: none;
+}
+
+.dw-bubble {
+    margin-top: 12px;
+    background-color: #f2f2f7;
+    padding: 14px 16px;
+    border-radius: 16px;
+    font-size: 14px;
+    color: #333;
+    font-weight: 600;
+    position: relative;
+    outline: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.dw-bubble::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 20px;
+    border-width: 0 10px 10px 10px;
+    border-style: solid;
+    border-color: transparent transparent #f2f2f7 transparent;
+}
+
+
 /* Widget Gallery Preview Card */
 .widget-preview-card:active {
     background-color: #f2f2f7 !important;
@@ -1175,7 +1518,7 @@ body.jiggle-mode {
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     cursor: pointer;
     transition: transform 0.2s;
-    background-color: #2c2c2e; /* Dark Gray default */
+    background-color: #333333; /* Dark Gray default */
     background-image: var(--app-icon-bg-image);
     background-size: cover;
     background-position: center;
