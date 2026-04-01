@@ -390,7 +390,7 @@ function createBookHtml(book, type) {
     let rightElementHtml = '';
     const tokens = calculateTokens(book.entries);
 
-    if (type === 'all' || type === 'global' || type === 'summary') {
+    if (type === 'all' || type === 'global') {
         rightElementHtml = `
             <div class="wb-book-meta">
                 <span class="wb-token-count">+${tokens} Tokens</span>
@@ -499,11 +499,6 @@ function renderWorldBooks() {
         </div>`;
     }
 
-    // Ensure "总结" is in wbGroups
-    if (!wbGroups.includes('总结')) {
-        wbGroups.push('总结');
-    }
-
     // Render Local Tab
     const localList = document.getElementById('wb-local-list');
     if (localList) {
@@ -549,40 +544,24 @@ function renderWorldBooks() {
         }
     }
 
-    // Render Summary Tab
-    const summaryList = document.getElementById('wb-summary-list');
-    if (summaryList) {
-        const summaryBooks = worldBooks.filter(b => b.group === '总结' || b.group.includes('总结'));
-        if (summaryBooks.length === 0) {
-            summaryList.innerHTML = `<div style="padding: 40px 16px; text-align: center; color: #8e8e93; font-size: 15px;">暂无总结记录</div>`;
-        } else {
-            summaryList.innerHTML = `<div style="padding: 10px 16px;">
-                ${summaryBooks.map(b => createBookHtml(b, 'summary')).join('')}
-            </div>`;
-        }
-    }
 }
 window.renderWorldBooks = renderWorldBooks; // Export for update
 
 // Auto-save summary to World Book globally
 window.autoSaveSummaryToWorldBook = function(title, summaryText) {
-    if (!wbGroups.includes('总结')) {
-        wbGroups.push('总结');
-    }
-    
     const newBook = {
         id: Date.now(),
-        name: title || '新总结',
-        group: '总结',
+        name: title || '自动总结',
+        group: '未分组',
         entries: [{ keyword: '总结内容', content: summaryText }],
-        isGlobal: true, // 默认设为全局可用
+        isGlobal: true,
         attachedRoles: []
     };
     
     worldBooks.push(newBook);
     saveGlobalData();
     renderWorldBooks();
-    showToast('已自动生成总结世界书');
+    showToast('已自动生成全局世界书');
 };
 
 // Global Click Listener for Edit Book (Event Delegation)

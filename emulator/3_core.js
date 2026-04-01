@@ -186,7 +186,7 @@ if (UI.inputs.detailPhone) {
 // ==========================================
 window.syncUIs = function syncUIs() {
     // Sync Home Screen
-    if(UI.displays.homeName) UI.displays.homeName.textContent = userState.name;
+    if(UI.displays.homeName) UI.displays.homeName.textContent = userState.name || 'name @yourid';
     
     if (userState.avatarUrl) {
         if(UI.displays.homeAvatarImg) {
@@ -200,7 +200,7 @@ window.syncUIs = function syncUIs() {
     }
     
     // Sync Main Settings Profile Card
-    if(UI.displays.settingsName) UI.displays.settingsName.textContent = userState.name;
+    if(UI.displays.settingsName) UI.displays.settingsName.textContent = userState.name || '未登录 Apple ID';
     
     if (userState.avatarUrl) {
         if(UI.displays.settingsAvatarImg) {
@@ -214,11 +214,11 @@ window.syncUIs = function syncUIs() {
     }
     
     // Sync Apple ID View
-    if(UI.displays.displayName) UI.displays.displayName.textContent = userState.name;
-    if(UI.displays.displayPhone) UI.displays.displayPhone.textContent = userState.phone || 'No Phone';
+    if(UI.displays.displayName) UI.displays.displayName.textContent = userState.name || '未登录 Apple ID';
+    if(UI.displays.displayPhone) UI.displays.displayPhone.textContent = userState.phone || '暂无手机号';
     
     const displaySignature = document.getElementById('display-signature');
-    if(displaySignature) displaySignature.textContent = userState.persona || 'No Signature';
+    if(displaySignature) displaySignature.textContent = userState.persona || '添加账号后可同步头像、名称与签名';
 
     if (userState.avatarUrl) {
         if(UI.displays.editAvatarImg) {
@@ -237,8 +237,8 @@ window.syncUIs = function syncUIs() {
     const imAvatarImg = document.getElementById('imessage-avatar-img');
     const imAvatarIcon = document.getElementById('imessage-avatar-icon');
 
-    if (imName) imName.textContent = userState.name;
-    if (imSign) imSign.textContent = userState.persona || 'No Persona';
+    if (imName) imName.textContent = userState.name || '未设置名称';
+    if (imSign) imSign.textContent = userState.persona || '添加账号后可同步个性签名';
 
     if (userState.avatarUrl) {
         if (imAvatarImg) {

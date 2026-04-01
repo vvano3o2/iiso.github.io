@@ -15,12 +15,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     } catch(e) {}
 
+    function getPayBalance() {
+        let total = 1000.00;
+        payTransactions.forEach(tx => {
+            total += Number(tx.amount) || 0;
+        });
+        return total;
+    }
+
+    window.getPayBalance = getPayBalance;
+
     // Global API to add transactions
     window.addPayTransaction = function(amount, title, type = 'income') {
+        const safeAmount = Number(amount);
+        if (!Number.isFinite(safeAmount) || safeAmount <= 0) return false;
+
         const newTx = {
             id: Date.now(),
             title: title || '未知交易',
-            amount: type === 'income' ? parseFloat(amount) : -parseFloat(amount),
+            amount: type === 'income' ? safeAmount : -safeAmount,
             time: Date.now(),
             icon: type === 'income' ? 'fa-arrow-down' : 'fa-shopping-bag',
             color: type === 'income' ? '#333' : '#666' // Dark grey colors for monochrome theme
@@ -28,7 +41,12 @@ document.addEventListener('DOMContentLoaded', () => {
         payTransactions.unshift(newTx);
         savePayData();
         renderPayUI();
-        if (window.showToast) window.showToast(`已到账 ￥${amount.toFixed(2)}`);
+
+        if (window.showToast) {
+            window.showToast(type === 'income' ? `已到账 ￥${safeAmount.toFixed(2)}` : `已支付 ￥${safeAmount.toFixed(2)}`);
+        }
+
+        return true;
     };
 
     function savePayData() {
@@ -112,8 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Rendering Logic ---
     function renderPayUI() {
         // Calculate Total
-        let total = 1000.00; // Base money
-        payTransactions.forEach(tx => total += tx.amount);
+        const total = getPayBalance();
         
         if (totalAmountEl) totalAmountEl.textContent = total.toFixed(2);
         if (investAmountEl) investAmountEl.textContent = (total * 0.4).toFixed(2); // Mock invest portion

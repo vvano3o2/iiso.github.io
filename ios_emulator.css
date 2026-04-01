@@ -1778,6 +1778,57 @@ body.jiggle-mode {
     opacity: 1;
 }
 
+/* API Model Picker */
+.api-model-card {
+    width: 100%;
+    min-height: 64px;
+    background: #fff;
+    border-radius: 18px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow: var(--shadow-soft);
+    margin-bottom: 10px;
+    transition: transform 0.12s ease, background-color 0.12s ease;
+}
+
+.api-model-card:active {
+    transform: scale(0.985);
+    background-color: #f8f8fa;
+}
+
+.api-model-card-name {
+    flex: 1;
+    min-width: 0;
+    font-size: 15px;
+    line-height: 1.45;
+    font-weight: 500;
+    color: #000;
+    word-break: break-all;
+    white-space: normal;
+}
+
+.api-model-card-action {
+    width: 28px;
+    height: 28px;
+    border-radius: 14px;
+    background: #f2f2f7;
+    color: #8e8e93;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 12px;
+}
+
+#model-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
 /* Edit View Specifics */
 .edit-avatar-section {
     display: flex;
@@ -1790,6 +1841,34 @@ body.jiggle-mode {
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.edit-avatar-wrapper-main {
+    width: 112px;
+    height: 112px;
+    justify-content: center;
+}
+
+.edit-avatar-wrapper-main .edit-avatar {
+    margin-bottom: 0;
+}
+
+.edit-avatar-plus-btn {
+    position: absolute;
+    right: 2px;
+    bottom: 2px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #007aff;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.28);
+    border: 2px solid #fff;
+    font-size: 13px;
+    pointer-events: none;
 }
 
 .edit-avatar {
@@ -2242,9 +2321,11 @@ body.fullscreen-mode {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100dvh;
     overflow: hidden;
+    margin: 0;
+    padding: 0;
 }
 
 body.fullscreen-mode .phone-frame {
@@ -2255,15 +2336,18 @@ body.fullscreen-mode .phone-frame {
     bottom: 0;
     width: 100%;
     height: 100%;
+    max-height: 100dvh;
     border-radius: 0;
     padding: 0;
     box-shadow: none;
+    transform: none !important;
 }
 
 body.fullscreen-mode .screen {
     border-radius: 0;
-    padding-top: env(safe-area-inset-top, 0px) !important; 
-    padding-bottom: env(safe-area-inset-bottom, 0px) !important; 
+    padding-top: 0 !important; 
+    padding-bottom: 0 !important; 
+    height: 100%;
 }
 
 /* 在全屏模式下，隐藏模拟器原本的假刘海、状态栏和底部横条 */
@@ -2284,6 +2368,39 @@ body.hide-island .screen {
 /* ==========================================
    World Book Styles
    ========================================== */
+.world-book-popup-overlay {
+    justify-content: flex-end;
+}
+
+.world-book-popup-sheet {
+    position: relative;
+    border-top-left-radius: 26px !important;
+    border-top-right-radius: 26px !important;
+    background: #fff !important;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.12);
+}
+
+.world-book-popup-header {
+    background: #fff !important;
+    border-bottom: 1px solid #f2f2f7;
+}
+
+.world-book-popup-content {
+    background: #fff !important;
+}
+
+.world-book-popup-tabs {
+    pointer-events: auto;
+}
+
+.world-book-popup-sheet .settings-content,
+.world-book-popup-sheet .wb-tab-content,
+.world-book-popup-sheet #wb-all-list,
+.world-book-popup-sheet #wb-global-list,
+.world-book-popup-sheet #wb-local-list {
+    background: #fff;
+}
+
 .bubble-btn:active {
     background-color: #e5e5ea !important;
     transform: scale(0.98);

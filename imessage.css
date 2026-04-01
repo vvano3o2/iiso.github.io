@@ -35,6 +35,30 @@
 
 /* iMessage (LINE Style) Styles */
 
+/* Group Create & Details Styles */
+#create-group-members-list .line-list-item {
+    cursor: pointer;
+    border-radius: 12px;
+    padding: 10px;
+    transition: background-color 0.2s;
+}
+#create-group-members-list .line-list-item:active {
+    background-color: #f2f2f7;
+}
+
+#group-details-view {
+    animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+.group-action-btn:active {
+    background-color: #f2f2f7 !important;
+}
+
 /* 1. Header */
 .line-header {
     display: flex;
@@ -371,6 +395,21 @@ body.fullscreen-mode .line-bottom-nav-container {
 }
 
 /* Chat Item Styles (Rounded Bubble) */
+.chat-unread-badge {
+    background-color: #ff3b30;
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 4px;
+    margin-top: 4px;
+    align-self: flex-end;
+}
 .chat-item {
     display: flex;
     align-items: center;
@@ -388,6 +427,127 @@ body.fullscreen-mode .line-bottom-nav-container {
     transform: scale(0.98);
     background-color: #f9f9f9;
     transition: transform 0.1s;
+}
+
+/* Chat Status Bar */
+.chat-status-bar-controls {
+    z-index: 55;
+}
+
+.chat-status-bar-pager {
+    min-width: 48px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(28, 28, 30, 0.72);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.2px;
+    text-align: center;
+    pointer-events: none;
+}
+
+.chat-status-bar-nav {
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(28, 28, 30, 0.72);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
+}
+
+.chat-status-bar-nav:not(:disabled):active {
+    transform: scale(0.94);
+    background: rgba(28, 28, 30, 0.88);
+}
+
+.chat-status-bar-nav:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+
+.status-card-custom {
+    position: relative;
+}
+
+.status-card-shell {
+    width: 100%;
+    background: #fff;
+}
+
+.status-card-image-hit {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    cursor: pointer;
+    perspective: 1200px;
+    overflow: hidden;
+}
+
+.status-card-media-flip {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.status-card-media-flip.is-flipped {
+    transform: rotateY(180deg);
+}
+
+.status-card-media-face {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    overflow: hidden;
+}
+
+.status-card-media-front {
+    background: #f8f8f8;
+}
+
+.status-card-media-back {
+    background: #fff;
+    transform: rotateY(180deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 28px 24px;
+}
+
+.status-card-thought-wrap {
+    width: 100%;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    text-align: left;
+}
+
+.status-card-thought-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #999;
+    letter-spacing: 0.18em;
+    margin-bottom: 14px;
+}
+
+.status-card-thought-text {
+    font-size: 15px;
+    line-height: 1.8;
+    color: #262626;
+    word-break: break-word;
 }
 
 .chat-avatar {
@@ -575,13 +735,13 @@ body.fullscreen-mode .line-bottom-nav-container {
 
 .chat-sticky-container {
     position: absolute;
-    top: 44px;
+    top: 0;
     left: 0;
     width: 100%;
     z-index: 20;
-    padding-top: 0; /* Aligned for standard notch */
+    padding-top: 44px; /* Aligned for standard notch */
     padding-bottom: 10px;
-    background-color: transparent; 
+    background-color: #ffffff; 
     pointer-events: none; /* Allow scroll through empty space */
 }
 
@@ -713,6 +873,9 @@ body.fullscreen-mode .line-bottom-nav-container {
     line-height: 1.4;
     word-wrap: break-word;
     transition: border-radius 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
 }
 
 .chat-row:first-child {
@@ -793,6 +956,70 @@ body.fullscreen-mode .line-bottom-nav-container {
     visibility: hidden;
 }
 
+/* Group chat assistant bubbles */
+.group-ai-bubble-wrap {
+    width: 100%;
+    max-width: min(78%, 280px);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.group-ai-speaker-name {
+    font-size: 11px;
+    color: #8e8e93;
+    margin-bottom: 4px;
+    margin-left: 36px;
+    line-height: 1.2;
+}
+
+.group-ai-bubble-row {
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.group-ai-avatar-slot {
+    width: 28px;
+    min-width: 28px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.group-ai-avatar-slot img,
+.group-ai-avatar-slot .chat-avatar-small {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e5e5ea;
+    color: #8e8e93;
+    font-size: 12px;
+    font-weight: 600;
+    overflow: hidden;
+}
+
+.group-ai-avatar-placeholder {
+    width: 28px;
+    height: 28px;
+    visibility: hidden;
+    flex-shrink: 0;
+}
+
+.group-ai-row .ai-bubble {
+    max-width: 100%;
+}
+
+.group-ai-row.group-ai-row-continuous .ai-bubble {
+    border-top-left-radius: 8px !important;
+}
+
 /* Typing Indicator */
 .typing-indicator {
     background-color: #e5e5ea;
@@ -828,7 +1055,7 @@ body.fullscreen-mode .line-bottom-nav-container {
     left: 0;
     width: 100%;
     padding: 10px 16px 34px; /* Safe area for home bar */
-    background-color: transparent;
+    background-color: #ffffff; /* Solid background to match sticky header */
     border-top: none;
     z-index: 30;
 }
@@ -943,6 +1170,9 @@ body.fullscreen-mode .line-bottom-nav-container {
 /* Chat Row modifications during active state */
 .chat-row {
     transition: transform 0.2s, opacity 0.2s;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .chat-row.message-active {
@@ -1942,6 +2172,222 @@ input:checked + .slider:before {
 
 .user-row .moment-forward-bubble {
     background: #fff !important; /* Keep white even for user */
+}
+
+/* Pay Transfer Bubble */
+.pay-transfer-bubble {
+    padding: 4px 6px !important;
+    min-width: 156px;
+    max-width: min(56vw, 210px);
+}
+
+.pay-transfer-bubble .bubble-meta {
+    margin-top: 4px;
+}
+
+.pay-transfer-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,248,250,0.98) 100%);
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 20px;
+    padding: 11px 12px;
+    color: #111;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.04);
+}
+
+.pay-transfer-card.is-received {
+    background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(246,249,246,0.98) 100%);
+}
+
+.pay-transfer-card.is-income {
+    background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(245,247,255,0.98) 100%);
+}
+
+.pay-transfer-card.is-pending {
+    background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(249,249,251,0.98) 100%);
+    cursor: pointer;
+}
+
+.user-bubble.pay-transfer-bubble {
+    background: transparent !important;
+    color: #111 !important;
+    border-bottom-right-radius: 22px !important;
+}
+
+.ai-bubble.pay-transfer-bubble {
+    background: transparent !important;
+    color: #111 !important;
+    border-bottom-left-radius: 22px !important;
+}
+
+.pay-transfer-card-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.pay-transfer-card-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 10px;
+    background: #111;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.pay-transfer-card-meta {
+    min-width: 0;
+    flex: 1;
+}
+
+.pay-transfer-card-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #111;
+    line-height: 1.1;
+}
+
+.pay-transfer-card-subtitle {
+    font-size: 10px;
+    color: #8e8e93;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pay-transfer-card-amount {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: #111;
+    margin-bottom: 4px;
+    line-height: 1.05;
+}
+
+.pay-transfer-card-desc {
+    font-size: 11px;
+    color: #636366;
+    line-height: 1.35;
+    word-break: break-word;
+    margin-bottom: 0;
+}
+
+.attachment-more-icon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(72px, 72px));
+    gap: 18px;
+}
+
+.attachment-more-pay-entry {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: transform 0.16s ease, opacity 0.16s ease;
+}
+
+.attachment-more-pay-entry:active {
+    transform: scale(0.96);
+    opacity: 0.85;
+}
+
+.attachment-more-pay-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 18px;
+    background: #111;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+}
+
+.attachment-more-pay-label {
+    font-size: 12px;
+    color: #111;
+    font-weight: 600;
+}
+
+.pay-transfer-form-card {
+    width: min(100%, 320px);
+    background: rgba(255,255,255,0.96);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-radius: 24px;
+    padding: 18px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pay-transfer-form-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #111;
+    text-align: center;
+    margin-bottom: 2px;
+}
+
+.pay-transfer-amount-input,
+.pay-transfer-desc-input {
+    width: 100%;
+    border: 1px solid #e5e5ea;
+    background: #f8f8fa;
+    border-radius: 16px;
+    padding: 13px 14px;
+    font-size: 15px;
+    color: #111;
+    outline: none;
+}
+
+.pay-transfer-amount-input:focus,
+.pay-transfer-desc-input:focus {
+    border-color: #c7c7cc;
+    background: #fff;
+}
+
+.pay-transfer-form-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.pay-transfer-cancel-btn,
+.pay-transfer-submit-btn {
+    height: 44px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease;
+}
+
+.pay-transfer-cancel-btn {
+    background: #f2f2f7;
+    color: #111;
+}
+
+.pay-transfer-submit-btn {
+    background: #111;
+    color: #fff;
+}
+
+.pay-transfer-cancel-btn:active,
+.pay-transfer-submit-btn:active {
+    transform: scale(0.98);
 }
 
 /* Pinned Chat Override */

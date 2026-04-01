@@ -1088,16 +1088,21 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast('请先配置 API');
             return;
         }
-        showToast('AI 正在思考朋友圈内容...');
+        showToast('正在编写朋友圈内容...');
         
+        const globalWorldBookContext = window.getGlobalWorldBookContext ? window.getGlobalWorldBookContext() : '';
         const systemPrompt = `你正在扮演 ${friend.realName || friend.nickname}。
 你的人设: ${friend.persona || '普通用户'}。
-用户(${window.userState.name})的人设: ${window.userState.persona || '普通用户'}。
+用户(${window.userState.name})的人设: ${window.userState.persona || '普通用户'}。${globalWorldBookContext ? `
+
+全局世界书:
+${globalWorldBookContext}` : ''}
 请根据上下文发1-2条朋友圈。
 格式要求：
-1. 可以是纯文字。
-2. 可以带图片，如果是图片，请在文字后换行并注明 [Image: 图片描述]。
-3. 语气自然，符合人设。`;
+1. 根据char人设输出纯文字朋友圈，表达char当下的心情/见闻/感受等。
+2. 根据char人设输出图片，如果是图片，请在文字后换行并注明 [Image: 图片描述]，可给图片配文，符合图片描述内容。
+3. 语气自然，符合人设。
+只要输出回复的话，禁止输出思维链（例如：<tool_call>...<tool_call> 或类似的内容），直接给出回复即可。`;
 
         const messages = [
             { role: 'system', content: systemPrompt },
@@ -1115,7 +1120,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiConfig.apiKey}` },
                 body: JSON.stringify({
-                    model: apiConfig.model || 'gpt-3.5-turbo',
+                    model: apiConfig.model || '',
                     messages: messages,
                     temperature: parseFloat(apiConfig.temperature) || 0.8
                 })

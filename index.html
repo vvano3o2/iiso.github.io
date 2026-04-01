@@ -993,13 +993,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-group fully-rounded tall-input-group" style="margin: 20px 16px;">
-                                <div class="form-item tall-item">
-                                    <textarea id="yt-edit-persona-input" class="tall-input" placeholder="添加频道描述（人设）..."></textarea>
-                                </div>
-                            </div>
-                            
-                            <div class="sheet-action confirm-action" id="confirm-yt-edit-btn" style="background-color: #0f0f0f; color: #fff;">保存</div>
+                            <div class="sheet-action confirm-action" id="confirm-yt-edit-btn" style="background-color: #0f0f0f; color: #fff;">保存修改</div>
                         </div>
                     </div>
                 </div>
@@ -1035,7 +1029,7 @@
 
             <!-- Stickers View (Bottom Sheet Popup) -->
             <div class="bottom-sheet-overlay detail-sheet-overlay" id="stickers-view" style="z-index: 500;">
-                <div class="bottom-sheet" style="height: 80%; display: flex; flex-direction: column; background: #f2f2f7;">
+                <div class="bottom-sheet" style="height: 80%; display: flex; flex-direction: column; background: #ffffff;">
                     <div class="sheet-handle"></div>
                     <!-- Stickers Header: Title centered, action buttons below -->
                     <div style="display: flex; flex-direction: column; align-items: center; padding: 0 16px 10px; flex-shrink: 0;">
@@ -1111,7 +1105,7 @@
                                 <img id="settings-avatar-img" src="" alt="" style="display:none;">
                             </div>
                             <div class="apple-id-text-group">
-                                <div class="apple-id-name" id="settings-name">iis</div>
+                                <div class="apple-id-name" id="settings-name">未登录 Apple ID</div>
                                 <div class="apple-id-detail">Apple ID, iCloud, Media & Purchases</div>
                             </div>
                             <i class="fas fa-chevron-right arrow"></i>
@@ -1167,69 +1161,65 @@
                 </div>
             </div>
 
-            <!-- World Book View (Fullscreen) -->
-            <div class="app-view world-book-view" id="world-book-view" style="background-color: var(--settings-bg); z-index: 155; padding-top: 40px; display: flex; flex-direction: column;">
-                <!-- Header (Aligned with edit-view centered-header) -->
-                <div class="centered-header" style="height: 44px; padding: 0 16px; margin-bottom: 10px; z-index: 20;">
-                    <div class="header-btn" id="world-book-back-btn">
-                        <i class="fas fa-chevron-left"></i>
-                    </div>
-                    <h2 class="center-title">世界书</h2>
-                    <div class="header-btn" id="world-book-add-btn">
-                        <i class="fas fa-plus"></i>
-                    </div>
-                </div>
+            <!-- World Book View (Popup) -->
+            <div class="bottom-sheet-overlay detail-sheet-overlay world-book-popup-overlay" id="world-book-view" style="z-index: 520;">
+                <div class="bottom-sheet world-book-popup-sheet" style="height: 82%; max-height: 82%; background: #ffffff; padding: 0; overflow: hidden;">
+                    <div class="sheet-handle" style="margin-top: 10px; margin-bottom: 8px;"></div>
 
-                <!-- Main Content Area -->
-                <div class="settings-content no-top-padding" style="position: relative; flex: 1; overflow-y: auto; padding-bottom: 80px;">
-                    <!-- Tab: All -->
-                    <div class="wb-tab-content active" id="wb-tab-all">
-                        <div id="wb-all-list">
-                            <!-- Injected by JS -->
+                    <!-- Header -->
+                    <div class="centered-header world-book-popup-header" style="height: 44px; padding: 0 16px; margin-bottom: 0; background: #fff; flex-shrink: 0;">
+                        <div class="header-btn" id="world-book-back-btn">
+                            <i class="fas fa-chevron-left"></i>
+                        </div>
+                        <h2 class="center-title">世界书</h2>
+                        <div class="header-btn" id="world-book-add-btn">
+                            <i class="fas fa-plus"></i>
                         </div>
                     </div>
 
-                    <!-- Tab: Global -->
-                    <div class="wb-tab-content" id="wb-tab-global" style="display: none;">
-                        <div id="wb-global-list">
-                            <!-- Injected by JS -->
+                    <!-- Main Content Area -->
+                    <div class="settings-content no-top-padding world-book-popup-content" style="position: relative; flex: 1; overflow-y: auto; padding-bottom: 88px; background: #fff;">
+                        <!-- Tab: All -->
+                        <div class="wb-tab-content active" id="wb-tab-all">
+                            <div id="wb-all-list">
+                                <!-- Injected by JS -->
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Tab: Local -->
-                    <div class="wb-tab-content" id="wb-tab-local" style="display: none;">
-                        <div id="wb-local-list">
-                            <!-- Injected by JS -->
+                        <!-- Tab: Global -->
+                        <div class="wb-tab-content" id="wb-tab-global" style="display: none;">
+                            <div id="wb-global-list">
+                                <!-- Injected by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Tab: Local -->
+                        <div class="wb-tab-content" id="wb-tab-local" style="display: none;">
+                            <div id="wb-local-list">
+                                <!-- Injected by JS -->
+                            </div>
                         </div>
                     </div>
                     
-                    <!-- Tab: Summary (New) -->
-                    <div class="wb-tab-content" id="wb-tab-summary" style="display: none;">
-                        <div id="wb-summary-list">
-                            <!-- Injected by JS -->
+                    <!-- Bottom Sliding Tabs -->
+                    <div class="world-book-popup-tabs" style="position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%); width: 280px; z-index: 30; padding-bottom: env(safe-area-inset-bottom);">
+                        <div class="wb-segment-control" style="display: flex; background: #f2f2f7; border-radius: 20px; padding: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+                            <div class="wb-segment-btn active" data-tab="all" style="flex:1; text-align:center; padding: 8px 0; font-size: 13px; font-weight: 500; border-radius: 16px; cursor: pointer; color: #000; transition: all 0.2s;">全部</div>
+                            <div class="wb-segment-btn" data-tab="global" style="flex:1; text-align:center; padding: 8px 0; font-size: 13px; font-weight: 500; border-radius: 16px; cursor: pointer; color: #000; transition: all 0.2s;">全局</div>
+                            <div class="wb-segment-btn" data-tab="local" style="flex:1; text-align:center; padding: 8px 0; font-size: 13px; font-weight: 500; border-radius: 16px; cursor: pointer; color: #000; transition: all 0.2s;">局部</div>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Bottom Sliding Tabs -->
-                <div style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 280px; z-index: 30; padding-bottom: env(safe-area-inset-bottom);">
-                    <div class="wb-segment-control" style="display: flex; background: rgba(229, 229, 234, 0.9); backdrop-filter: blur(10px); border-radius: 20px; padding: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                        <div class="wb-segment-btn active" data-tab="all" style="flex:1; text-align:center; padding: 8px 0; font-size: 13px; font-weight: 500; border-radius: 16px; cursor: pointer; color: #000; transition: all 0.2s;">全部</div>
-                        <div class="wb-segment-btn" data-tab="global" style="flex:1; text-align:center; padding: 8px 0; font-size: 13px; font-weight: 500; border-radius: 16px; cursor: pointer; color: #000; transition: all 0.2s;">全局</div>
-                        <div class="wb-segment-btn" data-tab="local" style="flex:1; text-align:center; padding: 8px 0; font-size: 13px; font-weight: 500; border-radius: 16px; cursor: pointer; color: #000; transition: all 0.2s;">局部</div>
-                        <div class="wb-segment-btn" data-tab="summary" style="flex:1; text-align:center; padding: 8px 0; font-size: 13px; font-weight: 500; border-radius: 16px; cursor: pointer; color: #000; transition: all 0.2s;">总结</div>
-                    </div>
-                </div>
 
-                <!-- Add Menu Bubble (Floating) -->
-                <div id="wb-add-menu" style="display: none; position: absolute; top: 60px; right: 16px; background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); z-index: 100; width: 140px; overflow: hidden;">
-                    <div class="wb-menu-item" id="wb-add-group-btn" style="padding: 12px 16px; border-bottom: 0.5px solid var(--separator-color); display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                        <i class="fas fa-folder-plus" style="color: var(--blue-color); width: 20px; text-align: center;"></i>
-                        <span style="font-size: 15px;">添加分组</span>
-                    </div>
-                    <div class="wb-menu-item" id="wb-add-book-btn" style="padding: 12px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                        <i class="fas fa-book-medical" style="color: var(--blue-color); width: 20px; text-align: center;"></i>
-                        <span style="font-size: 15px;">添加新书</span>
+                    <!-- Add Menu Bubble (Floating) -->
+                    <div id="wb-add-menu" style="display: none; position: absolute; top: 68px; right: 16px; background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); z-index: 100; width: 140px; overflow: hidden;">
+                        <div class="wb-menu-item" id="wb-add-group-btn" style="padding: 12px 16px; border-bottom: 0.5px solid var(--separator-color); display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <i class="fas fa-folder-plus" style="color: var(--blue-color); width: 20px; text-align: center;"></i>
+                            <span style="font-size: 15px;">添加分组</span>
+                        </div>
+                        <div class="wb-menu-item" id="wb-add-book-btn" style="padding: 12px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <i class="fas fa-book-medical" style="color: var(--blue-color); width: 20px; text-align: center;"></i>
+                            <span style="font-size: 15px;">添加新书</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1322,21 +1312,23 @@
                 <div class="settings-content no-top-padding">
                     <!-- Display Avatar -->
                     <div class="edit-avatar-section" style="margin-bottom: 10px;">
-                        <div class="edit-avatar-wrapper" id="main-edit-avatar-wrapper" style="cursor: pointer;">
+                        <div class="edit-avatar-wrapper edit-avatar-wrapper-main" id="main-edit-avatar-wrapper" style="cursor: pointer;">
                             <div class="edit-avatar" id="edit-avatar-preview">
                                 <i class="fas fa-user"></i>
                                 <img id="edit-avatar-img" src="" alt="" style="display:none;">
                             </div>
-                            <div class="edit-label">Edit</div>
+                            <div class="edit-avatar-plus-btn">
+                                <i class="fas fa-plus"></i>
+                            </div>
                             <input type="file" id="main-avatar-upload" accept="image/*" style="display:none;">
                         </div>
                     </div>
 
                     <!-- Display Name and Phone as plain text -->
                     <div style="text-align: center; margin-bottom: 30px; padding: 0 20px;">
-                        <h2 id="display-name" style="font-size: 22px; margin: 0; color: #000;">iis</h2>
-                        <p id="display-phone" style="font-size: 15px; color: #8e8e93; margin-top: 4px;">138 0000 0000</p>
-                        <p id="display-signature" style="font-size: 14px; color: #8e8e93; margin-top: 8px; word-wrap: break-word; line-height: 1.4;">Default User</p>
+                        <h2 id="display-name" style="font-size: 22px; margin: 0; color: #000;">未登录 Apple ID</h2>
+                        <p id="display-phone" style="font-size: 15px; color: #8e8e93; margin-top: 4px;">暂无手机号</p>
+                        <p id="display-signature" style="font-size: 14px; color: #8e8e93; margin-top: 8px; word-wrap: break-word; line-height: 1.4;">添加账号后可同步头像、名称与签名</p>
                     </div>
 
                     <!-- Switch Account Group -->
@@ -1363,50 +1355,52 @@
                     </div>
                 </div>
                 
-                <!-- Persona Detail Bottom Sheet (Layered on top of account sheet) -->
-                <div class="bottom-sheet-overlay detail-sheet-overlay" id="persona-detail-sheet">
-                    <div class="bottom-sheet">
-                        <div class="sheet-handle"></div>
-                        <div class="sheet-title">Edit Persona</div>
-                        
-                        <div class="detail-sheet-content">
-                            <!-- Avatar Edit inside Detail View -->
-                            <div class="edit-avatar-section" style="margin-top: 5px; margin-bottom: 15px;">
-                                <div class="edit-avatar-wrapper detail-avatar-wrapper" id="user-detail-avatar-wrapper">
-                                    <div class="edit-avatar" id="detail-avatar-preview">
-                                        <i class="fas fa-user"></i>
-                                        <img id="detail-avatar-img" src="" alt="" style="display:none;">
-                                    </div>
-                                    <div class="edit-label">Edit</div>
-                                    <input type="file" id="detail-avatar-upload" accept="image/*" style="display:none;">
-                                </div>
-                            </div>
-
-                            <div class="form-group fully-rounded">
-                                <div class="form-item">
-                                    <label>Name</label>
-                                    <input type="text" id="detail-name-input" value="iis">
-                                </div>
-                                <div class="form-item">
-                                    <label>Phone</label>
-                                    <input type="tel" id="detail-phone-input" value="13800000000" maxlength="11" pattern="[0-9]*">
-                                </div>
-                                <div class="form-item">
-                                    <label>Signature</label>
-                                    <input type="text" id="detail-signature-input" placeholder="Bio">
-                                </div>
-                            </div>
-
-                            <div class="form-group fully-rounded tall-input-group" style="margin: 20px 16px;">
-                                <div class="form-item tall-item">
-                                    <textarea id="detail-persona-input" class="tall-input" placeholder="Enter persona details..."></textarea>
-                                </div>
-                            </div>
+                    <!-- Persona Detail Bottom Sheet (Layered on top of account sheet) -->
+                    <div class="bottom-sheet-overlay detail-sheet-overlay" id="persona-detail-sheet">
+                        <div class="bottom-sheet">
+                            <div class="sheet-handle"></div>
+                            <div class="sheet-title">编辑人设</div>
                             
-                            <div class="sheet-action confirm-action" id="confirm-sync-btn">Confirm</div>
+                            <div class="detail-sheet-content">
+                                <!-- Avatar Edit inside Detail View -->
+                                <div class="edit-avatar-section" style="margin-top: 5px; margin-bottom: 15px;">
+                                    <div class="edit-avatar-wrapper detail-avatar-wrapper detail-avatar-wrapper-plus" id="user-detail-avatar-wrapper">
+                                        <div class="edit-avatar" id="detail-avatar-preview">
+                                            <i class="fas fa-user"></i>
+                                            <img id="detail-avatar-img" src="" alt="" style="display:none;">
+                                        </div>
+                                        <div class="edit-avatar-plus-btn">
+                                            <i class="fas fa-plus"></i>
+                                        </div>
+                                        <input type="file" id="detail-avatar-upload" accept="image/*" style="display:none;">
+                                    </div>
+                                </div>
+
+                                <div class="form-group fully-rounded">
+                                    <div class="form-item">
+                                        <label>姓名</label>
+                                        <input type="text" id="detail-name-input" value="">
+                                    </div>
+                                    <div class="form-item">
+                                        <label>手机号</label>
+                                        <input type="tel" id="detail-phone-input" value="" maxlength="11" pattern="[0-9]*" placeholder="输入手机号">
+                                    </div>
+                                    <div class="form-item">
+                                        <label>签名</label>
+                                        <input type="text" id="detail-signature-input" placeholder="输入个性签名">
+                                    </div>
+                                </div>
+
+                                <div class="form-group fully-rounded tall-input-group" style="margin: 20px 16px;">
+                                    <div class="form-item tall-item">
+                                        <textarea id="detail-persona-input" class="tall-input" placeholder="输入角色设定或人物描述..."></textarea>
+                                    </div>
+                                </div>
+                                
+                                <div class="sheet-action confirm-action" id="confirm-sync-btn">确认保存</div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
             </div>
 
@@ -2938,8 +2932,167 @@
                 </div>
             </div>
             
-            <!-- Add Friend Bottom Sheet -->
-            <div class="bottom-sheet-overlay detail-sheet-overlay" id="add-friend-sheet">
+            <!-- Create Group Bottom Sheet -->
+            <div class="bottom-sheet-overlay detail-sheet-overlay" id="create-group-sheet">
+                <div class="bottom-sheet" style="height: 90%;">
+                    <div class="sheet-handle"></div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px 10px;">
+                        <div id="cancel-create-group-btn" style="color: #007aff; font-size: 17px; cursor: pointer;">Cancel</div>
+                        <div class="sheet-title" style="margin-bottom: 0; padding-bottom: 0;">New Group</div>
+                        <div id="confirm-create-group-btn" style="color: #007aff; font-size: 17px; font-weight: 600; cursor: pointer; opacity: 0.5; pointer-events: none;">Create</div>
+                    </div>
+                    
+                    <div class="detail-sheet-content" style="flex: 1; overflow-y: auto; padding: 0; background: #f2f2f7;">
+                        <div style="background: #fff; margin-top: 20px; padding: 15px 16px; display: flex; align-items: center; gap: 15px;">
+                            <!-- Group Avatar -->
+                            <div class="edit-avatar-wrapper detail-avatar-wrapper" id="group-avatar-wrapper" style="margin: 0; width: 60px; height: 60px; flex-shrink: 0; cursor: pointer;">
+                                <div class="edit-avatar" id="group-avatar-preview" style="width: 100%; height: 100%; border-radius: 50%; background: #e5e5ea; display: flex; justify-content: center; align-items: center; color: #8e8e93; font-size: 24px; border: none; overflow: hidden;">
+                                    <i class="fas fa-camera" id="group-avatar-icon"></i>
+                                    <img id="group-avatar-img" src="" alt="" style="display:none; width: 100%; height: 100%; object-fit: cover;">
+                                </div>
+                                <input type="file" id="group-avatar-upload" accept="image/*" style="display:none;">
+                            </div>
+                            
+                            <!-- Group Name -->
+                            <div style="flex: 1; border-bottom: 1px solid #e5e5ea; padding-bottom: 8px;">
+                                <input type="text" id="group-name-input" placeholder="Group Name" style="width: 100%; border: none; outline: none; font-size: 17px; background: transparent;">
+                            </div>
+                        </div>
+
+                        <!-- Select Members List -->
+                        <div style="margin-top: 20px;">
+                            <div style="padding: 0 16px 8px; font-size: 13px; color: #8e8e93; text-transform: uppercase;">Select Members</div>
+                            <div id="create-group-members-list" style="background: #fff; display: flex; flex-direction: column;">
+                                <!-- Members injected via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Group Details Bottom Sheet (P2 Style) -->
+            <div class="bottom-sheet-overlay detail-sheet-overlay" id="group-details-sheet" style="z-index: 500;">
+                <div class="bottom-sheet" style="height: 85%; display: flex; flex-direction: column; background: #f2f2f7; overflow: hidden;">
+                    <div class="sheet-handle" style="flex-shrink: 0;"></div>
+                    <div class="sheet-title" style="flex-shrink: 0;">Group Details</div>
+
+                    <div class="detail-sheet-content" style="flex: 1; overflow-y: auto; overflow-x: hidden; padding: 20px; display: block; -webkit-overflow-scrolling: touch; padding-bottom: max(40px, env(safe-area-inset-bottom));">
+                        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                        <!-- Group Avatar Large -->
+                        <div style="position: relative; margin-bottom: 16px; align-self: center;">
+                            <div style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #ff9a9e, #fecfef); display: flex; justify-content: center; align-items: center; font-size: 40px; color: #fff; font-weight: 700; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; position: relative;">
+                                <span id="group-details-avatar-text">1</span>
+                                <img id="group-details-avatar-img" src="" style="display: none; width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0;">
+                            </div>
+                            <div id="group-details-avatar-upload-btn" style="position: absolute; bottom: 0; right: 0; width: 28px; height: 28px; background-color: #000; color: #fff; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 14px; border: 2px solid #fff; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                            <input type="file" id="group-details-avatar-input" accept="image/*" style="display:none;">
+                        </div>
+
+                        <!-- Group Name -->
+                        <div id="group-details-name" style="font-size: 24px; font-weight: 800; color: #000; margin-bottom: 4px; text-align: center;">1</div>
+                        <div id="group-details-count" style="font-size: 15px; color: #8e8e93; margin-bottom: 8px; text-align: center;">1 member</div>
+                        
+                        <!-- Edit Button -->
+                        <div id="group-details-edit-btn" style="padding: 6px 20px; border-radius: 16px; background: #fff; color: #000; font-weight: 600; font-size: 15px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 24px; border: 1px solid #e5e5ea; align-self: center;">Edit</div>
+
+                        <!-- Action Buttons -->
+                        <div style="display: flex; gap: 12px; width: 100%; margin-bottom: 20px; justify-content: center;">
+                            <div class="group-action-btn" id="group-details-settings-btn" style="flex: 1; max-width: 80px; background: #fff; border-radius: 14px; padding: 12px 0; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                                <i class="fas fa-cog" style="color: #007aff; font-size: 20px;"></i>
+                                <span style="font-size: 11px; color: #007aff; font-weight: 500;">设置</span>
+                            </div>
+                            <div class="group-action-btn" style="flex: 1; max-width: 80px; background: #fff; border-radius: 14px; padding: 12px 0; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                                <i class="fas fa-bell-slash" style="color: #007aff; font-size: 20px;"></i>
+                                <span style="font-size: 11px; color: #007aff; font-weight: 500;">mute</span>
+                            </div>
+                            <div class="group-action-btn" style="flex: 1; max-width: 80px; background: #fff; border-radius: 14px; padding: 12px 0; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                                <i class="fas fa-search" style="color: #007aff; font-size: 20px;"></i>
+                                <span style="font-size: 11px; color: #007aff; font-weight: 500;">search</span>
+                            </div>
+                            <div class="group-action-btn" style="flex: 1; max-width: 80px; background: #fff; border-radius: 14px; padding: 12px 0; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                                <i class="fas fa-ellipsis-h" style="color: #007aff; font-size: 20px;"></i>
+                                <span style="font-size: 11px; color: #007aff; font-weight: 500;">more</span>
+                            </div>
+                        </div>
+
+                        <!-- Members List Section -->
+                        <div style="width: 100%; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                            <!-- Add Member Button -->
+                            <div style="padding: 16px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid #f2f2f7; cursor: pointer;" id="group-add-member-btn">
+                                <div style="width: 40px; height: 40px; border-radius: 50%; border: 1px dashed #007aff; display: flex; justify-content: center; align-items: center; color: #007aff; font-size: 18px;"><i class="fas fa-user-plus"></i></div>
+                                <div style="font-size: 16px; color: #007aff;">Add Members</div>
+                            </div>
+                            
+                            <!-- List injected via JS -->
+                            <div id="group-details-members-list"></div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Group Edit Bottom Sheet -->
+            <div class="bottom-sheet-overlay detail-sheet-overlay" id="group-edit-sheet" style="z-index: 600;">
+                <div class="bottom-sheet" style="height: 85%; display: flex; flex-direction: column;">
+                    <div class="sheet-handle" style="flex-shrink: 0;"></div>
+                    <div class="sheet-title" style="flex-shrink: 0;">Edit Group</div>
+                    <div class="detail-sheet-content" style="flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: max(20px, env(safe-area-inset-bottom));">
+                        <div class="form-group fully-rounded">
+                            <div class="form-item">
+                                <label style="width: 80px; font-weight: 500;">群名称</label>
+                                <input type="text" id="group-edit-name-input" placeholder="输入群名称" style="flex: 1; text-align: right; width: 100%;">
+                            </div>
+                        </div>
+
+                        <!-- 聊天背景 -->
+                        <div class="settings-group fully-rounded" style="margin: 20px 16px;">
+                            <div class="settings-item" style="justify-content: space-between; cursor: default;">
+                                <div class="settings-text" style="color: #000;">聊天背景</div>
+                                <div style="display: flex; gap: 25px; padding-right: 10px;">
+                                    <i class="fas fa-upload" id="group-bg-upload-icon" style="font-size: 20px; color: #000; cursor: pointer;"></i>
+                                    <i class="fas fa-undo" id="group-bg-reset-icon" style="font-size: 20px; color: #000; cursor: pointer;"></i>
+                                </div>
+                            </div>
+                            <input type="file" id="group-bg-upload" accept="image/*" style="display:none;">
+                        </div>
+
+                        <div class="sheet-action confirm-action" id="confirm-group-edit-btn" style="background-color: #007aff; color: #fff;">保存修改</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Group Context Settings Bottom Sheet -->
+            <div class="bottom-sheet-overlay detail-sheet-overlay" id="group-context-settings-sheet" style="z-index: 650;">
+                <div class="bottom-sheet" style="height: auto; max-height: 55%; display: flex; flex-direction: column;">
+                    <div class="sheet-handle" style="flex-shrink: 0;"></div>
+                    <div class="sheet-title" style="flex-shrink: 0;">群聊上下文</div>
+                    <div class="detail-sheet-content" style="padding-bottom: max(20px, env(safe-area-inset-bottom));">
+                        <div class="settings-group fully-rounded" style="margin: 10px 16px; overflow: visible;">
+                            <div class="form-item" style="justify-content: space-between; border-bottom: none;">
+                                <label style="width: auto; font-size: 17px; color: #000; padding-left: 0;">上下文</label>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <input type="number" id="group-context-limit-input" style="width: 56px; text-align: center; border: 1px solid #e5e5ea; border-radius: 8px; padding: 4px; font-size: 15px;" value="50" min="1">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="group-context-enabled-toggle" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="font-size: 13px; color: #8e8e93; line-height: 1.6; margin: 0 20px 20px;">
+                            控制群聊发送给 AI 的最近消息条数。开启后，群成员会更容易记住自己和别人刚刚说过的话。
+                        </div>
+
+                        <div class="sheet-action confirm-action" id="confirm-group-context-btn" style="background-color: #007aff; color: #fff;">保存设置</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add New Friend Bottom Sheet -->
+            <div class="bottom-sheet-overlay detail-sheet-overlay" id="add-friend-sheet" style="z-index: 500;">
                 <div class="bottom-sheet">
                     <div class="sheet-handle"></div>
                     <div class="sheet-title" style="white-space: nowrap;">Add New Friend</div>
@@ -3246,26 +3399,34 @@
                     <div class="detail-sheet-content" style="flex: 1; overflow-y: auto; padding-bottom: 20px; padding-top: 15px;">
                         
                         <div class="settings-group fully-rounded" style="margin: 10px 16px;">
-                            <div class="form-item" style="justify-content: space-between; border-bottom: none;">
+                            <div class="form-item" style="justify-content: space-between; border-bottom: 0.5px solid var(--separator-color);">
                                 <label style="width: auto; font-size: 17px; color: #000;">启用状态栏</label>
                                 <label class="toggle-switch">
                                     <input type="checkbox" id="status-bar-enabled-toggle">
                                     <span class="slider"></span>
                                 </label>
                             </div>
-                        </div>
-
-                        <div class="form-group fully-rounded tall-input-group" style="margin: 20px 16px;">
-                            <div style="padding: 12px 16px 4px; font-size: 13px; color: #8e8e93;">系统提示词 (强制 AI 输出状态)</div>
-                            <div class="form-item tall-item">
-                                <textarea id="status-bar-prompt-input" class="tall-input" style="height: 80px;" placeholder="输入提示词..."></textarea>
+                            <div style="padding: 14px 16px 16px;">
+                                <div style="font-size: 13px; color: #8e8e93; margin-bottom: 10px;">状态栏分类</div>
+                                <div id="status-bar-type-segment" style="display: flex; gap: 8px;">
+                                    <button type="button" class="status-bar-type-btn active" data-type="ins" style="flex: 1; border: none; border-radius: 12px; padding: 10px 0; background: #1c1c1e; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer;">ins</button>
+                                    <button type="button" class="status-bar-type-btn" data-type="icity" style="flex: 1; border: none; border-radius: 12px; padding: 10px 0; background: #f2f2f7; color: #3a3a3c; font-size: 14px; font-weight: 600; cursor: pointer;">icity</button>
+                                </div>
+                                <div id="status-bar-type-hint" style="margin-top: 10px; font-size: 12px; line-height: 1.5; color: #8e8e93;">ins 为当前卡片风格；icity 会切换到日记卡片风格，并联动提示词与 CSS。</div>
                             </div>
                         </div>
 
                         <div class="form-group fully-rounded tall-input-group" style="margin: 20px 16px;">
-                            <div style="padding: 12px 16px 4px; font-size: 13px; color: #8e8e93;">自定义样式 CSS (.status-card-custom)</div>
+                            <div style="padding: 12px 16px 4px; font-size: 13px; color: #8e8e93;">系统提示词 (切换分类时会联动更新)</div>
                             <div class="form-item tall-item">
-                                <textarea id="status-bar-style-input" class="tall-input" style="height: 120px; font-family: monospace;" placeholder="输入 CSS..."></textarea>
+                                <textarea id="status-bar-prompt-input" class="tall-input" style="height: 120px;" placeholder="输入提示词..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group fully-rounded tall-input-group" style="margin: 20px 16px;">
+                            <div style="padding: 12px 16px 4px; font-size: 13px; color: #8e8e93;">自定义样式 CSS (.status-card-custom，切换分类时会联动更新)</div>
+                            <div class="form-item tall-item">
+                                <textarea id="status-bar-style-input" class="tall-input" style="height: 140px; font-family: monospace;" placeholder="输入 CSS..."></textarea>
                             </div>
                         </div>
 
@@ -3335,12 +3496,12 @@
                 <div id="msg-context-menu" style="position: absolute; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.25s; opacity: 0; transform: scale(0.85); z-index: 1002;">
                     <!-- Reaction Bar (iMessage style) -->
                     <div id="msg-reaction-bar" style="background: #fff; border-radius: 28px; padding: 6px 10px; display: flex; gap: 8px; align-items: center; box-shadow: 0 2px 12px rgba(0,0,0,0.12);">
-                        <span class="msg-reaction" style="font-size: 22px; cursor: pointer; transition: transform 0.15s; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%;" data-emoji="❤️">❤️</span>
-                        <span class="msg-reaction" style="font-size: 22px; cursor: pointer; transition: transform 0.15s; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%;" data-emoji="👍">👍</span>
-                        <span class="msg-reaction" style="font-size: 22px; cursor: pointer; transition: transform 0.15s; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%;" data-emoji="👎">👎</span>
-                        <span class="msg-reaction" style="font-size: 18px; cursor: pointer; transition: transform 0.15s; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; font-weight: 900; font-family: sans-serif; color: #000;" data-emoji="哈哈">HA<br>HA</span>
-                        <span class="msg-reaction" style="font-size: 22px; cursor: pointer; transition: transform 0.15s; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%;" data-emoji="‼️">‼️</span>
-                        <span class="msg-reaction" style="font-size: 22px; cursor: pointer; transition: transform 0.15s; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%;" data-emoji="❓">❓</span>
+                        <span class="msg-reaction" style="font-size: 22px; cursor: pointer; transition: transform 0.15s; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; color: #8e8e93;" data-emoji="❤️" data-icon="fas fa-heart"><i class="fas fa-heart"></i></span>
+                        <span class="msg-reaction" style="font-size: 22px; cursor: pointer; transition: transform 0.15s; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; color: #8e8e93;" data-emoji="👍" data-icon="fas fa-thumbs-up"><i class="fas fa-thumbs-up"></i></span>
+                        <span class="msg-reaction" style="font-size: 22px; cursor: pointer; transition: transform 0.15s; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; color: #8e8e93;" data-emoji="👎" data-icon="fas fa-thumbs-down"><i class="fas fa-thumbs-down"></i></span>
+                        <span class="msg-reaction" style="font-size: 16px; cursor: pointer; transition: transform 0.15s; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; font-weight: 900; font-family: sans-serif; color: #8e8e93; letter-spacing: -1px; line-height: 0.9;" data-emoji="哈哈" data-text="HA<br>HA">HA<br>HA</span>
+                        <span class="msg-reaction" style="font-size: 22px; cursor: pointer; transition: transform 0.15s; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; font-weight: 900; font-family: sans-serif; color: #8e8e93;" data-emoji="‼️" data-text="!!">!!</span>
+                        <span class="msg-reaction" style="font-size: 22px; cursor: pointer; transition: transform 0.15s; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; font-weight: 900; font-family: sans-serif; color: #8e8e93;" data-emoji="❓" data-text="?">?</span>
                     </div>
 
                     <!-- Cloned bubble will be inserted here by JS -->
@@ -3469,7 +3630,19 @@
                 </div>
             </div>
 
-            <!-- Save Preset Name Sheet (Layered on top of API sheet) -->
+            <!-- Model Picker Sheet (Layered on top of API sheet) -->
+            <div class="bottom-sheet-overlay detail-sheet-overlay" id="model-picker-sheet" style="z-index: 550;">
+                <div class="bottom-sheet" style="max-height: 80%; display: flex; flex-direction: column;">
+                    <div class="sheet-handle"></div>
+                    <div class="sheet-title">选择模型</div>
+                    <div class="account-list no-drag-scroll" id="model-list" style="margin: 20px 16px; flex: 1; overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y;">
+                        <!-- Models injected here -->
+                    </div>
+                    <div class="sheet-action" id="close-model-picker-btn" style="margin: 0 16px 20px; flex-shrink: 0; background-color: #f2f2f7; color: #000;">取消</div>
+                </div>
+            </div>
+
+            <!-- Save Preset Name Sheet -->
             <div class="bottom-sheet-overlay detail-sheet-overlay" id="save-preset-name-sheet" style="z-index: 550;">
                 <div class="bottom-sheet" style="height: auto; max-height: 50%;">
                     <div class="sheet-handle"></div>
@@ -3484,7 +3657,7 @@
                 </div>
             </div>
 
-            <!-- Load Preset List Sheet (Layered on top of API sheet) -->
+            <!-- Load Preset List Sheet -->
             <div class="bottom-sheet-overlay detail-sheet-overlay" id="load-preset-list-sheet" style="z-index: 550;">
                 <div class="bottom-sheet" style="max-height: 80%;">
                     <div class="sheet-handle"></div>
@@ -3492,18 +3665,6 @@
                     <div class="account-list" id="preset-list" style="margin: 20px 16px; overflow-y: auto; overscroll-behavior: contain;">
                         <!-- Presets injected here -->
                     </div>
-                </div>
-            </div>
-
-            <!-- Model Picker Sheet (Layered on top of API sheet) -->
-            <div class="bottom-sheet-overlay detail-sheet-overlay" id="model-picker-sheet" style="z-index: 550;">
-                <div class="bottom-sheet" style="max-height: 80%; display: flex; flex-direction: column;">
-                    <div class="sheet-handle"></div>
-                    <div class="sheet-title">选择模型</div>
-                    <div class="account-list no-drag-scroll" id="model-list" style="margin: 20px 16px; flex: 1; overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y;">
-                        <!-- Models injected here -->
-                    </div>
-                    <div class="sheet-action" id="close-model-picker-btn" style="margin: 0 16px 20px; flex-shrink: 0; background-color: #f2f2f7; color: #000;">取消</div>
                 </div>
             </div>
 

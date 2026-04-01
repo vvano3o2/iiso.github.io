@@ -76,70 +76,102 @@ if (btnApiFetch) {
 }
 
 // -- Presets --
-// Open Save Preset
-document.getElementById('save-preset-btn').addEventListener('click', () => {
-    UI.inputs.presetName.value = '';
-    openView(UI.overlays.savePreset);
-});
+const savePresetBtn = document.getElementById('save-preset-btn');
+const loadPresetBtn = document.getElementById('load-preset-btn');
+const confirmSavePresetBtn = document.getElementById('confirm-save-preset-btn');
 
-// Confirm Save Preset
-document.getElementById('confirm-save-preset-btn').addEventListener('click', () => {
-    apiPresets.push({
-        id: Date.now(),
-        name: UI.inputs.presetName.value || 'Untitled Preset',
-        endpoint: UI.inputs.apiEndpoint.value,
-        apiKey: UI.inputs.apiKey.value,
-        model: UI.inputs.apiModel.value,
-        temp: UI.inputs.apiTemp.value
+if (savePresetBtn) {
+    savePresetBtn.addEventListener('click', () => {
+        if (UI.inputs.presetName) UI.inputs.presetName.value = '';
+        openView(UI.overlays.savePreset);
     });
-    saveGlobalData();
-    closeView(UI.overlays.savePreset);
-});
+}
 
-// Open Load Preset
-document.getElementById('load-preset-btn').addEventListener('click', () => {
-    renderPresetList();
-    openView(UI.overlays.loadPreset);
-});
+if (confirmSavePresetBtn) {
+    confirmSavePresetBtn.addEventListener('click', () => {
+        const endpoint = UI.inputs.apiEndpoint ? UI.inputs.apiEndpoint.value.trim() : '';
+        const apiKey = UI.inputs.apiKey ? UI.inputs.apiKey.value.trim() : '';
+        const model = UI.inputs.apiModel ? UI.inputs.apiModel.value.trim() : '';
+        const temp = UI.inputs.apiTemp ? parseFloat(UI.inputs.apiTemp.value) || 0.7 : 0.7;
+        const presetName = UI.inputs.presetName ? UI.inputs.presetName.value.trim() : '';
+
+        apiPresets.push({
+            id: Date.now(),
+            name: presetName || '未命名预设',
+            endpoint,
+            apiKey,
+            model,
+            temp
+        });
+
+        saveGlobalData();
+        closeView(UI.overlays.savePreset);
+        showToast('预设已保存');
+    });
+}
+
+if (loadPresetBtn) {
+    loadPresetBtn.addEventListener('click', () => {
+        renderPresetList();
+        openView(UI.overlays.loadPreset);
+    });
+}
 
 function renderPresetList() {
-    if(!UI.lists.presets) return;
+    if (!UI.lists.presets) return;
     UI.lists.presets.innerHTML = '';
-    
+
+    if (!Array.isArray(apiPresets) || apiPresets.length === 0) {
+        UI.lists.presets.innerHTML = `
+            <div style="padding: 40px 20px; text-align: center; color: #8e8e93; font-size: 15px;">
+                暂无预设
+            </div>
+        `;
+        return;
+    }
+
     apiPresets.forEach(preset => {
         const item = document.createElement('div');
-        item.className = 'account-card'; 
+        item.className = 'account-card';
         item.innerHTML = `
             <div class="account-content" style="cursor: pointer;">
                 <div class="account-avatar" style="background-color: var(--blue-color); color: white;"><i class="fas fa-server"></i></div>
                 <div class="account-info">
-                    <div class="account-name">${preset.name}</div>
-                    <div class="account-detail" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">${preset.endpoint}</div>
+                    <div class="account-name">${preset.name || '未命名预设'}</div>
+                    <div class="account-detail" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px;">${preset.endpoint || '未填写接口地址'}</div>
                 </div>
                 <i class="fas fa-times delete-icon"></i>
             </div>
         `;
-        
-        item.querySelector('.account-content').addEventListener('click', (e) => {
-            // If clicked on delete icon, do not load preset
-            if (e.target.classList.contains('delete-icon') || e.target.closest('.delete-icon')) return;
 
-            UI.inputs.apiEndpoint.value = preset.endpoint;
-            UI.inputs.apiKey.value = preset.apiKey;
-            UI.inputs.apiModel.value = preset.model || 'gpt-3.5-turbo';
-            UI.inputs.apiTemp.value = preset.temp || 0.7;
-            closeView(UI.overlays.loadPreset);
-        });
+        const content = item.querySelector('.account-content');
+        const deleteIcon = item.querySelector('.delete-icon');
 
-        // Delete Action
-        item.querySelector('.delete-icon').addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (confirm(`Delete preset "${preset.name}"?`)) {
-                apiPresets = apiPresets.filter(p => p.id !== preset.id);
-                saveGlobalData();
-                renderPresetList();
-            }
-        });
+        if (content) {
+            content.addEventListener('click', (e) => {
+                if (e.target.classList.contains('delete-icon') || e.target.closest('.delete-icon')) return;
+
+                if (UI.inputs.apiEndpoint) UI.inputs.apiEndpoint.value = preset.endpoint || '';
+                if (UI.inputs.apiKey) UI.inputs.apiKey.value = preset.apiKey || '';
+                if (UI.inputs.apiModel) UI.inputs.apiModel.value = preset.model || '';
+                if (UI.inputs.apiTemp) UI.inputs.apiTemp.value = preset.temp ?? 0.7;
+
+                closeView(UI.overlays.loadPreset);
+                showToast('预设已加载');
+            });
+        }
+
+        if (deleteIcon) {
+            deleteIcon.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (confirm(`删除预设“${preset.name || '未命名预设'}”？`)) {
+                    apiPresets = apiPresets.filter(p => p.id !== preset.id);
+                    saveGlobalData();
+                    renderPresetList();
+                    showToast('预设已删除');
+                }
+            });
+        }
 
         UI.lists.presets.appendChild(item);
     });
@@ -154,17 +186,26 @@ if (UI.inputs.apiModel) {
 }
 
 function renderModelList() {
-    if(!UI.lists.models) return;
+    if (!UI.lists.models) return;
     UI.lists.models.innerHTML = '';
+
+    if (!Array.isArray(fetchedModels) || fetchedModels.length === 0) {
+        UI.lists.models.innerHTML = `
+            <div style="padding: 40px 20px; text-align: center; color: #8e8e93; font-size: 15px;">
+                暂无模型，请先点击 Fetch Models
+            </div>
+        `;
+        return;
+    }
+
     fetchedModels.forEach(model => {
         const item = document.createElement('div');
-        item.className = 'account-card';
+        item.className = 'api-model-card';
         item.style.cursor = 'pointer';
         item.innerHTML = `
-            <div class="account-content">
-                <div class="account-info">
-                    <div class="account-name" style="text-align:center;">${model}</div>
-                </div>
+            <div class="api-model-card-name">${model}</div>
+            <div class="api-model-card-action">
+                <i class="fas fa-chevron-right"></i>
             </div>
         `;
         item.addEventListener('click', () => {
@@ -394,8 +435,21 @@ document.getElementById('confirm-theme-btn').addEventListener('click', () => {
 
     if (themeState.isFullscreen) {
         document.body.classList.add('fullscreen-mode');
+        try {
+            const docEl = document.documentElement;
+            if (docEl.requestFullscreen) docEl.requestFullscreen();
+            else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
+            else if (docEl.msRequestFullscreen) docEl.msRequestFullscreen();
+        } catch (e) { console.log('Fullscreen API not supported'); }
     } else {
         document.body.classList.remove('fullscreen-mode');
+        try {
+            if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement) {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                else if (document.msExitFullscreen) document.msExitFullscreen();
+            }
+        } catch (e) { console.log('Exit Fullscreen API not supported'); }
     }
 
     // Apply Background
@@ -427,7 +481,11 @@ document.getElementById('confirm-theme-btn').addEventListener('click', () => {
 // Apply theme on load
 function applySavedTheme() {
     if (themeState.showIsland === false) document.body.classList.add('hide-island');
-    if (themeState.isFullscreen === true) document.body.classList.add('fullscreen-mode');
+    if (themeState.isFullscreen === true) {
+        document.body.classList.add('fullscreen-mode');
+        // Do not force native fullscreen on load as it requires user gesture, 
+        // just apply the CSS class.
+    }
     
     const statusBar = document.querySelector('.status-bar');
     if (statusBar) {
@@ -455,167 +513,170 @@ window.applySavedTheme = applySavedTheme;
 // ==========================================
 // --- Chat Sending Logic (Shared Helper Functions if needed) ---
 // ==========================================
-const chatInput = document.getElementById('chat-message-input');
-const sendBtn = document.getElementById('send-msg-btn');
-const micBtn = document.getElementById('mic-msg-btn');
-const chatMessagesContainer = document.getElementById('ins-chat-messages');
+(() => {
+    const chatInput = document.getElementById('chat-message-input');
+    const sendBtn = document.getElementById('send-msg-btn');
+    const micBtn = document.getElementById('mic-msg-btn');
+    const chatMessagesContainer = document.getElementById('ins-chat-messages');
 
-function scrollToBottom() {
-    if (chatMessagesContainer) {
-        chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
-    }
-}
-
-function appendUserMessage(msg) {
-    if (!chatMessagesContainer) return;
-    const row = document.createElement('div');
-    row.className = 'chat-row user-row';
-    row.innerHTML = `<div class="chat-bubble user-bubble">${msg}</div>`;
-    chatMessagesContainer.appendChild(row);
-    scrollToBottom();
-}
-
-function appendAiMessage(msg, friend) {
-    if (!chatMessagesContainer) return;
-    const row = document.createElement('div');
-    row.className = 'chat-row ai-row';
-    
-    const avatarHtml = (friend && friend.avatarUrl) 
-        ? `<img src="${friend.avatarUrl}">`
-        : `<i class="fas fa-user"></i>`;
-
-    row.innerHTML = `
-        <div class="chat-avatar-small">${avatarHtml}</div>
-        <div class="chat-bubble ai-bubble">${msg}</div>
-    `;
-    chatMessagesContainer.appendChild(row);
-    scrollToBottom();
-}
-
-function appendAiTyping(friend) {
-    if (!chatMessagesContainer) return null;
-    const row = document.createElement('div');
-    row.className = 'chat-row ai-row typing-row';
-    
-    const avatarHtml = (friend && friend.avatarUrl) 
-        ? `<img src="${friend.avatarUrl}">`
-        : `<i class="fas fa-user"></i>`;
-
-    row.innerHTML = `
-        <div class="chat-avatar-small">${avatarHtml}</div>
-        <div class="typing-indicator">
-            <div class="typing-dot"></div>
-            <div class="typing-dot"></div>
-            <div class="typing-dot"></div>
-        </div>
-    `;
-    chatMessagesContainer.appendChild(row);
-    scrollToBottom();
-    return row;
-}
-
-function handleSendMessage() {
-    if (!chatInput) return;
-    const msg = chatInput.value.trim();
-    if (msg) {
-        appendUserMessage(msg);
-        chatInput.value = '';
-    }
-}
-
-async function handleAiGenerate() {
-    // Assuming currentActiveFriend is defined globally by another script that uses this
-    if (typeof currentActiveFriend === 'undefined' || !currentActiveFriend) {
-        showToast('No active friend selected.');
-        return;
-    }
-    
-    if (!apiConfig.endpoint || !apiConfig.apiKey) {
-        showToast('请先配置 API Endpoint 和 Key');
-        return;
+    function scrollToBottom() {
+        if (chatMessagesContainer) {
+            chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+        }
     }
 
-    const typingRow = appendAiTyping(currentActiveFriend);
-    if(micBtn) micBtn.style.opacity = '0.5';
+    function appendUserMessage(msg) {
+        if (!chatMessagesContainer) return;
+        const row = document.createElement('div');
+        row.className = 'chat-row user-row';
+        row.innerHTML = `<div class="chat-bubble user-bubble">${msg}</div>`;
+        chatMessagesContainer.appendChild(row);
+        scrollToBottom();
+    }
 
-    const systemPrompt = `You are playing the role of ${currentActiveFriend.realName || currentActiveFriend.nickname}. 
+    function appendAiMessage(msg, friend) {
+        if (!chatMessagesContainer) return;
+        const row = document.createElement('div');
+        row.className = 'chat-row ai-row';
+        
+        const avatarHtml = (friend && friend.avatarUrl) 
+            ? `<img src="${friend.avatarUrl}">`
+            : `<i class="fas fa-user"></i>`;
+
+        row.innerHTML = `
+            <div class="chat-avatar-small">${avatarHtml}</div>
+            <div class="chat-bubble ai-bubble">${msg}</div>
+        `;
+        chatMessagesContainer.appendChild(row);
+        scrollToBottom();
+    }
+
+    function appendAiTyping(friend) {
+        if (!chatMessagesContainer) return null;
+        const row = document.createElement('div');
+        row.className = 'chat-row ai-row typing-row';
+        
+        const avatarHtml = (friend && friend.avatarUrl) 
+            ? `<img src="${friend.avatarUrl}">`
+            : `<i class="fas fa-user"></i>`;
+
+        row.innerHTML = `
+            <div class="chat-avatar-small">${avatarHtml}</div>
+            <div class="typing-indicator">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        `;
+        chatMessagesContainer.appendChild(row);
+        scrollToBottom();
+        return row;
+    }
+
+    function handleSendMessage() {
+        if (!chatInput) return;
+        const msg = chatInput.value.trim();
+        if (msg) {
+            appendUserMessage(msg);
+            chatInput.value = '';
+        }
+    }
+
+    async function handleAiGenerate() {
+        // Assuming currentActiveFriend is defined globally by another script that uses this
+        if (typeof currentActiveFriend === 'undefined' || !currentActiveFriend) {
+            showToast('No active friend selected.');
+            return;
+        }
+        
+        if (!apiConfig.endpoint || !apiConfig.apiKey) {
+            showToast('请先配置 API Endpoint 和 Key');
+            return;
+        }
+
+        const typingRow = appendAiTyping(currentActiveFriend);
+        if(micBtn) micBtn.style.opacity = '0.5';
+
+        const globalWorldBookContext = window.getGlobalWorldBookContext ? window.getGlobalWorldBookContext() : '';
+        const systemPrompt = `You are playing the role of ${currentActiveFriend.realName || currentActiveFriend.nickname}. 
 Your persona is: ${currentActiveFriend.persona || 'No specific persona'}. 
 You are talking to ${userState.name}, whose persona is: ${userState.persona || 'A normal user'}.
-Reply naturally as your character in a chat app. Do not include your own name at the beginning.`;
+${globalWorldBookContext ? `Global World Book:\n${globalWorldBookContext}\n` : ''}Reply naturally as your character in a chat app. Do not include your own name at the beginning.`;
 
-    const messages = [{ role: 'system', content: systemPrompt }];
-    
-    if (chatMessagesContainer) {
-        const rows = chatMessagesContainer.querySelectorAll('.chat-row');
-        const recentRows = Array.from(rows).slice(-10);
-        recentRows.forEach(row => {
-            if (row.classList.contains('typing-row')) return;
-            const bubble = row.querySelector('.chat-bubble');
-            if (bubble) {
-                if (row.classList.contains('user-row')) {
-                    messages.push({ role: 'user', content: bubble.textContent });
-                } else if (row.classList.contains('ai-row')) {
-                    messages.push({ role: 'assistant', content: bubble.textContent });
+        const messages = [{ role: 'system', content: systemPrompt }];
+        
+        if (chatMessagesContainer) {
+            const rows = chatMessagesContainer.querySelectorAll('.chat-row');
+            const recentRows = Array.from(rows).slice(-10);
+            recentRows.forEach(row => {
+                if (row.classList.contains('typing-row')) return;
+                const bubble = row.querySelector('.chat-bubble');
+                if (bubble) {
+                    if (row.classList.contains('user-row')) {
+                        messages.push({ role: 'user', content: bubble.textContent });
+                    } else if (row.classList.contains('ai-row')) {
+                        messages.push({ role: 'assistant', content: bubble.textContent });
+                    }
                 }
+            });
+        }
+        
+        if (messages.length === 1) {
+            messages.push({ role: 'user', content: '你好' });
+        }
+
+        try {
+            let endpoint = apiConfig.endpoint;
+            // 确保 endpoint 结尾没有 /，且自动补全 /chat/completions 或 /v1/chat/completions 
+            if(endpoint.endsWith('/')) endpoint = endpoint.slice(0, -1);
+            if(!endpoint.endsWith('/chat/completions')) {
+                endpoint = endpoint.endsWith('/v1') ? endpoint + '/chat/completions' : endpoint + '/v1/chat/completions';
+            }
+
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiConfig.apiKey}`
+                },
+                body: JSON.stringify({
+                    model: apiConfig.model || '',
+                    messages: messages,
+                    temperature: parseFloat(apiConfig.temperature) || 0.7
+                })
+            });
+
+            if (!response.ok) throw new Error(`API Error: ${response.status}`);
+            
+            const data = await response.json();
+            const aiReply = data.choices[0].message.content;
+            
+            if (typingRow) typingRow.remove();
+            appendAiMessage(aiReply, currentActiveFriend);
+
+        } catch (error) {
+            console.error(error);
+            if (typingRow) typingRow.remove();
+            showToast('API 请求失败，请检查配置或网络');
+        } finally {
+            if(micBtn) micBtn.style.opacity = '1';
+        }
+    }
+
+    if (sendBtn) {
+        sendBtn.addEventListener('click', handleSendMessage);
+    }
+
+    if (micBtn) {
+        micBtn.addEventListener('click', handleAiGenerate);
+    }
+
+    if (chatInput) {
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSendMessage();
             }
         });
     }
-    
-    if (messages.length === 1) {
-        messages.push({ role: 'user', content: '你好' });
-    }
-
-    try {
-        let endpoint = apiConfig.endpoint;
-        // 确保 endpoint 结尾没有 /，且自动补全 /chat/completions 或 /v1/chat/completions 
-        if(endpoint.endsWith('/')) endpoint = endpoint.slice(0, -1);
-        if(!endpoint.endsWith('/chat/completions')) {
-            endpoint = endpoint.endsWith('/v1') ? endpoint + '/chat/completions' : endpoint + '/v1/chat/completions';
-        }
-
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiConfig.apiKey}`
-            },
-            body: JSON.stringify({
-                model: apiConfig.model || 'gpt-3.5-turbo',
-                messages: messages,
-                temperature: parseFloat(apiConfig.temperature) || 0.7
-            })
-        });
-
-        if (!response.ok) throw new Error(`API Error: ${response.status}`);
-        
-        const data = await response.json();
-        const aiReply = data.choices[0].message.content;
-        
-        if (typingRow) typingRow.remove();
-        appendAiMessage(aiReply, currentActiveFriend);
-
-    } catch (error) {
-        console.error(error);
-        if (typingRow) typingRow.remove();
-        showToast('API 请求失败，请检查配置或网络');
-    } finally {
-        if(micBtn) micBtn.style.opacity = '1';
-    }
-}
-
-if (sendBtn) {
-    sendBtn.addEventListener('click', handleSendMessage);
-}
-
-if (micBtn) {
-    micBtn.addEventListener('click', handleAiGenerate);
-}
-
-if (chatInput) {
-    chatInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            handleSendMessage();
-        }
-    });
-}
+})();

@@ -808,13 +808,35 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!friend) return;
         const page = document.getElementById(`chat-interface-${friend.id}`);
         if (page) {
+            const inputContainer = page.querySelector('.ins-chat-input-container');
+            const stickyContainer = page.querySelector('.chat-sticky-container');
+            
             if (friend.chatBg) {
                 page.style.backgroundImage = `url(${friend.chatBg})`;
                 page.style.backgroundSize = 'cover';
                 page.style.backgroundPosition = 'center';
+                
+                if (inputContainer) {
+                    inputContainer.style.background = 'transparent';
+                    inputContainer.style.borderTop = 'none';
+                }
+                if (stickyContainer) {
+                    // Make top bar transparent but keep the blur if you want, or just transparent
+                    stickyContainer.style.background = 'transparent';
+                    stickyContainer.style.borderBottom = 'none';
+                }
             } else {
                 page.style.backgroundImage = 'none';
                 page.style.backgroundColor = '#ffffff'; 
+                
+                if (inputContainer) {
+                    inputContainer.style.background = ''; // reset to css default
+                    inputContainer.style.borderTop = '';
+                }
+                if (stickyContainer) {
+                    stickyContainer.style.background = friend.type === 'group' ? 'transparent' : '#ffffff';
+                    stickyContainer.style.borderBottom = friend.type === 'group' ? 'none' : '1px solid #f2f2f7';
+                }
             }
         }
     }
@@ -1206,11 +1228,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const statusBarEnabledToggle = document.getElementById('status-bar-enabled-toggle');
         const statusBarPromptInput = document.getElementById('status-bar-prompt-input');
         const statusBarStyleInput = document.getElementById('status-bar-style-input');
+        const presets = getStatusBarPresets();
+        const statusBarType = friend.statusBar && friend.statusBar.type === 'icity' ? 'icity' : 'ins';
+
+        initStatusBarTypeInteractions(friend);
+        setStatusBarTypeSelection(statusBarType);
 
         if (friend.statusBar) {
             if (statusBarEnabledToggle) statusBarEnabledToggle.checked = friend.statusBar.enabled;
-            if (statusBarPromptInput) statusBarPromptInput.value = friend.statusBar.prompt || '';
-            if (statusBarStyleInput) statusBarStyleInput.value = friend.statusBar.style || '';
+
+            const defaultPrompt = (presets[statusBarType] && presets[statusBarType].prompt) || '';
+            const defaultStyle = (presets[statusBarType] && presets[statusBarType].style) || '';
+
+            if (statusBarPromptInput) {
+                statusBarPromptInput.value = friend.statusBar.prompt || defaultPrompt;
+            }
+
+            if (statusBarStyleInput) {
+                statusBarStyleInput.value = friend.statusBar.style || defaultStyle;
+            }
+        } else {
+            syncStatusBarTemplateFields(statusBarType);
         }
     }
     
@@ -1373,6 +1411,74 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusBarImportBtn = document.getElementById('status-bar-import-btn');
     const statusBarImportFile = document.getElementById('status-bar-import-file');
 
+    function getStatusBarPresets() {
+        return window.imApp.getStatusBarTemplatePresets
+            ? window.imApp.getStatusBarTemplatePresets()
+            : {
+                ins: { type: 'ins', prompt: '', style: '' },
+                icity: { type: 'icity', prompt: '', style: '' }
+            };
+    }
+
+    function getSelectedStatusBarType() {
+        const activeBtn = document.querySelector('#status-bar-type-segment .status-bar-type-btn.active');
+        return activeBtn ? activeBtn.getAttribute('data-type') : 'ins';
+    }
+
+    function setStatusBarTypeSelection(type) {
+        const nextType = type === 'icity' ? 'icity' : 'ins';
+        const buttons = document.querySelectorAll('#status-bar-type-segment .status-bar-type-btn');
+        const hint = document.getElementById('status-bar-type-hint');
+
+        buttons.forEach(btn => {
+            const isActive = btn.getAttribute('data-type') === nextType;
+            btn.classList.toggle('active', isActive);
+            btn.style.background = isActive ? '#111' : '#f2f2f7';
+            btn.style.color = isActive ? '#fff' : '#666';
+        });
+
+        if (hint) {
+            hint.textContent = nextType === 'icity'
+                ? 'icity 会切换到日记卡片风格，并联动提示词、CSS 与评论结构。'
+                : 'ins 为当前卡片风格，会联动恢复对应提示词与 CSS。';
+        }
+    }
+
+    function syncStatusBarTemplateFields(type, options = {}) {
+        const presets = getStatusBarPresets();
+        const nextType = type === 'icity' ? 'icity' : 'ins';
+        const template = presets[nextType] || presets.ins || { prompt: '', style: '' };
+        const statusBarPromptInput = document.getElementById('status-bar-prompt-input');
+        const statusBarStyleInput = document.getElementById('status-bar-style-input');
+
+        setStatusBarTypeSelection(nextType);
+
+        if (!options.preservePrompt && statusBarPromptInput) {
+            statusBarPromptInput.value = template.prompt || '';
+        }
+
+        if (!options.preserveStyle && statusBarStyleInput) {
+            statusBarStyleInput.value = template.style || '';
+        }
+    }
+
+    function initStatusBarTypeInteractions(friend) {
+        const buttons = document.querySelectorAll('#status-bar-type-segment .status-bar-type-btn');
+        if (!buttons.length) return;
+
+        buttons.forEach(btn => {
+            if (btn.dataset.bound === 'true') return;
+            btn.dataset.bound = 'true';
+            btn.addEventListener('click', () => {
+                const nextType = btn.getAttribute('data-type') || 'ins';
+                syncStatusBarTemplateFields(nextType);
+                if (friend && friend.statusBar) {
+                    friend.statusBar.type = nextType;
+                }
+            });
+        });
+    }
+
     if (statusBarSettingsSheet) {
         statusBarSettingsSheet.addEventListener('click', (e) => {
             if (e.target === statusBarSettingsSheet) closeView(statusBarSettingsSheet);
@@ -1394,10 +1500,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const statusBarEnabledToggle = document.getElementById('status-bar-enabled-toggle');
             const statusBarPromptInput = document.getElementById('status-bar-prompt-input');
             const statusBarStyleInput = document.getElementById('status-bar-style-input');
+            const statusBarType = getSelectedStatusBarType();
 
             if (!friend.statusBar) friend.statusBar = {};
             
             friend.statusBar.enabled = statusBarEnabledToggle ? statusBarEnabledToggle.checked : false;
+            friend.statusBar.type = statusBarType;
             friend.statusBar.prompt = statusBarPromptInput ? statusBarPromptInput.value : '';
             // keep regex intact even though we don't expose it to user anymore
             if (!friend.statusBar.regex) friend.statusBar.regex = '<status>([\\s\\S]*?)<\\/status>'; 
@@ -1425,6 +1533,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // 收集当前输入框的值，以防用户未保存就点导出
             const currentConfig = {
                 enabled: document.getElementById('status-bar-enabled-toggle').checked,
+                type: getSelectedStatusBarType(),
                 prompt: document.getElementById('status-bar-prompt-input').value,
                 style: document.getElementById('status-bar-style-input').value
             };
@@ -1460,10 +1569,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     const statusBarEnabledToggle = document.getElementById('status-bar-enabled-toggle');
                     const statusBarPromptInput = document.getElementById('status-bar-prompt-input');
                     const statusBarStyleInput = document.getElementById('status-bar-style-input');
+                    const importedType = config.type === 'icity' ? 'icity' : 'ins';
+
+                    setStatusBarTypeSelection(importedType);
 
                     if (statusBarEnabledToggle && config.enabled !== undefined) statusBarEnabledToggle.checked = config.enabled;
-                    if (statusBarPromptInput && config.prompt !== undefined) statusBarPromptInput.value = config.prompt;
-                    if (statusBarStyleInput && config.style !== undefined) statusBarStyleInput.value = config.style;
+                    if (statusBarPromptInput && config.prompt !== undefined) {
+                        statusBarPromptInput.value = config.prompt;
+                    } else {
+                        syncStatusBarTemplateFields(importedType, { preservePrompt: false, preserveStyle: true });
+                    }
+
+                    if (statusBarStyleInput && config.style !== undefined) {
+                        statusBarStyleInput.value = config.style;
+                    } else {
+                        syncStatusBarTemplateFields(importedType, { preservePrompt: true, preserveStyle: false });
+                    }
 
                     showToast('导入成功，请点击保存设置');
                 } catch (err) {

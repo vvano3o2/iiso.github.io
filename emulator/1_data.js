@@ -2,30 +2,24 @@
 // 1. STATE MANAGEMENT
 // ==========================================
 const userState = {
-    name: 'iis',
-    phone: '13800000000',
-    persona: 'Default User',
+    name: '',
+    phone: '',
+    persona: '',
     avatarUrl: null
 };
 window.userState = userState;
 
-let accounts = [
-    { id: 1, name: 'iis', phone: '13800000000', signature: 'Default User', persona: 'Default User', avatarUrl: null },
-    { id: 2, name: 'User2', phone: '13912345678', signature: 'Work Persona', persona: 'Work Persona', avatarUrl: null }
-];
-let currentAccountId = 1;
+let accounts = [];
+let currentAccountId = null;
 
 // Detail View temp state
 let isCreatingNewAccount = false;
 let detailTempId = null;
 
 // API State
-let apiConfig = { endpoint: '', apiKey: '', model: 'gpt-3.5-turbo', temperature: 0.7 };
-let apiPresets = [
-    { id: 1, name: 'Localhost', endpoint: 'http://localhost:5000', apiKey: 'sk-12345', model: 'llama-2', temp: 0.7 },
-    { id: 2, name: 'OpenAI', endpoint: 'https://api.openai.com/v1', apiKey: '', model: 'gpt-4', temp: 1.0 }
-];
-let fetchedModels = ['gpt-3.5-turbo', 'gpt-4', 'claude-v1'];
+let apiConfig = { endpoint: '', apiKey: '', model: '', temperature: 0.7 };
+let apiPresets = [];
+let fetchedModels = [];
 
 // Theme State
 const isMobileUser = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);

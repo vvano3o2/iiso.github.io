@@ -92,8 +92,14 @@ document.getElementById('save-id-btn').addEventListener('click', () => {
         userState.phone = accToSync.phone;
         userState.persona = accToSync.signature || accToSync.persona; // Use signature for display
         userState.avatarUrl = accToSync.avatarUrl;
-        syncUIs();
+    } else {
+        userState.name = '';
+        userState.phone = '';
+        userState.persona = '';
+        userState.avatarUrl = null;
     }
+    saveGlobalData();
+    syncUIs();
     closeView(UI.overlays.accountSwitcher);
 });
 
@@ -197,8 +203,16 @@ function renderAccountList() {
             e.stopPropagation();
             if (confirm(`Delete account "${acc.name}"?`)) {
                 accounts = accounts.filter(a => a.id !== acc.id);
-                if (currentAccountId === acc.id) currentAccountId = accounts.length > 0 ? accounts[0].id : null;
+                if (currentAccountId === acc.id) {
+                    currentAccountId = accounts.length > 0 ? accounts[0].id : null;
+                    const nextAccount = accounts.find(a => a.id === currentAccountId);
+                    userState.name = nextAccount?.name || '';
+                    userState.phone = nextAccount?.phone || '';
+                    userState.persona = nextAccount?.signature || nextAccount?.persona || '';
+                    userState.avatarUrl = nextAccount?.avatarUrl || null;
+                }
                 saveGlobalData();
+                syncUIs();
                 renderAccountList();
             }
         });
@@ -264,9 +278,30 @@ if (importDataBtn && importDataFile) {
 }
 
 document.getElementById('clear-data-btn')?.addEventListener('click', () => {
-    if (confirm('确定要清空所有数据吗？此操作不可恢复。')) {
-        localStorage.removeItem('ios_emulator_global_data');
-        showToast('数据已清空，即将刷新...');
+    if (confirm('确定要清空缓存数据吗？此操作不可恢复，但会保留 API 配置。')) {
+        let preservedApiConfig = { endpoint: '', apiKey: '', model: '', temperature: 0.7 };
+
+        try {
+            const dataStr = localStorage.getItem('ios_emulator_global_data');
+            if (dataStr) {
+                const parsed = JSON.parse(dataStr);
+                if (parsed && parsed.apiConfig && typeof parsed.apiConfig === 'object') {
+                    preservedApiConfig = {
+                        endpoint: parsed.apiConfig.endpoint || '',
+                        apiKey: parsed.apiConfig.apiKey || '',
+                        model: parsed.apiConfig.model || '',
+                        temperature: parseFloat(parsed.apiConfig.temperature) || 0.7
+                    };
+                }
+            }
+        } catch (err) {
+            console.error('Failed to preserve api config before clearing data', err);
+        }
+
+        localStorage.setItem('ios_emulator_global_data', JSON.stringify({
+            apiConfig: preservedApiConfig
+        }));
+        showToast('缓存已清空，API 配置已保留，即将刷新...');
         setTimeout(() => location.reload(), 1500);
     }
 });
