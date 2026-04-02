@@ -216,6 +216,25 @@ function renderModelList() {
     });
 }
 
+function updateFullscreenViewportHeight() {
+    const viewportHeight = window.visualViewport
+        ? window.visualViewport.height
+        : window.innerHeight;
+    document.documentElement.style.setProperty('--app-height', `${Math.round(viewportHeight)}px`);
+}
+
+window.updateFullscreenViewportHeight = updateFullscreenViewportHeight;
+updateFullscreenViewportHeight();
+
+window.addEventListener('resize', updateFullscreenViewportHeight);
+window.addEventListener('orientationchange', () => {
+    window.setTimeout(updateFullscreenViewportHeight, 120);
+});
+if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', updateFullscreenViewportHeight);
+    window.visualViewport.addEventListener('scroll', updateFullscreenViewportHeight);
+}
+
 // ==========================================
 // 8. THEME CONFIGURATION
 // ==========================================
@@ -374,12 +393,12 @@ document.getElementById('theme-app-file-input').addEventListener('change', (e) =
 function applyAppIconStyles(app) {
     const el = document.getElementById(app.id);
     if (!el) return;
-    
-    // Target the inner .app-icon div rather than the wrapper
-    const iconDiv = el.querySelector('.app-icon');
-    const iEl = el.querySelector('i');
-    const nameEl = el.querySelector('.app-name');
-    
+
+    const appItem = el.classList.contains('app-item') ? el : el.closest('.app-item');
+    const iconDiv = el.classList.contains('app-icon') ? el : (el.querySelector('.app-icon') || appItem?.querySelector('.app-icon'));
+    const iEl = iconDiv ? iconDiv.querySelector('i') : null;
+    const nameEl = appItem ? appItem.querySelector('.app-name') : el.querySelector('.app-name');
+
     if (nameEl && app.name) {
         nameEl.textContent = app.name;
     }
@@ -387,27 +406,29 @@ function applyAppIconStyles(app) {
     if (!iconDiv) return;
 
     if (app.icon) {
-        // Apply image, clear background color
         iconDiv.style.backgroundImage = `url(${app.icon})`;
         iconDiv.style.backgroundSize = 'cover';
         iconDiv.style.backgroundPosition = 'center';
         iconDiv.style.backgroundColor = 'transparent';
+        iconDiv.style.background = 'transparent';
         if (iEl) iEl.style.display = 'none';
     } else {
-        // Revert to original
         iconDiv.style.backgroundImage = 'none';
-        // Restore original gradient/color using inline style if it was stripped, 
-        // but normally removing backgroundImage is enough if CSS handles it.
-        // We'll rely on the default inline style still being there under the hood or class defaults.
+        iconDiv.style.backgroundSize = '';
+        iconDiv.style.backgroundPosition = '';
+        iconDiv.style.backgroundColor = '';
+        iconDiv.style.color = '';
+
         if (app.id === 'dock-icon-settings') { iconDiv.style.background = 'linear-gradient(180deg, #48484a 0%, #2c2c2e 100%)'; iconDiv.style.color = '#ffffff'; if (iEl) iEl.className = 'fas fa-cog'; }
         else if (app.id === 'dock-icon-imessage') { iconDiv.style.background = 'linear-gradient(180deg, #ffffff 0%, #f2f2f7 100%)'; iconDiv.style.color = '#1c1c1e'; if (iEl) iEl.className = 'fas fa-comment'; }
         else if (app.id === 'dock-icon-youtube') { iconDiv.style.background = '#ffffff'; iconDiv.style.color = '#1c1c1e'; if (iEl) iEl.className = 'fab fa-youtube'; }
         else if (app.id === 'app-icon-1') { iconDiv.style.background = 'linear-gradient(180deg, #3a3a3c 0%, #1c1c1e 100%)'; iconDiv.style.color = '#ffffff'; if (iEl) iEl.className = 'fas fa-wallet'; }
-        else if (app.id === 'app-icon-2') { iconDiv.style.background = '#000000'; iconDiv.style.color = '#ffffff'; if (iEl) iEl.className = 'fab fa-tiktok'; } // TikTok Style
-        else if (app.id === 'app-icon-3') { iconDiv.style.background = '#000000'; iconDiv.style.color = '#ffffff'; if (iEl) iEl.className = 'fas fa-star'; } // b.stage Style
-        else if (app.id === 'app-icon-4') { iconDiv.style.background = '#000000'; iconDiv.style.color = '#ffffff'; if (iEl) iEl.className = 'fab fa-twitter'; }
-        else if (['app-icon-5', 'app-icon-6', 'app-icon-7', 'app-icon-8'].includes(app.id)) { iconDiv.style.background = '#e5e5ea'; iconDiv.style.color = ''; if (iEl) iEl.className = ''; }
-        
+        else if (app.id === 'app-icon-2') { iconDiv.style.background = '#000000'; iconDiv.style.color = '#ffffff'; if (iEl) iEl.className = 'fab fa-tiktok'; }
+        else if (app.id === 'app-icon-3') { iconDiv.style.background = '#000000'; iconDiv.style.color = '#ffffff'; }
+        else if (app.id === 'app-icon-4') { iconDiv.style.background = '#000000'; iconDiv.style.color = '#ffffff'; }
+        else if (app.id === 'app-icon-5') { iconDiv.style.background = '#000000'; iconDiv.style.color = '#ffffff'; iconDiv.style.border = '1px solid #1c1c1e'; if (iEl) { iEl.className = 'fas fa-book'; iEl.style.color = '#ffffff'; } }
+        else if (['app-icon-6', 'app-icon-7', 'app-icon-8'].includes(app.id)) { iconDiv.style.background = '#e5e5ea'; }
+
         if (iEl) iEl.style.display = '';
     }
 }
@@ -433,6 +454,8 @@ document.getElementById('confirm-theme-btn').addEventListener('click', () => {
         statusBar.style.display = themeState.showStatusBar ? 'flex' : 'none';
     }
 
+    updateFullscreenViewportHeight();
+
     if (themeState.isFullscreen) {
         document.body.classList.add('fullscreen-mode');
         try {
@@ -441,6 +464,8 @@ document.getElementById('confirm-theme-btn').addEventListener('click', () => {
             else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
             else if (docEl.msRequestFullscreen) docEl.msRequestFullscreen();
         } catch (e) { console.log('Fullscreen API not supported'); }
+        window.setTimeout(updateFullscreenViewportHeight, 60);
+        window.setTimeout(updateFullscreenViewportHeight, 240);
     } else {
         document.body.classList.remove('fullscreen-mode');
         try {
@@ -450,6 +475,7 @@ document.getElementById('confirm-theme-btn').addEventListener('click', () => {
                 else if (document.msExitFullscreen) document.msExitFullscreen();
             }
         } catch (e) { console.log('Exit Fullscreen API not supported'); }
+        window.setTimeout(updateFullscreenViewportHeight, 60);
     }
 
     // Apply Background
@@ -480,9 +506,13 @@ document.getElementById('confirm-theme-btn').addEventListener('click', () => {
 
 // Apply theme on load
 function applySavedTheme() {
+    updateFullscreenViewportHeight();
+
     if (themeState.showIsland === false) document.body.classList.add('hide-island');
     if (themeState.isFullscreen === true) {
         document.body.classList.add('fullscreen-mode');
+        window.setTimeout(updateFullscreenViewportHeight, 60);
+        window.setTimeout(updateFullscreenViewportHeight, 240);
         // Do not force native fullscreen on load as it requires user gesture, 
         // just apply the CSS class.
     }

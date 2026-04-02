@@ -405,6 +405,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const groupContextSettingsSheet = document.getElementById('group-context-settings-sheet');
     const groupContextEnabledToggle = document.getElementById('group-context-enabled-toggle');
     const groupContextLimitInput = document.getElementById('group-context-limit-input');
+    
+    // Group summary elements
+    const groupSummaryHeader = document.getElementById('group-summary-header');
+    const groupSummaryBody = document.getElementById('group-summary-body');
+    const groupSummaryEnabledToggle = document.getElementById('group-summary-enabled-toggle');
+    const groupSummaryLimitInput = document.getElementById('group-summary-limit-input');
+    const groupSummaryPromptInput = document.getElementById('group-summary-prompt-input');
+    
     const confirmGroupContextBtn = document.getElementById('confirm-group-context-btn');
     const confirmGroupEditBtn = document.getElementById('confirm-group-edit-btn');
     const groupEditNameInput = document.getElementById('group-edit-name-input');
@@ -425,6 +433,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         currentViewingGroup.memory = currentViewingGroup.memory || window.imApp.createDefaultMemory();
         currentViewingGroup.memory.context = currentViewingGroup.memory.context || {};
+        currentViewingGroup.memory.summary = currentViewingGroup.memory.summary || {};
 
         const enabled = typeof currentViewingGroup.memory.context.enabled === 'boolean'
             ? currentViewingGroup.memory.context.enabled
@@ -440,8 +449,50 @@ document.addEventListener('DOMContentLoaded', () => {
         if (groupContextLimitInput) {
             groupContextLimitInput.value = limit;
         }
+        
+        // Summary init
+        const summaryEnabled = !!currentViewingGroup.memory.summary.enabled;
+        const summaryLimit = Number(currentViewingGroup.memory.summary.limit) > 0
+            ? Number(currentViewingGroup.memory.summary.limit)
+            : 50;
+        const summaryPrompt = currentViewingGroup.memory.summary.prompt || '';
+        
+        if (groupSummaryEnabledToggle) {
+            groupSummaryEnabledToggle.checked = summaryEnabled;
+        }
+        if (groupSummaryLimitInput) {
+            groupSummaryLimitInput.value = summaryLimit;
+        }
+        if (groupSummaryPromptInput) {
+            groupSummaryPromptInput.value = summaryPrompt;
+        }
+        if (groupSummaryBody && groupSummaryHeader) {
+            if (summaryEnabled) {
+                groupSummaryBody.style.display = 'block';
+                groupSummaryHeader.style.borderRadius = '20px 20px 0 0';
+                groupSummaryHeader.style.borderBottom = '1px solid #e5e5ea';
+            } else {
+                groupSummaryBody.style.display = 'none';
+                groupSummaryHeader.style.borderRadius = '20px';
+                groupSummaryHeader.style.borderBottom = 'none';
+            }
+        }
 
         openView(groupContextSettingsSheet);
+    }
+
+    if (groupSummaryEnabledToggle && groupSummaryBody && groupSummaryHeader) {
+        groupSummaryEnabledToggle.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                groupSummaryBody.style.display = 'block';
+                groupSummaryHeader.style.borderRadius = '20px 20px 0 0';
+                groupSummaryHeader.style.borderBottom = '1px solid #e5e5ea';
+            } else {
+                groupSummaryBody.style.display = 'none';
+                groupSummaryHeader.style.borderRadius = '20px';
+                groupSummaryHeader.style.borderBottom = 'none';
+            }
+        });
     }
 
     if (groupEditSheet) {
@@ -507,6 +558,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             currentViewingGroup.memory = currentViewingGroup.memory || window.imApp.createDefaultMemory();
             currentViewingGroup.memory.context = currentViewingGroup.memory.context || {};
+            currentViewingGroup.memory.summary = currentViewingGroup.memory.summary || {};
 
             const enabled = !!(groupContextEnabledToggle && groupContextEnabledToggle.checked);
             let limit = groupContextLimitInput ? Number(groupContextLimitInput.value) : 50;
@@ -523,10 +575,22 @@ document.addEventListener('DOMContentLoaded', () => {
             if (groupContextLimitInput) {
                 groupContextLimitInput.value = limit;
             }
+            
+            // Save Summary
+            const sumEnabled = !!(groupSummaryEnabledToggle && groupSummaryEnabledToggle.checked);
+            let sumLimit = groupSummaryLimitInput ? Number(groupSummaryLimitInput.value) : 50;
+            if (!Number.isFinite(sumLimit) || sumLimit <= 0) sumLimit = 50;
+            sumLimit = Math.max(1, Math.floor(sumLimit));
+            
+            const sumPrompt = groupSummaryPromptInput ? groupSummaryPromptInput.value.trim() : '';
+
+            currentViewingGroup.memory.summary.enabled = sumEnabled;
+            currentViewingGroup.memory.summary.limit = sumLimit;
+            currentViewingGroup.memory.summary.prompt = sumPrompt;
 
             if (window.imApp.saveFriends) window.imApp.saveFriends();
             closeView(groupContextSettingsSheet);
-            if (window.showToast) window.showToast('群聊上下文已更新');
+            if (window.showToast) window.showToast('设置已保存');
         });
     }
 

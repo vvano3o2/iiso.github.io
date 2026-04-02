@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- State Management ---
     let payTransactions = [];
+    let payBalance = 1000.00;
     let investProfit = 12.5; // Mock starting profit
     let currentFilter = 'all'; // 'all', 'income', 'expense'
 
@@ -13,14 +14,15 @@ document.addEventListener('DOMContentLoaded', () => {
             // Remove initial mock data as requested
             payTransactions = [];
         }
+        
+        const savedBalance = localStorage.getItem('ios_pay_balance');
+        if (savedBalance !== null) {
+            payBalance = parseFloat(savedBalance);
+        }
     } catch(e) {}
 
     function getPayBalance() {
-        let total = 1000.00;
-        payTransactions.forEach(tx => {
-            total += Number(tx.amount) || 0;
-        });
-        return total;
+        return payBalance;
     }
 
     window.getPayBalance = getPayBalance;
@@ -29,6 +31,12 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addPayTransaction = function(amount, title, type = 'income') {
         const safeAmount = Number(amount);
         if (!Number.isFinite(safeAmount) || safeAmount <= 0) return false;
+
+        if (type === 'income') {
+            payBalance += safeAmount;
+        } else {
+            payBalance -= safeAmount;
+        }
 
         const newTx = {
             id: Date.now(),
@@ -51,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function savePayData() {
         localStorage.setItem('ios_pay_transactions', JSON.stringify(payTransactions));
+        localStorage.setItem('ios_pay_balance', payBalance.toString());
     }
 
     // --- DOM Elements ---

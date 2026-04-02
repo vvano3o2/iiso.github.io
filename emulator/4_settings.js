@@ -159,6 +159,168 @@ function setDetailAvatar(url) {
     }
 }
 
+const bindRoleBtn = document.getElementById('bind-role-btn');
+const bindRoleBtnCount = document.getElementById('bind-role-btn-count');
+const bindRoleSheet = document.getElementById('bind-role-sheet');
+const bindRoleList = document.getElementById('bind-role-list');
+const bindRoleEmpty = document.getElementById('bind-role-empty');
+const bindRoleSheetAccountName = document.getElementById('bind-role-sheet-account-name');
+const bindRoleSheetAccountDesc = document.getElementById('bind-role-sheet-account-desc');
+const confirmBindRoleBtn = document.getElementById('confirm-bind-role-btn');
+
+let tempBoundRoleIds = [];
+
+function getCurrentAppleAccount() {
+    return accounts.find(acc => String(acc.id) === String(currentAccountId)) || null;
+}
+
+function getBindableRoles() {
+    return (window.imData?.friends || []).filter(friend => friend && friend.type !== 'group');
+}
+
+function getRolesBoundToCurrentAccount() {
+    return getBindableRoles().filter(friend => String(friend.boundAccountId || '') === String(currentAccountId || ''));
+}
+
+function updateBindRoleEntryPoints() {
+    if (!bindRoleBtnCount) return;
+    const count = currentAccountId ? getRolesBoundToCurrentAccount().length : 0;
+    bindRoleBtnCount.textContent = count > 0 ? `${count}个角色` : '';
+}
+
+function renderBindRoleList() {
+    if (!bindRoleList || !bindRoleEmpty) return;
+
+    const roles = getBindableRoles();
+    const currentAcc = getCurrentAppleAccount();
+    const boundRoles = getRolesBoundToCurrentAccount();
+    tempBoundRoleIds = boundRoles.map(friend => String(friend.id));
+
+    if (bindRoleSheetAccountName) {
+        bindRoleSheetAccountName.textContent = currentAcc ? (currentAcc.name || '当前 ID') : '未选择 Apple ID';
+    }
+    if (bindRoleSheetAccountDesc) {
+        bindRoleSheetAccountDesc.textContent = currentAcc
+            ? `已绑定 ${boundRoles.length} 个角色`
+            : '请先创建并选中一个 Apple ID';
+    }
+
+    bindRoleList.innerHTML = '';
+
+    if (!currentAcc || roles.length === 0) {
+        bindRoleList.style.display = 'none';
+        bindRoleEmpty.style.display = 'block';
+        bindRoleEmpty.textContent = currentAcc ? '暂无可绑定角色' : '请先在 Apple ID 中选择一个账号';
+        return;
+    }
+
+    bindRoleList.style.display = 'flex';
+    bindRoleEmpty.style.display = 'none';
+
+    roles.forEach(friend => {
+        const isSelected = tempBoundRoleIds.includes(String(friend.id));
+        const alreadyBoundAccount = window.imApp?.getBoundAccountByFriend
+            ? window.imApp.getBoundAccountByFriend(friend)
+            : null;
+
+        const item = document.createElement('div');
+        item.className = 'account-card';
+        item.style.padding = '14px 16px';
+        item.style.height = 'auto';
+        item.style.cursor = 'pointer';
+        item.style.borderRadius = '16px';
+        item.style.border = isSelected ? '2px solid #007aff' : '2px solid transparent';
+        item.style.boxShadow = '0 2px 8px rgba(0,0,0,0.05)';
+
+        item.innerHTML = `
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+                <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+                    <div style="width:40px; height:40px; border-radius:50%; background:#f2f2f7; overflow:hidden; display:flex; align-items:center; justify-content:center; color:#8e8e93; flex-shrink:0;">
+                        ${friend.avatarUrl ? `<img src="${friend.avatarUrl}" style="width:100%;height:100%;object-fit:cover;">` : '<i class="fas fa-user"></i>'}
+                    </div>
+                    <div style="min-width:0;">
+                        <div style="font-size:15px; font-weight:600; color:#000; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${friend.nickname || '未命名角色'}</div>
+                        <div style="font-size:12px; color:#8e8e93; margin-top:3px;">${friend.realName || friend.signature || '角色'}</div>
+                        <div style="font-size:12px; color:#666; margin-top:4px; line-height:1.45;">当前绑定：${alreadyBoundAccount ? (alreadyBoundAccount.name || '某个ID') : '未绑定'}</div>
+                    </div>
+                </div>
+                <div style="width:22px; height:22px; border-radius:50%; border:1px solid ${isSelected ? '#007aff' : '#c7c7cc'}; background:${isSelected ? '#007aff' : 'transparent'}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; flex-shrink:0;">
+                    ${isSelected ? '<i class="fas fa-check"></i>' : ''}
+                </div>
+            </div>
+        `;
+
+        item.addEventListener('click', () => {
+            const friendId = String(friend.id);
+            if (tempBoundRoleIds.includes(friendId)) {
+                tempBoundRoleIds = tempBoundRoleIds.filter(id => id !== friendId);
+            } else {
+                tempBoundRoleIds.push(friendId);
+            }
+            renderBindRoleListFromDraft();
+        });
+
+        bindRoleList.appendChild(item);
+    });
+}
+
+function renderBindRoleListFromDraft() {
+    if (!bindRoleList) return;
+    const currentAcc = getCurrentAppleAccount();
+    const roles = getBindableRoles();
+
+    bindRoleList.innerHTML = '';
+    roles.forEach(friend => {
+        const isSelected = tempBoundRoleIds.includes(String(friend.id));
+        const alreadyBoundAccount = window.imApp?.getBoundAccountByFriend
+            ? window.imApp.getBoundAccountByFriend(friend)
+            : null;
+
+        const item = document.createElement('div');
+        item.className = 'account-card';
+        item.style.padding = '14px 16px';
+        item.style.height = 'auto';
+        item.style.cursor = 'pointer';
+        item.style.borderRadius = '16px';
+        item.style.border = isSelected ? '2px solid #007aff' : '2px solid transparent';
+        item.style.boxShadow = '0 2px 8px rgba(0,0,0,0.05)';
+
+        item.innerHTML = `
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+                <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+                    <div style="width:40px; height:40px; border-radius:50%; background:#f2f2f7; overflow:hidden; display:flex; align-items:center; justify-content:center; color:#8e8e93; flex-shrink:0;">
+                        ${friend.avatarUrl ? `<img src="${friend.avatarUrl}" style="width:100%;height:100%;object-fit:cover;">` : '<i class="fas fa-user"></i>'}
+                    </div>
+                    <div style="min-width:0;">
+                        <div style="font-size:15px; font-weight:600; color:#000; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${friend.nickname || '未命名角色'}</div>
+                        <div style="font-size:12px; color:#8e8e93; margin-top:3px;">${friend.realName || friend.signature || '角色'}</div>
+                        <div style="font-size:12px; color:#666; margin-top:4px; line-height:1.45;">目标绑定：${isSelected ? (currentAcc?.name || '当前ID') : (alreadyBoundAccount ? alreadyBoundAccount.name : '未绑定')}</div>
+                    </div>
+                </div>
+                <div style="width:22px; height:22px; border-radius:50%; border:1px solid ${isSelected ? '#007aff' : '#c7c7cc'}; background:${isSelected ? '#007aff' : 'transparent'}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; flex-shrink:0;">
+                    ${isSelected ? '<i class="fas fa-check"></i>' : ''}
+                </div>
+            </div>
+        `;
+
+        item.addEventListener('click', () => {
+            const friendId = String(friend.id);
+            if (tempBoundRoleIds.includes(friendId)) {
+                tempBoundRoleIds = tempBoundRoleIds.filter(id => id !== friendId);
+            } else {
+                tempBoundRoleIds.push(friendId);
+            }
+            renderBindRoleListFromDraft();
+        });
+
+        bindRoleList.appendChild(item);
+    });
+
+    if (bindRoleSheetAccountDesc && currentAcc) {
+        bindRoleSheetAccountDesc.textContent = `已选择 ${tempBoundRoleIds.length} 个角色`;
+    }
+}
+
 function renderAccountList() {
     if(!UI.lists.accounts) return;
     UI.lists.accounts.innerHTML = '';
@@ -185,6 +347,7 @@ function renderAccountList() {
             if (e.target.classList.contains('delete-icon') || e.target.closest('.delete-icon')) return;
 
             currentAccountId = acc.id;
+            if (window.setCurrentAccountId) window.setCurrentAccountId(acc.id);
             renderAccountList(); // Refresh highlighting
             
             isCreatingNewAccount = false;
@@ -205,6 +368,7 @@ function renderAccountList() {
                 accounts = accounts.filter(a => a.id !== acc.id);
                 if (currentAccountId === acc.id) {
                     currentAccountId = accounts.length > 0 ? accounts[0].id : null;
+                    if (window.setCurrentAccountId) window.setCurrentAccountId(currentAccountId);
                     const nextAccount = accounts.find(a => a.id === currentAccountId);
                     userState.name = nextAccount?.name || '';
                     userState.phone = nextAccount?.phone || '';
@@ -219,7 +383,48 @@ function renderAccountList() {
 
         UI.lists.accounts.appendChild(card);
     });
+    updateBindRoleEntryPoints();
 }
+
+if (bindRoleSheet) {
+    bindRoleSheet.addEventListener('click', (e) => {
+        if (e.target === bindRoleSheet) closeView(bindRoleSheet);
+    });
+}
+
+if (bindRoleBtn) {
+    bindRoleBtn.addEventListener('click', () => {
+        updateBindRoleEntryPoints();
+        const count = currentAccountId ? getRolesBoundToCurrentAccount().length : 0;
+        showToast(currentAccountId ? `当前 ID 已绑定 ${count} 个角色` : '请先选择一个 Apple ID');
+    });
+}
+
+if (confirmBindRoleBtn) {
+    confirmBindRoleBtn.addEventListener('click', () => {
+        const roles = getBindableRoles();
+        const selectedIds = new Set(tempBoundRoleIds.map(String));
+
+        roles.forEach(friend => {
+            if (selectedIds.has(String(friend.id))) {
+                friend.boundAccountId = currentAccountId || null;
+            } else if (String(friend.boundAccountId || '') === String(currentAccountId || '')) {
+                friend.boundAccountId = null;
+            }
+        });
+
+        if (window.imApp?.saveFriends) window.imApp.saveFriends();
+        if (window.imApp?.updateChatBindIdLabel && window.imData?.currentSettingsFriend) {
+            window.imApp.updateChatBindIdLabel(window.imData.currentSettingsFriend);
+        }
+        updateBindRoleEntryPoints();
+        showToast('角色绑定已更新');
+        closeView(bindRoleSheet);
+    });
+}
+
+window.updateBindRoleEntryPoints = updateBindRoleEntryPoints;
+window.renderBindRoleList = renderBindRoleList;
 
 // ==========================================
 // 8.5 DATA MANAGEMENT (Export / Import / Clear)

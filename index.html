@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="tiktok/tiktok.css?v=1.0.2">
     <link rel="stylesheet" href="bstage.css?v=1.0.0">
     <link rel="stylesheet" href="x_app.css?v=1.0.0">
+    <link rel="stylesheet" href="diary.css?v=1.0.0">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -184,8 +185,8 @@
 
                         <!-- App 1 & App 2 (Left side of Row 3) -->
                         <div class="app-item" style="cursor: pointer;">
-                            <div class="app-icon icon-placeholder" id="app-icon-5" style="background: #e5e5ea; display: flex; justify-content: center; align-items: center;"></div>
-                            <span class="app-name">App</span>
+                            <div class="app-icon icon-placeholder" id="app-icon-5" style="background: #000000; color: #ffffff; display: flex; justify-content: center; align-items: center; border: 1px solid #1c1c1e;"><i class="fas fa-book" style="color: #ffffff; font-size: 30px;"></i></div>
+                            <span class="app-name">Diary</span>
                         </div>
                         <div class="app-item" style="cursor: pointer;">
                             <div class="app-icon icon-placeholder" id="app-icon-6" style="background: #e5e5ea; display: flex; justify-content: center; align-items: center;"></div>
@@ -1335,6 +1336,11 @@
                     <div class="sheet-action confirm-action" id="switch-account-btn" style="margin-top: 30px;">
                         <i class="fas fa-users"></i> Switch Account
                     </div>
+                    <div class="sheet-action confirm-action" id="bind-role-btn" style="margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <i class="fas fa-link"></i>
+                        <span>绑定角色</span>
+                        <span id="bind-role-btn-count" style="font-size: 13px; color: rgba(255,255,255,0.75);"></span>
+                    </div>
                 </div>
 
                 <!-- Account Switcher Bottom Sheet -->
@@ -1398,6 +1404,25 @@
                                 </div>
                                 
                                 <div class="sheet-action confirm-action" id="confirm-sync-btn">确认保存</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bind Roles Bottom Sheet -->
+                    <div class="bottom-sheet-overlay detail-sheet-overlay" id="bind-role-sheet" style="z-index: 560;">
+                        <div class="bottom-sheet" style="height: 75%; display: flex; flex-direction: column;">
+                            <div class="sheet-handle"></div>
+                            <div class="sheet-title">绑定角色</div>
+                            <div style="padding: 0 16px 12px; text-align: center; color: #8e8e93; font-size: 13px;">
+                                <div id="bind-role-sheet-account-name" style="font-size: 16px; color: #000; font-weight: 600; margin-bottom: 4px;">当前 ID</div>
+                                <div id="bind-role-sheet-account-desc">已绑定 0 个角色</div>
+                            </div>
+                            <div class="detail-sheet-content" style="flex: 1; overflow-y: auto; padding: 0 16px 16px;">
+                                <div id="bind-role-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                                <div id="bind-role-empty" style="display:none; text-align:center; color:#8e8e93; padding: 24px 16px;">暂无可绑定角色</div>
+                            </div>
+                            <div style="padding: 0 16px 20px; flex-shrink: 0;">
+                                <div class="sheet-action confirm-action" id="confirm-bind-role-btn" style="background-color: #1c1c1e; color: #fff; margin: 0;">保存</div>
                             </div>
                         </div>
                     </div>
@@ -1522,6 +1547,99 @@
 
                         
                         <div class="sheet-action confirm-action" id="confirm-char-persona-btn">确认</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- DIARY APP VIEW -->
+            <!-- ========================================== -->
+            <div class="app-view diary-view" id="diary-view">
+                <!-- 1. 档案夹主界面 (Folders) -->
+                <div class="diary-folders-page" id="diary-folders-page">
+                    <div class="diary-home-topbar">
+                        <button class="diary-home-back-btn" id="diary-home-back-btn" aria-label="Back">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                    </div>
+                    <div class="diary-header-large diary-home-title">
+                        Diary
+                    </div>
+                    <div class="diary-icloud-title">iCloud</div>
+                    <div class="diary-list-container">
+                        <div class="diary-list-content" id="diary-folder-list">
+                            <!-- Folders will be injected here -->
+                        </div>
+                    </div>
+                    
+                    <div class="diary-bottom-bar diary-bottom-bar-floating">
+                        <button class="diary-bottom-pill" type="button">
+                            <i class="fas fa-search"></i>
+                            <span>搜尋</span>
+                        </button>
+                        <button class="diary-fab-btn" id="diary-new-entry-btn" type="button" aria-label="New entry">
+                            <i class="far fa-edit"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2. 文件夹内容界面 (Notes List) -->
+                <div class="diary-notes-page" id="diary-notes-page" style="display: none;">
+                    <div class="diary-nav-bar">
+                        <div class="diary-nav-back" id="diary-notes-back">
+                            <i class="fas fa-chevron-left" style="margin-right: 5px;"></i>
+                        </div>
+                        <div class="diary-nav-right">
+                            <div class="diary-nav-icon"><i class="fas fa-ellipsis-h"></i></div>
+                        </div>
+                    </div>
+                    <div class="diary-header-large" id="diary-notes-title" style="padding-top: 10px; margin-bottom: 5px;">
+                        備忘錄
+                    </div>
+                    <div class="diary-notes-count" id="diary-notes-count" style="padding: 0 20px; font-size: 13px; color: #8e8e93; margin-bottom: 20px;">
+                        0 則備忘錄
+                    </div>
+                    
+                    <div class="diary-notes-list" id="diary-notes-list" style="flex: 1; overflow-y: auto; padding-bottom: 80px;">
+                        <!-- Notes will be injected here grouped by date -->
+                    </div>
+
+                    <div class="diary-bottom-bar diary-bottom-bar-floating">
+                        <button class="diary-bottom-pill" type="button">
+                            <i class="fas fa-search"></i>
+                            <span>搜尋</span>
+                        </button>
+                        <button class="diary-fab-btn" id="diary-new-note-btn" type="button" aria-label="New note">
+                            <i class="far fa-edit"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. 编辑界面 (Edit) -->
+                <div class="diary-edit-page" id="diary-edit-page" style="display: none;">
+                    <div class="diary-nav-bar">
+                        <div class="diary-nav-back" id="diary-edit-back">
+                            <i class="fas fa-chevron-left" style="margin-right: 5px;"></i>
+                        </div>
+                        <div class="diary-nav-right">
+                            <div class="diary-nav-icon"><i class="fas fa-share-square"></i></div>
+                            <div class="diary-nav-icon"><i class="fas fa-ellipsis-h"></i></div>
+                            <div class="diary-nav-icon diary-nav-done" id="diary-edit-done"><i class="fas fa-check"></i></div>
+                        </div>
+                    </div>
+                    
+                    <div class="diary-editor-area">
+                        <div class="diary-editor-date" id="diary-editor-date">2026年3月20日 下午3:20</div>
+                        <textarea id="diary-editor-input" class="diary-editor-input" placeholder="输入内容..."></textarea>
+                    </div>
+                    
+                    <div class="diary-editor-toolbar">
+                        <div class="diary-tool-btn"><i class="fas fa-font"></i></div>
+                        <div class="diary-tool-btn"><i class="fas fa-list-ul"></i></div>
+                        <div class="diary-tool-btn"><i class="fas fa-table"></i></div>
+                        <div class="diary-tool-btn"><i class="fas fa-paperclip"></i></div>
+                        <div class="diary-tool-btn"><i class="fas fa-pencil-alt"></i></div>
+                        <div class="diary-tool-btn"><i class="fas fa-camera"></i></div>
                     </div>
                 </div>
             </div>
@@ -1920,7 +2038,7 @@
                                 <div class="tk-ptab" data-target="liked"><i class="far fa-heart"></i></div>
                                 <div class="tk-ptab-indicator" style="width: 25%;"></div>
                             </div>
-
+       
                             <!-- Profile Grid Content -->
                             <div class="tk-profile-grid" id="tk-profile-grid">
                                 <!-- Grid items injected here -->
@@ -2943,7 +3061,7 @@
                     </div>
                     
                     <div class="detail-sheet-content" style="flex: 1; overflow-y: auto; padding: 0; background: #f2f2f7;">
-                        <div style="background: #fff; margin-top: 20px; padding: 15px 16px; display: flex; align-items: center; gap: 15px;">
+                        <div style="background: #fff; margin: 20px 16px 0; padding: 15px 16px; display: flex; align-items: center; gap: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
                             <!-- Group Avatar -->
                             <div class="edit-avatar-wrapper detail-avatar-wrapper" id="group-avatar-wrapper" style="margin: 0; width: 60px; height: 60px; flex-shrink: 0; cursor: pointer;">
                                 <div class="edit-avatar" id="group-avatar-preview" style="width: 100%; height: 100%; border-radius: 50%; background: #e5e5ea; display: flex; justify-content: center; align-items: center; color: #8e8e93; font-size: 24px; border: none; overflow: hidden;">
@@ -2960,9 +3078,9 @@
                         </div>
 
                         <!-- Select Members List -->
-                        <div style="margin-top: 20px;">
-                            <div style="padding: 0 16px 8px; font-size: 13px; color: #8e8e93; text-transform: uppercase;">Select Members</div>
-                            <div id="create-group-members-list" style="background: #fff; display: flex; flex-direction: column;">
+                        <div style="margin-top: 20px; padding: 0 16px 20px;">
+                            <div style="padding: 0 0 8px; font-size: 13px; color: #8e8e93; text-transform: uppercase;">Select Members</div>
+                            <div id="create-group-members-list" style="background: #fff; display: flex; flex-direction: column; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
                                 <!-- Members injected via JS -->
                             </div>
                         </div>
@@ -3065,12 +3183,12 @@
 
             <!-- Group Context Settings Bottom Sheet -->
             <div class="bottom-sheet-overlay detail-sheet-overlay" id="group-context-settings-sheet" style="z-index: 650;">
-                <div class="bottom-sheet" style="height: auto; max-height: 55%; display: flex; flex-direction: column;">
+                <div class="bottom-sheet" style="height: auto; max-height: 65%; display: flex; flex-direction: column;">
                     <div class="sheet-handle" style="flex-shrink: 0;"></div>
                     <div class="sheet-title" style="flex-shrink: 0;">群聊上下文</div>
-                    <div class="detail-sheet-content" style="padding-bottom: max(20px, env(safe-area-inset-bottom));">
+                    <div class="detail-sheet-content" style="flex: 1; overflow-y: auto; padding-bottom: max(20px, env(safe-area-inset-bottom));">
                         <div class="settings-group fully-rounded" style="margin: 10px 16px; overflow: visible;">
-                            <div class="form-item" style="justify-content: space-between; border-bottom: none;">
+                            <div class="form-item" style="justify-content: space-between; border-bottom: 1px solid var(--separator-color);">
                                 <label style="width: auto; font-size: 17px; color: #000; padding-left: 0;">上下文</label>
                                 <div style="display: flex; align-items: center; gap: 10px;">
                                     <input type="number" id="group-context-limit-input" style="width: 56px; text-align: center; border: 1px solid #e5e5ea; border-radius: 8px; padding: 4px; font-size: 15px;" value="50" min="1">
@@ -3079,6 +3197,22 @@
                                         <span class="slider"></span>
                                     </label>
                                 </div>
+                            </div>
+                            
+                            <!-- 群聊自动总结折叠开关 (无图标) -->
+                            <div class="form-item" style="justify-content: space-between; border-bottom: none; transition: border-radius 0.2s;" id="group-summary-header">
+                                <label style="width: auto; font-size: 17px; color: #000; padding-left: 0;">自动总结</label>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <input type="number" id="group-summary-limit-input" style="width: 56px; text-align: center; border: 1px solid #e5e5ea; border-radius: 8px; padding: 4px; font-size: 15px;" value="50" min="1">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="group-summary-enabled-toggle">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <!-- 群聊自动总结展开的输入框 -->
+                            <div id="group-summary-body" style="display: none; padding: 0 16px 16px 16px; background: #fff; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;">
+                                <textarea id="group-summary-prompt-input" class="tall-input" style="height: 120px; background: #f2f2f7; border-radius: 10px; padding: 12px; font-size: 14px; width: 100%; box-sizing: border-box; border: none; outline: none; resize: none;" placeholder="输入自动总结提示词..."></textarea>
                             </div>
                         </div>
 
@@ -3230,6 +3364,12 @@
                                     <div class="settings-text">编辑角色资料</div>
                                     <i class="fas fa-chevron-right arrow"></i>
                                 </div>
+                                <div class="settings-item" id="chat-bind-id-btn">
+                                    <div class="settings-icon" style="background-color: #34c759;"><i class="fas fa-id-card"></i></div>
+                                    <div class="settings-text">绑定ID</div>
+                                    <span id="chat-bind-id-label" style="font-size: 13px; color: #8e8e93; margin-right: 4px;"></span>
+                                    <i class="fas fa-chevron-right arrow"></i>
+                                </div>
                                 <div class="settings-item" id="world-book-btn">
                                     <div class="settings-icon" style="background-color: #1c1c1e;"><i class="fas fa-book"></i></div>
                                     <div class="settings-text">绑定世界书</div>
@@ -3375,6 +3515,24 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bind Account Sheet -->
+            <div class="bottom-sheet-overlay detail-sheet-overlay" id="bind-account-sheet" style="z-index: 650;">
+                <div class="bottom-sheet" style="height: 70%; display: flex; flex-direction: column;">
+                    <div class="sheet-handle"></div>
+                    <div class="sheet-title">绑定ID</div>
+                    <div style="padding: 0 16px 12px; text-align: center; color: #8e8e93; font-size: 13px;">
+                        选择后，此角色聊天时 AI 将读取该 ID 的人设
+                    </div>
+                    <div class="detail-sheet-content" style="flex: 1; overflow-y: auto; padding: 0 16px 16px;">
+                        <div id="bind-account-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                        <div id="bind-account-empty" style="display:none; text-align:center; color:#8e8e93; padding: 24px 16px;">暂无可用 ID，请先在 Apple ID 中创建账号</div>
+                    </div>
+                    <div style="padding: 0 16px 20px; flex-shrink: 0;">
+                        <div class="sheet-action confirm-action" id="confirm-bind-account-btn" style="background-color: #1c1c1e; color: #fff; margin: 0;">确认绑定</div>
                     </div>
                 </div>
             </div>
@@ -4024,13 +4182,22 @@
     <script src="imessage/1_data.js"></script>
     <script src="imessage/2_core.js"></script>
     <script src="imessage/3_contacts.js"></script>
-    <script src="imessage/4_chat.js"></script>
+    <script src="imessage/4_chat_common.js"></script>
+    <script src="imessage/4_chat_status.js"></script>
+    <script src="imessage/4_chat_payment.js"></script>
+    <script src="imessage/4_chat_bubbles.js"></script>
+    <script src="imessage/4_chat_ai.js"></script>
+    <script src="imessage/4_chat_sheet.js"></script>
+    <script src="imessage/4_chat_list.js"></script>
+    <script src="imessage/4_chat_interface.js"></script>
+    <script src="imessage/4_chat_main.js"></script>
     <script src="imessage/5_settings.js"></script>
     <script src="imessage/6_moments.js"></script>
     
     <script src="pay.js"></script>
     <script src="bstage.js"></script>
     <script src="x_app.js"></script>
+    <script src="diary.js"></script>
     
     <!-- YouTube Scripts -->
     <script src="youtube/1_data.js"></script>

@@ -3,7 +3,7 @@
 // ==========================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    const { openView, closeView, showToast, showCustomModal } = window;
+    const { openView, closeView, showToast, showCustomModal, userState } = window;
     
     const chatSettingsSheet = document.getElementById('chat-settings-sheet');
     
@@ -15,8 +15,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const bindWorldBookList = document.getElementById('bind-world-book-list');
     const confirmBindWorldBookBtn = document.getElementById('confirm-bind-world-book-btn');
     const worldBookBtn = document.getElementById('world-book-btn');
+    const chatBindIdBtn = document.getElementById('chat-bind-id-btn');
+    const chatBindIdLabel = document.getElementById('chat-bind-id-label');
+    const bindAccountSheet = document.getElementById('bind-account-sheet');
+    const bindAccountList = document.getElementById('bind-account-list');
+    const bindAccountEmpty = document.getElementById('bind-account-empty');
+    const confirmBindAccountBtn = document.getElementById('confirm-bind-account-btn');
     
     let tempSelectedBookIds = [];
+    let tempSelectedAccountId = null;
     
     const editCharPersonaSheet = document.getElementById('edit-char-persona-sheet');
     const relationshipSheet = document.getElementById('relationship-sheet');
@@ -536,6 +543,101 @@ document.addEventListener('DOMContentLoaded', () => {
         tempRelationshipDrafts = [...currentValues, ...hiddenDrafts];
     }
 
+    function getAvailableAccounts() {
+        return typeof window.getAccounts === 'function' ? window.getAccounts() : [];
+    }
+
+    function getBoundAccountByFriend(friend) {
+        if (!friend || !friend.boundAccountId) return null;
+        const accounts = getAvailableAccounts();
+        return accounts.find(acc => String(acc.id) === String(friend.boundAccountId)) || null;
+    }
+
+    function getEffectivePersonaForFriend(friend) {
+        const boundAccount = getBoundAccountByFriend(friend);
+        if (!boundAccount) return userState.persona || '';
+        return boundAccount.signature || boundAccount.persona || '';
+    }
+
+    function getFriendsBoundToAccount(accountId) {
+        const allFriends = Array.isArray(window.imData?.friends) ? window.imData.friends : [];
+        return allFriends.filter(friend => friend && friend.type !== 'group' && String(friend.boundAccountId || '') === String(accountId));
+    }
+
+    function updateChatBindIdLabel(friend) {
+        if (!chatBindIdLabel) return;
+        const boundAccount = getBoundAccountByFriend(friend);
+        chatBindIdLabel.textContent = boundAccount ? (boundAccount.name || '已绑定') : '';
+    }
+
+    function renderBindAccountList(friend) {
+        if (!bindAccountList || !bindAccountEmpty) return;
+
+        const accounts = getAvailableAccounts();
+        bindAccountList.innerHTML = '';
+
+        const options = [
+            {
+                id: null,
+                name: '不绑定',
+                phone: '恢复为当前 Apple ID 默认人设',
+                persona: ''
+            },
+            ...accounts
+        ];
+
+        if (options.length === 1) {
+            bindAccountList.style.display = 'none';
+            bindAccountEmpty.style.display = 'block';
+            return;
+        }
+
+        bindAccountList.style.display = 'flex';
+        bindAccountEmpty.style.display = 'none';
+
+        options.forEach(acc => {
+            const isSelected = String(tempSelectedAccountId || '') === String(acc.id || '');
+            const personaText = acc.id == null
+                ? '聊天时将继续读取当前 Apple ID 人设'
+                : (acc.signature || acc.persona || '该 ID 暂无人设');
+
+            const item = document.createElement('div');
+            item.className = 'account-card';
+            item.style.padding = '10px 14px';
+            item.style.height = 'auto';
+            item.style.cursor = 'pointer';
+            item.style.borderRadius = '999px';
+            item.style.border = isSelected ? '2px solid #007aff' : '1px solid #e5e5ea';
+            item.style.boxShadow = '0 1px 6px rgba(0,0,0,0.04)';
+            item.style.background = '#fff';
+
+            item.innerHTML = `
+                <div style="display:flex; align-items:center; gap:10px; width:100%;">
+                    <div style="display:flex; align-items:center; gap:10px; flex:1; min-width:0;">
+                        <div style="width:34px; height:34px; border-radius:999px; background:${acc.id == null ? '#8e8e93' : '#34c759'}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0;">
+                            <i class="fas ${acc.id == null ? 'fa-ban' : 'fa-id-card'}"></i>
+                        </div>
+                        <div style="min-width:0; flex:1;">
+                            <div style="font-size:14px; font-weight:600; color:#000; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${acc.name || '未命名ID'}</div>
+                            <div style="font-size:11px; color:#8e8e93; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${acc.phone || personaText}</div>
+                            <div style="font-size:11px; color:#666; margin-top:2px; line-height:1.35; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">${personaText}</div>
+                        </div>
+                    </div>
+                    <div style="margin-left:auto; width:20px; height:20px; border-radius:50%; border:1px solid ${isSelected ? '#007aff' : '#c7c7cc'}; background:${isSelected ? '#007aff' : 'transparent'}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; flex-shrink:0;">
+                        ${isSelected ? '<i class="fas fa-check"></i>' : ''}
+                    </div>
+                </div>
+            `;
+
+            item.addEventListener('click', () => {
+                tempSelectedAccountId = acc.id == null ? null : acc.id;
+                renderBindAccountList(friend);
+            });
+
+            bindAccountList.appendChild(item);
+        });
+    }
+
     function setActiveChatSettingsTab(tabName) {
         const tabs = document.querySelectorAll('#chat-settings-segment .char-settings-tab');
         const panels = document.querySelectorAll('#chat-settings-sheet .char-settings-panel');
@@ -674,12 +776,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    if (bindAccountSheet) {
+        bindAccountSheet.addEventListener('click', (e) => {
+            if (e.target === bindAccountSheet) {
+                closeView(bindAccountSheet);
+            }
+        });
+    }
+
     if (worldBookBtn && bindWorldBookSheet) {
         worldBookBtn.addEventListener('click', () => {
             if (!window.imData.currentSettingsFriend) return;
             tempSelectedBookIds = [...(window.imData.currentSettingsFriend.boundBooks || [])];
             renderBindWorldBookList();
             openView(bindWorldBookSheet);
+        });
+    }
+
+    if (chatBindIdBtn && bindAccountSheet) {
+        chatBindIdBtn.addEventListener('click', () => {
+            if (!window.imData.currentSettingsFriend) return;
+            tempSelectedAccountId = window.imData.currentSettingsFriend.boundAccountId || null;
+            renderBindAccountList(window.imData.currentSettingsFriend);
+            openView(bindAccountSheet);
         });
     }
 
@@ -692,6 +811,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 showToast('世界书绑定已更新');
             }
             closeView(bindWorldBookSheet);
+        });
+    }
+
+    if (confirmBindAccountBtn) {
+        confirmBindAccountBtn.addEventListener('click', () => {
+            const friend = window.imData.currentSettingsFriend;
+            if (!friend) return;
+
+            friend.boundAccountId = tempSelectedAccountId || null;
+            if (window.imApp.saveFriends) window.imApp.saveFriends();
+            updateChatBindIdLabel(friend);
+            if (window.updateBindRoleEntryPoints) window.updateBindRoleEntryPoints();
+            showToast(friend.boundAccountId ? '角色绑定ID已更新' : '已取消绑定ID');
+            closeView(bindAccountSheet);
         });
     }
 
@@ -1214,6 +1347,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (chatMemoryCherishedInput) chatMemoryCherishedInput.value = friend.memory.cherished || '';
 
         bindChatSettingsMemoryPersistence(friend);
+        updateChatBindIdLabel(friend);
 
         const tsToggle = document.getElementById('timestamp-toggle');
         if (tsToggle) tsToggle.checked = !!friend.showTimestamp;
@@ -1699,4 +1833,8 @@ document.addEventListener('DOMContentLoaded', () => {
     window.imApp.applyFriendCss = applyFriendCss;
     window.imApp.applyAllSavedCss = applyAllSavedCss;
     window.imApp.renderRelationshipSheet = renderRelationshipSheet;
+    window.imApp.getBoundAccountByFriend = getBoundAccountByFriend;
+    window.imApp.getEffectivePersonaForFriend = getEffectivePersonaForFriend;
+    window.imApp.getFriendsBoundToAccount = getFriendsBoundToAccount;
+    window.imApp.updateChatBindIdLabel = updateChatBindIdLabel;
 });

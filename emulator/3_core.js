@@ -261,6 +261,48 @@ let pressTimer = null;
 window.isJiggleMode = false;
 let draggedElement = null;
 window.preventAppClick = false;
+const LONG_PRESS_DURATION = 480;
+const DRAG_MOVE_TOLERANCE = 10;
+
+function stopCurrentPointerDrag() {
+    if (draggedElement) draggedElement.classList.remove('dragging');
+    draggedElement = null;
+    const ghost = document.getElementById('drag-ghost');
+    if (ghost) ghost.remove();
+}
+
+function startPointerDrag(el, pointX, pointY) {
+    if (!el || el.classList.contains('empty-slot')) return;
+
+    stopCurrentPointerDrag();
+    draggedElement = el;
+    el.classList.add('dragging');
+
+    const ghost = el.cloneNode(true);
+    ghost.id = 'drag-ghost';
+    ghost.classList.remove('dragging');
+    ghost.style.position = 'fixed';
+    ghost.style.margin = '0';
+    ghost.style.zIndex = '9999';
+    ghost.style.opacity = '0.92';
+    ghost.style.pointerEvents = 'none';
+    ghost.style.transition = 'none';
+    ghost.style.willChange = 'left, top, transform';
+
+    const rect = el.getBoundingClientRect();
+    const offsetX = Math.min(Math.max(pointX - rect.left, 0), rect.width);
+    const offsetY = Math.min(Math.max(pointY - rect.top, 0), rect.height);
+
+    ghost.dataset.offsetX = offsetX;
+    ghost.dataset.offsetY = offsetY;
+    ghost.style.width = rect.width + 'px';
+    ghost.style.height = rect.height + 'px';
+    ghost.style.left = (pointX - offsetX) + 'px';
+    ghost.style.top = (pointY - offsetY) + 'px';
+    ghost.style.transform = 'scale(1.04)';
+
+    document.body.appendChild(ghost);
+}
 
 // Use capturing phase to intercept clicks
 if (homeScreen) {
@@ -282,6 +324,12 @@ if (homeScreen) {
             exitJiggleMode();
         }
     }, true);
+
+    homeScreen.addEventListener('contextmenu', (e) => {
+        if (e.target.closest('.app-item, .time-widget, .ins-profile-widget, .spotify-widget, .pet-widget, .couple-widget, .status-card-widget, .complex-music-widget, .photo-profile-widget, .diary-widget, .custom-music-widget, .main-grid, .dock, .dock-container, .pages-container')) {
+            e.preventDefault();
+        }
+    });
 }
 
 function setupDraggable(el) {
@@ -310,50 +358,31 @@ function setupDraggable(el) {
             
             // Prevent default ONLY if it's not a form element or contenteditable
             if (!e.target.closest('[contenteditable="true"]') && e.target.tagName !== 'INPUT') {
-                e.preventDefault(); 
+                e.preventDefault();
             }
-            
-            draggedElement = el;
+
             isTouchDrag = true;
-            setTimeout(() => el.classList.add('dragging'), 0);
-            
-            // Create ghost for custom pointer dragging
-            const ghost = el.cloneNode(true);
-            ghost.id = 'drag-ghost';
-            ghost.style.position = 'fixed';
-            ghost.style.margin = '0';
-            ghost.style.zIndex = '9999';
-            ghost.style.opacity = '0.9';
-            ghost.style.pointerEvents = 'none';
-            ghost.style.transform = 'scale(1.05)';
-            ghost.style.transition = 'none';
-            
-            const rect = el.getBoundingClientRect();
-            ghost.dataset.offsetX = e.clientX - rect.left;
-            ghost.dataset.offsetY = e.clientY - rect.top;
-            
-            ghost.style.left = (e.clientX - ghost.dataset.offsetX) + 'px';
-            ghost.style.top = (e.clientY - ghost.dataset.offsetY) + 'px';
-            
-            document.body.appendChild(ghost);
+            startPointerDrag(el, e.clientX, e.clientY);
             return;
         }
 
         window.preventAppClick = false;
         pressTimer = setTimeout(() => {
-            if(!isMoved) {
+            if (!isMoved) {
                 window.preventAppClick = true;
                 enterJiggleMode();
+                isTouchDrag = true;
+                startPointerDrag(el, startX, startY);
             }
-        }, 800); // 800ms to trigger jiggle mode
+        }, LONG_PRESS_DURATION);
     });
 
     // Track movement to cancel long press if they swipe
     el.addEventListener('pointermove', (e) => {
         if (!pressTimer && !isTouchDrag) return;
         moveCount++;
-        // Mobile touch jitter tolerance: Only count as movement if they moved more than 15 pixels
-        if (Math.abs(e.clientX - startX) > 15 || Math.abs(e.clientY - startY) > 15) {
+        // Mobile touch jitter tolerance: only cancel long press after clear movement
+        if (Math.abs(e.clientX - startX) > DRAG_MOVE_TOLERANCE || Math.abs(e.clientY - startY) > DRAG_MOVE_TOLERANCE) {
             isMoved = true;
             if (!window.isJiggleMode && pressTimer) {
                 clearTimeout(pressTimer);
@@ -377,10 +406,7 @@ function setupDraggable(el) {
         // End drag if we were dragging
         if (isTouchDrag && window.isJiggleMode) {
             isTouchDrag = false;
-            if(draggedElement) draggedElement.classList.remove('dragging');
-            draggedElement = null;
-            const ghost = document.getElementById('drag-ghost');
-            if(ghost) ghost.remove();
+            stopCurrentPointerDrag();
             balanceGridSlots();
             if (window.saveDesktopState) window.saveDesktopState();
         }
@@ -655,21 +681,34 @@ function enterJiggleMode() {
 
         homeScreen.appendChild(plusBtn);
         const openGallery = (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            openView(document.getElementById('widget-gallery-sheet'));
+            if (e) {
+                e.stopPropagation();
+                if (e.cancelable) e.preventDefault();
+            }
+            window.preventAppClick = false;
+            stopCurrentPointerDrag();
+            const gallerySheet = document.getElementById('widget-gallery-sheet');
+            if (gallerySheet) openView(gallerySheet);
         };
         plusBtn.addEventListener('pointerup', openGallery);
         plusBtn.addEventListener('click', openGallery);
+        plusBtn.addEventListener('touchend', openGallery, { passive: false });
         plusBtn.addEventListener('pointerdown', (e) => {
-            e.stopPropagation(); // Prevent jiggle mode exit or drag start
+            e.stopPropagation();
+            if (e.cancelable) e.preventDefault();
         });
+        plusBtn.addEventListener('touchstart', (e) => {
+            e.stopPropagation();
+            if (e.cancelable) e.preventDefault();
+        }, { passive: false });
     }
 }
 
 function exitJiggleMode() {
     window.isJiggleMode = false;
+    window.preventAppClick = false;
     document.body.classList.remove('jiggle-mode');
+    stopCurrentPointerDrag();
     const plusBtn = document.querySelector('.jiggle-plus-btn');
     if (plusBtn) plusBtn.remove();
 

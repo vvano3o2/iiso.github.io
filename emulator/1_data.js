@@ -33,7 +33,7 @@ let themeState = {
         { id: 'app-icon-2', name: 'TikTok', icon: null },
         { id: 'app-icon-3', name: 'b.stage', icon: null },
         { id: 'app-icon-4', name: 'X', icon: null },
-        { id: 'app-icon-5', name: 'App', icon: null },
+        { id: 'app-icon-5', name: 'Diary', icon: null },
         { id: 'app-icon-6', name: 'App', icon: null },
         { id: 'app-icon-7', name: 'App', icon: null },
         { id: 'app-icon-8', name: 'App', icon: null },
@@ -86,7 +86,7 @@ function loadGlobalData() {
                     // New apps migration
                     ['app-icon-5', 'app-icon-6', 'app-icon-7', 'app-icon-8'].forEach(id => {
                         if (!themeState.apps.find(a => a.id === id)) {
-                            themeState.apps.push({ id, name: 'App', icon: null });
+                            themeState.apps.push({ id, name: id === 'app-icon-5' ? 'Diary' : 'App', icon: null });
                         }
                     });
                 }
@@ -127,6 +127,12 @@ function saveGlobalData() {
     }
 }
 window.saveGlobalData = saveGlobalData;
+window.getAccounts = () => accounts;
+window.getCurrentAccountId = () => currentAccountId;
+window.setCurrentAccountId = (id) => {
+    currentAccountId = id;
+    return currentAccountId;
+};
 
 // Load at startup
 loadGlobalData();

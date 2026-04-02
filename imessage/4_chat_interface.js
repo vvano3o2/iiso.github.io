@@ -1,0 +1,736 @@
+
+// ==========================================
+// IMESSAGE: 4_chat_interface.js
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    const { apiConfig, userState } = window;
+    window.imChat = window.imChat || {};
+    const imChat = window.imChat;
+
+function openChatTab(friend) {
+        const chatsContent = document.getElementById('chats-content');
+        const navChatsBtn = document.getElementById('nav-chats-btn');
+
+        window.imData.currentActiveFriend = friend;
+        let pageId = `chat-interface-${friend.id}`;
+        let page = document.getElementById(pageId);
+
+        if (page) {
+            const msgContainer = page.querySelector('.ins-chat-messages');
+            if (msgContainer) msgContainer.innerHTML = '';
+        }
+
+        if (!page) {
+            page = document.createElement('div');
+            page.id = pageId;
+            page.className = 'active-chat-interface';
+            page.style.display = 'none';
+            page.style.position = 'relative';
+            
+            let avatarHtml;
+            if (friend.type === 'group') {
+                avatarHtml = friend.avatarUrl 
+                    ? `<img src="${friend.avatarUrl}" style="display: block;">` 
+                    : `<div style="width: 100%; height: 100%; background: linear-gradient(135deg, #ff9a9e, #fecfef); color: white; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 20px;">${friend.nickname.charAt(0).toUpperCase()}</div>`;
+            } else {
+                avatarHtml = friend.avatarUrl 
+                    ? `<img src="${friend.avatarUrl}" style="display: block;">` 
+                    : `<i class="fas fa-user"></i>`;
+            }
+
+            const headerStyle = friend.type === 'group' 
+                ? `position: relative; top: 0; padding: 0 16px; align-items: center; justify-content: space-between; display: flex; pointer-events: none; width: 100%;`
+                : `position: relative; top: 0; padding: 0 16px; align-items: center;`;
+                
+            const titleHtml = friend.type === 'group' 
+                ? `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 0; padding: 4px 16px; background: rgba(242, 242, 247, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); pointer-events: auto;">
+                        <div class="ins-chat-name" style="font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">${friend.nickname}</div>
+                        <div class="ins-chat-sign" style="font-size: 11px; font-weight: 500; color: #8e8e93; margin-top: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 4px;">${(friend.members ? friend.members.length : 0) + 1} member${(friend.members ? friend.members.length : 0) + 1 > 1 ? 's' : ''}</div>
+                   </div>`
+                : `<div style="position: relative; display: inline-block;">
+                        <div class="ins-chat-avatar" style="margin: 0; width: 44px; height: 44px;">
+                            ${avatarHtml}
+                        </div>
+                   </div>
+                   <div style="display: flex; flex-direction: column; justify-content: center;">
+                        <div class="ins-chat-name" style="font-size: 18px; line-height: 1.2;">${friend.nickname}</div>
+                        <div class="ins-chat-sign" style="font-size: 13px; color: #8e8e93; display: flex; align-items: center; gap: 4px;">在线</div>
+                   </div>`;
+
+            // Make the right avatar a floating bubble as well
+            const groupRightAvatarHtml = friend.type === 'group'
+                ? `<div class="group-header-right-avatar" style="width: 36px; height: 36px; border-radius: 50%; background: rgba(242, 242, 247, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; justify-content: center; align-items: center; overflow: hidden; flex-shrink: 0; pointer-events: auto; cursor: pointer;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; display: flex; justify-content: center; align-items: center; background: #e5e5ea;">${avatarHtml}</div>
+                   </div>`
+                : `<div class="chat-call-btn" style="cursor: pointer; padding: 5px; font-size: 18px;"><i class="fas fa-phone-alt"></i></div>
+                   <div class="chat-menu-btn" style="cursor: pointer; padding: 5px; font-size: 18px;"><i class="fas fa-bars"></i></div>
+                   <div class="chat-cancel-batch-btn" style="display:none; cursor: pointer; padding: 5px; color: #007aff; font-size: 16px; font-weight: 500;">取消</div>`;
+
+            const backBtnHtml = friend.type === 'group'
+                ? `<div class="chat-back-btn" style="cursor: pointer; width: 36px; height: 36px; background: rgba(242, 242, 247, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; justify-content: center; align-items: center; pointer-events: auto;">
+                        <i class="fas fa-chevron-left" style="pointer-events: none; margin-right: 2px;"></i>
+                   </div>`
+                : `<div class="chat-back-btn" style="cursor: pointer; padding: 5px 0 5px 0; width: 24px; display: flex; justify-content: center; align-items: center;"><i class="fas fa-chevron-left" style="pointer-events: none;"></i></div>`;
+
+            let topBarHtml = '';
+            if (friend.type === 'group') {
+                topBarHtml = `
+                    <div class="chat-top-bar" style="${headerStyle}">
+                        ${backBtnHtml}
+                        <div style="display: flex; align-items: center; justify-content: center; flex: 1; pointer-events: none;" class="ins-chat-header" id="active-chat-header">
+                            ${titleHtml}
+                        </div>
+                        <div id="active-chat-right-avatar-container">
+                            ${groupRightAvatarHtml}
+                        </div>
+                    </div>
+                `;
+            } else {
+                topBarHtml = `
+                    <div class="chat-top-bar" style="${headerStyle}; padding-left: 8px;">
+                        <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+                            ${backBtnHtml}
+                            <div style="display: flex; align-items: center; justify-content: flex-start; flex: 1; cursor: pointer; pointer-events: auto;" class="ins-chat-header">
+                                ${titleHtml}
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            ${groupRightAvatarHtml}
+                        </div>
+                    </div>
+                `;
+            }
+
+            page.innerHTML = `
+                <div class="chat-sticky-container" style="${friend.type === 'group' ? 'background: transparent; padding-bottom: 5px; pointer-events: none;' : 'background-color: #ffffff; border-bottom: 1px solid #f2f2f7; padding-bottom: 5px;'}">
+                    ${topBarHtml}
+                </div>
+                <div class="ins-chat-messages"></div>
+                <div class="ins-chat-input-container">
+                    <div class="reply-preview-container" style="display:none; padding: 10px 14px; background: #f2f2f7; border-radius: 18px; margin-bottom: 10px; font-size: 13px; color: #8e8e93; position: relative; margin-left: 10px; margin-right: 10px; max-width: fit-content; border: 1px solid #e5e5ea; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div class="reply-preview-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 24px; color: #333; max-width: 250px;"></div>
+                        <div class="reply-cancel-btn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; border-radius: 50%; background: #ccc; color: #fff; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 10px;"><i class="fas fa-times"></i></div>
+                    </div>
+                    <div class="ins-chat-input-wrapper">
+                        <div class="ins-input-icon plus-btn"><i class="fas fa-plus"></i></div>
+                        <input type="text" placeholder="发送消息..." class="ins-message-input chat-input">
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <div class="send-btn-icon send-btn"><i class="fas fa-paper-plane"></i></div>
+                            <div class="send-btn-icon mic-btn"><i class="fas fa-microphone"></i></div>
+                        </div>
+                    </div>
+                    <div class="chat-batch-action-bar" style="display:none; justify-content: space-between; align-items: center; padding: 15px 40px; padding-bottom: max(15px, env(safe-area-inset-bottom)); background: rgba(242, 242, 247, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid rgba(0,0,0,0.1); position: absolute; bottom: 0; left: 0; width: 100%; z-index: 100; box-sizing: border-box;">
+                        <i class="fas fa-share batch-forward-btn" style="font-size: 22px; color: #8e8e93; cursor: pointer;"></i>
+                        <i class="far fa-star batch-star-btn" style="font-size: 22px; color: #8e8e93; cursor: pointer;"></i>
+                        <i class="far fa-trash-alt batch-delete-btn" style="font-size: 22px; color: #ff3b30; cursor: pointer;"></i>
+                    </div>
+                </div>
+                <div class="pay-transfer-detail-overlay" style="display:none; position:absolute; inset:0; z-index:1200; background:rgba(0,0,0,0.28); align-items:center; justify-content:center; padding:20px; box-sizing:border-box;">
+                    <div class="pay-transfer-detail-card" style="width:100%; max-width:320px; border-radius:28px; background:rgba(255,255,255,0.96); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); box-shadow:0 18px 45px rgba(0,0,0,0.18); padding:20px 18px 16px; box-sizing:border-box;">
+                        <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+                            <div class="pay-transfer-detail-avatar" style="width:52px; height:52px; border-radius:50%; overflow:hidden; background:#e5e5ea; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                <i class="fas fa-user" style="color:#8e8e93; font-size:20px;"></i>
+                            </div>
+                            <div style="min-width:0;">
+                                <div class="pay-transfer-detail-name" style="font-size:17px; font-weight:700; color:#111; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">付款人</div>
+                                <div style="font-size:12px; color:#8e8e93; margin-top:3px;">向你转账</div>
+                            </div>
+                        </div>
+                        <div class="pay-transfer-detail-amount" style="font-size:34px; line-height:1.1; font-weight:800; color:#111; text-align:center; margin:8px 0 10px;">¥0.00</div>
+                        <div class="pay-transfer-detail-desc" style="font-size:14px; color:#666; text-align:center; line-height:1.5; min-height:21px; margin-bottom:18px;">转账说明</div>
+                        <div style="border-radius:18px; background:#f7f7fa; padding:12px 14px; margin-bottom:16px;">
+                            <div style="font-size:12px; color:#8e8e93; margin-bottom:6px;">转账详情</div>
+                            <div class="pay-transfer-detail-summary" style="font-size:14px; color:#222; line-height:1.5;">付款人向你转账</div>
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            <button type="button" class="pay-transfer-detail-reject-btn" style="flex:1; height:46px; border:none; border-radius:16px; background:#f2f2f7; color:#666; font-size:16px; font-weight:600; cursor:pointer;">退回</button>
+                            <button type="button" class="pay-transfer-detail-claim-btn" style="flex:1; height:46px; border:none; border-radius:16px; background:#111; color:#fff; font-size:16px; font-weight:700; cursor:pointer;">收下</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            if(chatsContent) chatsContent.appendChild(page);
+
+            const backBtn = page.querySelector('.chat-back-btn');
+            if (backBtn) {
+                backBtn.addEventListener('click', () => {
+                    window.imData.currentActiveFriend = null;
+                    window.imChat.updateChatsView();
+                });
+            }
+
+            const cancelBatchBtn = page.querySelector('.chat-cancel-batch-btn');
+            const menuBtn = page.querySelector('.chat-menu-btn');
+            const callBtn = page.querySelector('.chat-call-btn');
+            const batchActionBar = page.querySelector('.chat-batch-action-bar');
+            const inputWrapper = page.querySelector('.ins-chat-input-wrapper');
+            const batchDeleteBtn = page.querySelector('.batch-delete-btn');
+            const transferDetailOverlay = page.querySelector('.pay-transfer-detail-overlay');
+            const transferDetailAvatar = page.querySelector('.pay-transfer-detail-avatar');
+            const transferDetailName = page.querySelector('.pay-transfer-detail-name');
+            const transferDetailAmount = page.querySelector('.pay-transfer-detail-amount');
+            const transferDetailDesc = page.querySelector('.pay-transfer-detail-desc');
+            const transferDetailSummary = page.querySelector('.pay-transfer-detail-summary');
+            const transferDetailRejectBtn = page.querySelector('.pay-transfer-detail-reject-btn');
+            const transferDetailClaimBtn = page.querySelector('.pay-transfer-detail-claim-btn');
+            let pendingTransferMsg = null;
+
+            function exitBatchSelectMode() {
+                window.imData.batchSelectMode = false;
+                if (cancelBatchBtn) cancelBatchBtn.style.display = 'none';
+                if (menuBtn) menuBtn.style.display = 'block';
+                if (callBtn) callBtn.style.display = 'block';
+                if (batchActionBar) batchActionBar.style.display = 'none';
+                if (inputWrapper) inputWrapper.style.display = 'flex';
+
+                const checkboxes = page.querySelectorAll('.chat-checkbox-wrapper');
+                checkboxes.forEach(cb => {
+                    cb.style.display = 'none';
+                    const icon = cb.querySelector('i');
+                    if (icon) {
+                        icon.className = 'far fa-circle';
+                        icon.style.color = '#c7c7cc';
+                    }
+                });
+            }
+
+            function closeTransferDetailOverlay() {
+                pendingTransferMsg = null;
+                if (transferDetailOverlay) transferDetailOverlay.style.display = 'none';
+            }
+
+            function openTransferDetailOverlay(targetMsg) {
+                if (!transferDetailOverlay || !targetMsg) return;
+
+                pendingTransferMsg = targetMsg;
+                const senderName = friend.nickname || friend.realName || '对方';
+                const amount = Number(targetMsg.amount) || 0;
+                const description = targetMsg.description || '转账';
+
+                if (transferDetailName) transferDetailName.textContent = senderName;
+                if (transferDetailAmount) transferDetailAmount.textContent = `¥${amount.toFixed(2)}`;
+                if (transferDetailDesc) transferDetailDesc.textContent = description;
+                if (transferDetailSummary) transferDetailSummary.textContent = `${senderName} 向你转账，备注：${description}`;
+
+                if (transferDetailAvatar) {
+                    if (friend.avatarUrl) {
+                        transferDetailAvatar.innerHTML = `<img src="${friend.avatarUrl}" style="width:100%; height:100%; object-fit:cover; display:block;">`;
+                    } else {
+                        transferDetailAvatar.innerHTML = `<i class="fas fa-user" style="color:#8e8e93; font-size:20px;"></i>`;
+                    }
+                }
+
+                transferDetailOverlay.style.display = 'flex';
+            }
+
+            page._openTransferDetailOverlay = openTransferDetailOverlay;
+            page._closeTransferDetailOverlay = closeTransferDetailOverlay;
+            window.imChat.ensureRedPacketDetailOverlayForExistingPage(page, friend);
+
+            if (callBtn) {
+                callBtn.addEventListener('click', () => {
+                    if (window.showCustomModal) {
+                        window.showCustomModal({
+                            title: '选择通话方式',
+                            message: '请选择你想与对方进行的通话类型',
+                            confirmText: '视频通话',
+                            cancelText: '语音通话',
+                            onConfirm: () => {
+                                if(window.showToast) window.showToast('视频通话功能开发中...');
+                            },
+                            onCancel: () => {
+                                if(window.showToast) window.showToast('语音通话功能开发中...');
+                            }
+                        });
+                    } else if(window.showToast) {
+                        window.showToast('通话功能暂未开放');
+                    }
+                });
+            }
+
+            if (cancelBatchBtn) {
+                cancelBatchBtn.addEventListener('click', () => {
+                    exitBatchSelectMode();
+                });
+            }
+
+            if (batchDeleteBtn) {
+                batchDeleteBtn.addEventListener('click', () => {
+                    const selectedIcons = page.querySelectorAll('.chat-checkbox-wrapper i.fa-check-circle');
+                    const selected = Array.from(selectedIcons).map(icon => icon.getAttribute('data-timestamp'));
+                    if (selected.length === 0) {
+                        if(window.showToast) window.showToast('请选择要删除的消息');
+                        return;
+                    }
+                    if (window.showCustomModal) {
+                        window.showCustomModal({
+                            title: '删除消息',
+                            message: `确定要删除选中的 ${selected.length} 条消息吗？`,
+                            confirmText: '删除',
+                            cancelText: '取消',
+                            onConfirm: () => {
+                                friend.messages = friend.messages.filter(m => !selected.includes(String(m.timestamp)));
+                                if(window.imApp.saveFriends) window.imApp.saveFriends();
+                                const container = page.querySelector('.ins-chat-messages');
+                                if(container) {
+                                    container.innerHTML = '';
+                                    window.imChat.renderChatHistory(friend, container);
+                                    window.imChat.scrollToBottom(container);
+                                }
+                                exitBatchSelectMode();
+                            }
+                        });
+                    }
+                });
+            }
+
+            const msgContainerProxy = page.querySelector('.ins-chat-messages');
+            if (msgContainerProxy) {
+                msgContainerProxy.addEventListener('click', (e) => {
+                    const row = e.target.closest('.chat-row');
+
+                    if (window.imData.batchSelectMode) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        if (row) {
+                            const icon = row.querySelector('.chat-checkbox-wrapper i');
+                            if (icon) {
+                                if (icon.classList.contains('fa-circle')) {
+                                    icon.className = 'fas fa-check-circle';
+                                    icon.style.color = '#007aff';
+                                } else {
+                                    icon.className = 'far fa-circle';
+                                    icon.style.color = '#c7c7cc';
+                                }
+                            }
+                        }
+                        return;
+                    }
+
+                    if (!row) return;
+
+                    const messageId = row.getAttribute('data-message-id');
+                    const ts = row.getAttribute('data-timestamp');
+                    if ((!messageId && !ts) || !friend.messages) return;
+
+                    const msg = friend.messages.find(item => {
+                        if (messageId && String(item.id) === String(messageId)) return true;
+                        return String(item.timestamp) === String(ts);
+                    });
+                    if (!msg || msg.type !== 'pay_transfer' || msg.payKind !== 'char_to_user_pending') return;
+
+                    const bubble = e.target.closest('.chat-bubble.pay-transfer-bubble, .pay-transfer-card');
+                    if (!bubble) return;
+
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openTransferDetailOverlay(msg);
+                }, true);
+            }
+
+            if (transferDetailOverlay) {
+                transferDetailOverlay.addEventListener('click', (e) => {
+                    if (e.target === transferDetailOverlay) {
+                        closeTransferDetailOverlay();
+                    }
+                });
+            }
+
+            if (transferDetailRejectBtn) {
+                transferDetailRejectBtn.addEventListener('click', () => {
+                    closeTransferDetailOverlay();
+                });
+            }
+
+            if (transferDetailClaimBtn) {
+                transferDetailClaimBtn.addEventListener('click', () => {
+                    const targetMsg = pendingTransferMsg;
+                    closeTransferDetailOverlay();
+                    if (targetMsg) {
+                        window.imChat.claimIncomingTransfer(friend, targetMsg);
+                    }
+                });
+            }
+
+            const replyCancelBtn = page.querySelector('.reply-cancel-btn');
+            if (replyCancelBtn) {
+                replyCancelBtn.addEventListener('click', () => {
+                    window.imData.currentReplyText = null;
+                    const preview = page.querySelector('.reply-preview-container');
+                    if(preview) preview.style.display = 'none';
+                });
+            }
+
+            // Status Bar UI Injection
+            let statusBarContainer = page.querySelector('.chat-status-bar-container');
+            if (!statusBarContainer) {
+                statusBarContainer = document.createElement('div');
+                statusBarContainer.className = 'chat-status-bar-container';
+                statusBarContainer.style.display = 'none';
+                statusBarContainer.style.position = 'absolute';
+                statusBarContainer.style.top = '50px';
+                statusBarContainer.style.left = '0';
+                statusBarContainer.style.width = '100%';
+                statusBarContainer.style.zIndex = '50';
+                statusBarContainer.style.overflowX = 'auto';
+                statusBarContainer.style.overflowY = 'hidden';
+                statusBarContainer.style.scrollSnapType = 'x mandatory';
+                statusBarContainer.style.display = 'flex';
+                statusBarContainer.style.padding = '10px 0 34px';
+                statusBarContainer.style.boxSizing = 'border-box';
+                statusBarContainer.style.gap = '0';
+                statusBarContainer.style.opacity = '0';
+                statusBarContainer.style.transition = 'opacity 0.3s';
+                statusBarContainer.style.pointerEvents = 'none';
+                statusBarContainer.style.scrollbarWidth = 'none';
+                statusBarContainer.style.msOverflowStyle = 'none';
+                statusBarContainer.style.webkitOverflowScrolling = 'touch';
+                statusBarContainer.style.scrollBehavior = 'smooth';
+                statusBarContainer.style.overscrollBehaviorX = 'contain';
+
+                const statusBarControls = document.createElement('div');
+                statusBarControls.className = 'chat-status-bar-controls';
+                statusBarControls.style.position = 'absolute';
+                statusBarControls.style.left = '50%';
+                statusBarControls.style.bottom = '6px';
+                statusBarControls.style.transform = 'translateX(-50%)';
+                statusBarControls.style.display = 'flex';
+                statusBarControls.style.alignItems = 'center';
+                statusBarControls.style.gap = '10px';
+                statusBarControls.style.opacity = '0';
+                statusBarControls.style.transition = 'opacity 0.2s';
+                statusBarControls.style.pointerEvents = 'none';
+
+                const prevBtn = document.createElement('button');
+                prevBtn.className = 'chat-status-bar-nav prev';
+                prevBtn.type = 'button';
+                prevBtn.setAttribute('aria-label', '上一页');
+                prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+
+                const statusBarPager = document.createElement('div');
+                statusBarPager.className = 'chat-status-bar-pager';
+                statusBarPager.textContent = '1/1';
+
+                const nextBtn = document.createElement('button');
+                nextBtn.className = 'chat-status-bar-nav next';
+                nextBtn.type = 'button';
+                nextBtn.setAttribute('aria-label', '下一页');
+                nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+
+                prevBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    window.imChat.goStatusBarPage(friend, statusBarContainer, -1);
+                });
+
+                nextBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    window.imChat.goStatusBarPage(friend, statusBarContainer, 1);
+                });
+
+                let statusBarScrollTimer = null;
+                statusBarContainer.addEventListener('scroll', () => {
+                    const total = statusBarContainer.querySelectorAll('.status-card-slide').length;
+                    if (total <= 0) return;
+                    const pageWidth = statusBarContainer.clientWidth || 1;
+                    const currentPage = Math.max(0, Math.min(total - 1, Math.round(statusBarContainer.scrollLeft / pageWidth)));
+                    window.imChat.setStatusBarPage(friend, currentPage);
+                    window.imChat.syncStatusBarView(friend, statusBarContainer, { scroll: false });
+
+                    if (statusBarScrollTimer) clearTimeout(statusBarScrollTimer);
+                    statusBarScrollTimer = setTimeout(() => {
+                        window.imChat.syncStatusBarView(friend, statusBarContainer, { scroll: true });
+                    }, 90);
+                });
+
+                statusBarControls.appendChild(prevBtn);
+                statusBarControls.appendChild(statusBarPager);
+                statusBarControls.appendChild(nextBtn);
+
+                // Insert right after sticky container
+                const stickyContainer = page.querySelector('.chat-sticky-container');
+                if (stickyContainer && stickyContainer.parentNode) {
+                    stickyContainer.parentNode.insertBefore(statusBarContainer, stickyContainer.nextSibling);
+                    stickyContainer.parentNode.insertBefore(statusBarControls, statusBarContainer.nextSibling);
+                }
+            }
+
+            const avatarContainer = page.querySelector('.ins-chat-avatar');
+            if (avatarContainer) {
+                avatarContainer.style.cursor = 'pointer';
+                avatarContainer.addEventListener('click', (e) => {
+                    e.stopPropagation(); // 阻止冒泡，避免触发页面的空白点击
+                    if (!friend.statusBar || !friend.statusBar.enabled) {
+                        if(window.showToast) window.showToast('该角色未启用状态栏');
+                        return;
+                    }
+                    
+                    if (statusBarContainer.style.opacity === '0' || statusBarContainer.style.pointerEvents === 'none') {
+                        if (friend.statusBar && Array.isArray(friend.statusBar.history) && friend.statusBar.history.length > 0) {
+                            window.imChat.setStatusBarPage(friend, friend.statusBar.history.length - 1);
+                        }
+                        window.imChat.renderStatusBarHistory(friend, statusBarContainer);
+                        statusBarContainer.style.display = 'flex';
+                        // 强制触发回流以保证动画生效
+                        statusBarContainer.offsetHeight;
+                        statusBarContainer.style.opacity = '1';
+                        statusBarContainer.style.pointerEvents = 'auto';
+                        const statusBarControls = page.querySelector('.chat-status-bar-controls');
+                        if (statusBarControls) {
+                            statusBarControls.style.opacity = '1';
+                            statusBarControls.style.pointerEvents = 'auto';
+                        }
+                        requestAnimationFrame(() => {
+                            window.imChat.syncStatusBarView(friend, statusBarContainer, { scroll: true, instant: true });
+                        });
+                    } else {
+                        statusBarContainer.style.opacity = '0';
+                        statusBarContainer.style.pointerEvents = 'none';
+                        const statusBarControls = page.querySelector('.chat-status-bar-controls');
+                        if (statusBarControls) {
+                            statusBarControls.style.opacity = '0';
+                            statusBarControls.style.pointerEvents = 'none';
+                        }
+                        setTimeout(() => {
+                            if (statusBarContainer.style.opacity === '0') {
+                                statusBarContainer.style.display = 'none';
+                            }
+                        }, 300);
+                    }
+                });
+            }
+
+            // 点击空白处关闭状态栏逻辑
+            page.addEventListener('click', (e) => {
+                if (statusBarContainer && statusBarContainer.style.opacity === '1') {
+                    // 如果点击的目标不在状态栏卡片内容区域内
+                    if (!e.target.closest('.status-card-custom')) {
+                        statusBarContainer.style.opacity = '0';
+                        statusBarContainer.style.pointerEvents = 'none';
+                        const statusBarControls = page.querySelector('.chat-status-bar-controls');
+                        if (statusBarControls) {
+                            statusBarControls.style.opacity = '0';
+                            statusBarControls.style.pointerEvents = 'none';
+                        }
+                        setTimeout(() => {
+                            if (statusBarContainer.style.opacity === '0') {
+                                statusBarContainer.style.display = 'none';
+                            }
+                        }, 300);
+                    }
+                }
+            });
+
+            if (friend.type === 'group') {
+                const rightAvatar = page.querySelector('.group-header-right-avatar');
+                if (rightAvatar) {
+                    rightAvatar.addEventListener('click', () => {
+                        if (window.imApp.openGroupDetails) {
+                            window.imApp.openGroupDetails(friend);
+                        }
+                    });
+                }
+                const header = page.querySelector('.ins-chat-header');
+                if (header) {
+                    header.addEventListener('click', () => {
+                        if (window.imApp.openGroupDetails) {
+                            window.imApp.openGroupDetails(friend);
+                        }
+                    });
+                }
+            }
+            
+            // Re-bind menuBtn properly for chat settings (whether single or group if needed, but per request it's mainly single chat setting missing)
+            if (menuBtn && friend.type !== 'group') {
+                menuBtn.addEventListener('click', () => {
+                    const chatSettingsSheet = document.getElementById('chat-settings-sheet');
+                    if (chatSettingsSheet) {
+                        const settingsAvatarImg = document.getElementById('chat-settings-avatar-img');
+                        const settingsAvatarIcon = document.getElementById('chat-settings-avatar-icon');
+                        const settingsName = document.getElementById('chat-settings-name');
+                        
+                        if (friend.avatarUrl) {
+                            if(settingsAvatarImg) { settingsAvatarImg.src = friend.avatarUrl; settingsAvatarImg.style.display = 'block'; }
+                            if(settingsAvatarIcon) settingsAvatarIcon.style.display = 'none';
+                        } else {
+                            if(settingsAvatarImg) { settingsAvatarImg.style.display = 'none'; settingsAvatarImg.src = ''; }
+                            if(settingsAvatarIcon) settingsAvatarIcon.style.display = 'block';
+                        }
+                        if (settingsName) settingsName.textContent = friend.nickname;
+
+                        if (window.openView) {
+                            window.openView(chatSettingsSheet);
+                        } else {
+                            chatSettingsSheet.style.display = 'flex';
+                            setTimeout(() => {
+                                chatSettingsSheet.style.opacity = '1';
+                                const bottomSheet = chatSettingsSheet.querySelector('.bottom-sheet');
+                                if(bottomSheet) bottomSheet.style.transform = 'translateY(0)';
+                            }, 10);
+                        }
+                        
+                        if(window.imApp.initChatSettingsForFriend) window.imApp.initChatSettingsForFriend(friend);
+                    }
+                });
+            }
+
+            const input = page.querySelector('.chat-input');
+            const sendBtn = page.querySelector('.send-btn');
+            const micBtn = page.querySelector('.mic-btn');
+            const plusBtn = page.querySelector('.plus-btn');
+            const msgContainer = page.querySelector('.ins-chat-messages');
+
+            if (plusBtn) {
+                plusBtn.addEventListener('click', () => {
+                    if (window.imChat.openAttachmentSheet) {
+                        window.imChat.openAttachmentSheet();
+                    }
+                });
+            }
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    window.imChat.handleSend(friend, input, msgContainer);
+                }
+            });
+
+            sendBtn.addEventListener('click', () => {
+                window.imChat.handleSend(friend, input, msgContainer);
+            });
+
+            micBtn.addEventListener('click', () => {
+                window.imChat.handleAiReply(friend, msgContainer, micBtn);
+            });
+
+            window.imChat.renderChatHistory(friend, msgContainer);
+        } else {
+             window.imChat.ensureTransferDetailOverlayForExistingPage(page, friend);
+             window.imChat.ensureRedPacketDetailOverlayForExistingPage(page, friend);
+             const msgContainer = page.querySelector('.ins-chat-messages');
+             window.imChat.renderChatHistory(friend, msgContainer);
+        }
+
+        if(window.imApp.applyFriendBg) window.imApp.applyFriendBg(friend);
+        if(window.imApp.initTimestampSetting) window.imApp.initTimestampSetting(friend);
+        
+        if(page) {
+            if(friend.showTimestamp) page.classList.add('show-timestamps');
+            else page.classList.remove('show-timestamps');
+            
+            if(friend.isPinned) page.classList.add('pinned-chat');
+            else page.classList.remove('pinned-chat');
+            
+            // Re-apply status bar css
+            if(window.imApp.applyFriendStatusBarCss) window.imApp.applyFriendStatusBarCss(friend);
+        }
+
+        if (navChatsBtn) {
+            if (navChatsBtn.classList.contains('active')) window.imChat.updateChatsView();
+            else navChatsBtn.click();
+        }
+    }
+
+function showContextMenu(row, e) {
+        const msgContextOverlay = document.getElementById('msg-context-overlay');
+        const msgContextMenu = document.getElementById('msg-context-menu');
+        
+        if (!msgContextOverlay || !msgContextMenu) return;
+        
+        if (navigator.vibrate) navigator.vibrate(50);
+        
+        window.imData.currentActiveRow = row;
+        row.classList.add('message-active');
+        
+        const bubble = row.querySelector('.chat-bubble');
+        if (!bubble) return;
+        
+        const screenEl = document.querySelector('.screen') || document.body;
+        const screenRect = screenEl.getBoundingClientRect();
+        
+        // Clone bubble into context menu
+        const bubbleClone = document.getElementById('msg-context-bubble-clone');
+        if (bubbleClone) {
+            bubbleClone.innerHTML = '';
+            const clonedBubble = bubble.cloneNode(true);
+            clonedBubble.style.margin = '0';
+            clonedBubble.style.maxWidth = '100%';
+            bubbleClone.appendChild(clonedBubble);
+        }
+        
+        // Reset more actions
+        const moreActions = document.getElementById('msg-context-more-actions');
+        const mainActions = document.getElementById('msg-context-actions');
+        if (moreActions) moreActions.style.display = 'none';
+        if (mainActions) mainActions.style.display = 'flex';
+        
+        // Determine alignment based on user/ai row
+        const isUserRow = row.classList.contains('user-row');
+        
+        msgContextOverlay.style.display = 'flex';
+        msgContextOverlay.style.opacity = '1';
+        
+        // Position the menu centered or aligned
+        const menuWidth = Math.min(screenRect.width - 32, 300);
+        msgContextMenu.style.width = menuWidth + 'px';
+        
+        if (isUserRow) {
+            msgContextMenu.style.alignItems = 'flex-end';
+            msgContextMenu.style.right = '16px';
+            msgContextMenu.style.left = 'auto';
+        } else {
+            msgContextMenu.style.alignItems = 'flex-start';
+            msgContextMenu.style.left = '16px';
+            msgContextMenu.style.right = 'auto';
+        }
+        
+        // Vertical centering: place bubble roughly at its original position
+        const bubbleRect = bubble.getBoundingClientRect();
+        const bubbleCenterY = bubbleRect.top + bubbleRect.height / 2 - screenRect.top;
+        
+        // Estimate menu total height (reaction bar ~50 + bubble + actions ~200)
+        const estimatedMenuHeight = 50 + bubbleRect.height + 220;
+        let topOffset = bubbleCenterY - estimatedMenuHeight / 2;
+        
+        // Clamp to screen bounds
+        if (topOffset < 60) topOffset = 60;
+        if (topOffset + estimatedMenuHeight > screenRect.height - 20) {
+            topOffset = screenRect.height - estimatedMenuHeight - 20;
+        }
+        if (topOffset < 60) topOffset = 60;
+        
+        msgContextMenu.style.top = topOffset + 'px';
+        
+        msgContextMenu.style.transformOrigin = isUserRow ? 'top right' : 'top left';
+        
+        requestAnimationFrame(() => {
+            msgContextMenu.style.opacity = '1';
+            msgContextMenu.style.transform = 'scale(1)';
+        });
+    }
+
+function closeContextMenu() {
+        const msgContextOverlay = document.getElementById('msg-context-overlay');
+        const msgContextMenu = document.getElementById('msg-context-menu');
+        
+        if (!msgContextOverlay || !msgContextMenu) return;
+        msgContextMenu.style.opacity = '0';
+        msgContextMenu.style.transform = 'scale(0.85)';
+        
+        if (window.imData.currentActiveRow) {
+            window.imData.currentActiveRow.classList.remove('message-active');
+            window.imData.currentActiveRow = null;
+        }
+        
+        setTimeout(() => {
+            msgContextOverlay.style.display = 'none';
+            // Clean up cloned bubble
+            const bubbleClone = document.getElementById('msg-context-bubble-clone');
+            if (bubbleClone) bubbleClone.innerHTML = '';
+        }, 250);
+    }
+
+    window.imChat.openChatTab = openChatTab;
+    window.imChat.showContextMenu = showContextMenu;
+    window.imChat.closeContextMenu = closeContextMenu;
+
+});

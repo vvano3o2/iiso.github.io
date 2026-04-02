@@ -17,6 +17,7 @@
     --separator-color: #c6c6c8;
     --radius-bubble: 20px;
     --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --app-height: 100dvh;
 }
 
 * {
@@ -74,6 +75,9 @@ body {
     flex-direction: column;
     padding-top: 55px; /* Adjusted for island */
     padding-bottom: 34px; /* Home bar area */
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
 }
 
 /* Pages Container */
@@ -87,6 +91,9 @@ body {
     scroll-behavior: smooth;
     -ms-overflow-style: none;
     scrollbar-width: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
 }
 .pages-container::-webkit-scrollbar {
     display: none;
@@ -358,6 +365,9 @@ body {
     justify-items: center;
     align-content: start;
     width: 100%;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
 }
 
 .app-item {
@@ -367,8 +377,14 @@ body {
     justify-content: start;
     gap: 6px;
     cursor: pointer;
-    transition: transform 0.1s;
+    transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.16s ease;
     width: 60px;
+    will-change: transform, opacity;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-user-drag: none;
+    touch-action: manipulation;
 }
 
 .empty-slot {
@@ -436,9 +452,23 @@ body.jiggle-mode {
     -webkit-touch-callout: none;
 }
 
-.app-item, .dock-icon {
+.app-item,
+.dock-icon,
+.time-widget,
+.ins-profile-widget,
+.spotify-widget,
+.pet-widget,
+.couple-widget,
+.status-card-widget,
+.complex-music-widget,
+.photo-profile-widget,
+.diary-widget,
+.custom-music-widget {
     position: relative;
-    -webkit-touch-callout: none; /* Prevent long press menu globally for apps */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-user-drag: none;
 }
 
 .dragging {
@@ -1495,6 +1525,9 @@ body.jiggle-mode {
     width: calc(100% - 32px); /* Fill width with some margin */
     gap: 0;
     height: 88px; /* Fixed height for dock */
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
 }
 
 .dock .app-item {
@@ -2322,7 +2355,8 @@ body.fullscreen-mode {
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100dvh;
+    height: var(--app-height);
+    min-height: var(--app-height);
     overflow: hidden;
     margin: 0;
     padding: 0;
@@ -2335,8 +2369,9 @@ body.fullscreen-mode .phone-frame {
     right: 0;
     bottom: 0;
     width: 100%;
-    height: 100%;
-    max-height: 100dvh;
+    height: var(--app-height);
+    min-height: var(--app-height);
+    max-height: var(--app-height);
     border-radius: 0;
     padding: 0;
     box-shadow: none;
@@ -2345,9 +2380,10 @@ body.fullscreen-mode .phone-frame {
 
 body.fullscreen-mode .screen {
     border-radius: 0;
-    padding-top: 0 !important; 
-    padding-bottom: 0 !important; 
-    height: 100%;
+    padding-top: 0 !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+    height: var(--app-height);
+    min-height: var(--app-height);
 }
 
 /* 在全屏模式下，隐藏模拟器原本的假刘海、状态栏和底部横条 */
