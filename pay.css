@@ -12,11 +12,13 @@
     width: 100%;
     z-index: 150;
     transform: translateY(100%);
-    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    visibility: hidden;
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.3s;
 }
 
 .pay-view.active {
     transform: translateY(0);
+    visibility: visible;
 }
 
 /* Floating Header without bottom white line */

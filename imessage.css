@@ -288,16 +288,17 @@
 /* 6. Bottom Navigation */
 .line-bottom-nav-container {
     position: absolute;
-    bottom: 30px;
+    bottom: calc(30px + var(--keyboard-height, 0px));
     left: 0;
     width: 100%;
     display: flex;
     justify-content: center;
     z-index: 100;
+    transition: bottom 0.25s ease;
 }
 
 body.fullscreen-mode .line-bottom-nav-container {
-    bottom: 30px !important;
+    bottom: calc(30px + env(safe-area-inset-bottom, 0px) + var(--keyboard-height, 0px));
 }
 
 .line-bottom-nav {
@@ -832,7 +833,8 @@ body.fullscreen-mode .line-bottom-nav-container {
     display: flex;
     flex-direction: column;
     gap: 2px; /* Ultra tight spacing for consecutive messages */
-    padding-bottom: 90px; /* Space for input and home bar */
+    padding-bottom: calc(90px + var(--keyboard-height, 0px)); /* Space for input and home bar */
+    transition: padding-bottom 0.25s ease;
 }
 
 /* Chat Timestamps (Center Bubble) */
@@ -1051,13 +1053,15 @@ body.fullscreen-mode .line-bottom-nav-container {
 /* Input Area */
 .ins-chat-input-container {
     position: absolute;
-    bottom: 0;
+    bottom: var(--keyboard-height, 0px);
     left: 0;
     width: 100%;
-    padding: 10px 16px 34px; /* Safe area for home bar */
+    padding: 10px 16px 0;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 34px));
     background-color: #ffffff; /* Solid background to match sticky header */
     border-top: none;
     z-index: 30;
+    transition: bottom 0.25s ease;
 }
 
 

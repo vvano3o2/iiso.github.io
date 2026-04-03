@@ -162,6 +162,22 @@ function addSwipeLogic(card, onDelete) {
 // ==========================================
 // 4. CORE SYSTEM LOGIC
 // ==========================================
+
+// JS Height Fix for 100vh fallback & Mobile Viewport Support
+function adjustAppHeight() {
+    // 基础视口高度（不包含键盘，应对 Safari 地址栏伸缩）
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
+
+// Listen to resize and orientation change
+window.addEventListener('resize', adjustAppHeight);
+window.addEventListener('orientationchange', adjustAppHeight);
+
+// Initial call
+adjustAppHeight();
+
 // Clock
 function updateClock() {
     const now = new Date();
@@ -180,6 +196,125 @@ if (UI.inputs.detailPhone) {
         this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);
     });
 }
+
+// ==========================================
+// 4.5 MOBILE KEYBOARD & VIEWPORT FIXES (Optimized for iOS & Edge cases)
+// ==========================================
+
+// 注入全局非对称过渡样式 (解决弹起延迟、收起生硬问题)
+(function injectKeyboardStyles() {
+    const style = document.createElement('style');
+    // 注意：在弹出时 (keyboard-open)，关闭过渡 (none)，让其瞬间跟随键盘
+    // 在收回时 (无 keyboard-open 类)，给予 0.25s ease 缓冲，避免瞬间掉到底部很突兀。
+    // 这涵盖了模拟器内常见的几种底部输入区域
+    style.innerHTML = `
+        body.keyboard-open .ins-chat-input-container,
+        body.keyboard-open .bstage-chat-input-area,
+        body.keyboard-open .tk-dm-input-area,
+        body.keyboard-open .yt-chat-input-area,
+        body.keyboard-open .x-reply-input-wrapper {
+            transition: none !important;
+        }
+
+        .ins-chat-input-container,
+        .bstage-chat-input-area,
+        .tk-dm-input-area,
+        .yt-chat-input-area,
+        .x-reply-input-wrapper {
+            transition: bottom 0.25s ease, transform 0.25s ease;
+        }
+    `;
+    document.head.appendChild(style);
+})();
+
+function initMobileKeyboardFixes() {
+    let keyboardTimeout;
+
+    // 1. VisualViewport API: 锁死 iOS 滚动 & 精确高度计算
+    if (window.visualViewport) {
+        const updateKeyboard = () => {
+            const layoutHeight = window.innerHeight;
+            const visualHeight = window.visualViewport.height;
+            const offsetTop = window.visualViewport.offsetTop;
+
+            // 真实的键盘高度：不再加上 offsetTop，因为我们要强行把 offsetTop 按死在 0
+            let keyboardHeight = layoutHeight - visualHeight;
+
+            // 阈值：忽略小范围变动（比如 Safari 地址栏缩展通常小于 150px）
+            if (keyboardHeight < 150) {
+                keyboardHeight = 0;
+            }
+
+            // 更新 CSS 变量，控制底部输入框上升
+            document.documentElement.style.setProperty('--keyboard-height', `${Math.max(0, keyboardHeight)}px`);
+
+            // 维护辅助状态类，驱动非对称动画
+            if (keyboardHeight > 0) {
+                document.body.classList.add('keyboard-open');
+            } else {
+                document.body.classList.remove('keyboard-open');
+            }
+
+            // 【核心修复】：对抗 iOS 强行推升页面
+            // 如果键盘开启状态下，系统产生了偏移（offsetTop > 0），立刻强行拉回，不让 iOS 自作主张！
+            if (offsetTop > 0) {
+                window.scrollTo(0, 0);
+            }
+
+            // 如果键盘收起且页面在 iOS 等环境中被系统强行推了上去（body 的 scrollTop 很大）
+            if (keyboardHeight === 0 && (document.body.scrollTop > 0 || document.documentElement.scrollTop > 0)) {
+                // 延迟一下，等系统动画接近完成时强行拉回，防止卡死留白。
+                // 移除 behavior: 'smooth'，防止双重动画冲突，改为瞬间归位。
+                clearTimeout(keyboardTimeout);
+                keyboardTimeout = setTimeout(() => {
+                    window.scrollTo(0, 0);
+                    document.body.scrollTop = 0;
+                    document.documentElement.scrollTop = 0;
+                }, 50);
+            }
+        };
+
+        // 监听视觉视口的缩放（由于键盘起落）和偏移（由于滚动）
+        window.visualViewport.addEventListener('resize', updateKeyboard);
+        window.visualViewport.addEventListener('scroll', updateKeyboard);
+    }
+
+    // 2. iOS 焦点切换闪烁问题
+    // 不依赖不可靠的 e.relatedTarget，而是使用 setTimeout 检查 activeElement
+    document.addEventListener('focusout', () => {
+        setTimeout(() => {
+            const activeEl = document.activeElement;
+            const isFocusingInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable);
+            
+            if (!isFocusingInput) {
+                // 如果失去焦点后，过了100ms也没有新的输入框接管，说明键盘真的要收起了
+                document.documentElement.style.setProperty('--keyboard-height', '0px');
+                // 硬切滚动位置，解决留白且不与原生系统平滑滚动动画冲突
+                window.scrollTo(0, 0);
+                document.body.scrollTop = 0;
+                document.documentElement.scrollTop = 0;
+            }
+        }, 100);
+    });
+
+    // 3. 全局 Blur 白名单极简化：避免脆弱的类名穷举
+    // 原则上：大部分情况由原生浏览器接管，只有当用户点击明显没有任何交互意图的背景时，才强行 blur()
+    document.addEventListener('pointerdown', (e) => {
+        const activeEl = document.activeElement;
+        if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable)) {
+            // 判断是否是普通交互元素（按钮、链接、图标），或者另一个输入框
+            // 我们不穷举各个 App 的类名，只看基础标签或常见特征
+            const isActionable = e.target.closest('button, a, input, textarea, select, [contenteditable="true"], i, svg, img, .clickable, .btn');
+            
+            // 如果点击的是自己的父容器或者交互元素，不主动干预
+            if (!activeEl.contains(e.target) && !isActionable) {
+                // 只有点击了毫无特征的空白处（如聊天记录区、标题栏），才执行主动收起
+                activeEl.blur();
+            }
+        }
+    });
+}
+initMobileKeyboardFixes();
 
 // ==========================================
 // 9. SYNCHRONIZATION HELPERS
