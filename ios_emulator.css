@@ -19,6 +19,11 @@
     --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --app-height: 100vh;
 }
+@supports (height: 100svh) {
+    :root {
+        --app-height: 100svh;
+    }
+}
 
 * {
     box-sizing: border-box;
@@ -60,7 +65,7 @@ body {
     width: 417px;
     height: 876px;
     max-width: 100vw;
-    max-height: var(--app-height, 100dvh);
+    max-height: var(--app-height, 100vh);
     background-color: #000;
     border-radius: 55px;
     padding: 12px;
@@ -2714,11 +2719,18 @@ body.hide-island .screen {
 @media (max-width: 600px) {
     html, body {
         height: 100vh !important;
-        height: 100dvh !important;
+        height: var(--app-height, 100vh) !important;
         width: 100vw !important;
         position: fixed !important;
         overflow: hidden !important;
         background-color: var(--bg-color) !important;
+    }
+    
+    @supports (height: 100svh) {
+        html, body {
+            height: 100svh !important;
+            height: var(--app-height, 100svh) !important;
+        }
     }
     .phone-frame {
         position: absolute !important;

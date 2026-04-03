@@ -31,7 +31,7 @@
     height: auto;
     min-height: 44px; /* Compact height */
     padding: 10px 16px 10px; /* Match YouTube padding */
-    margin-top: 44px; /* Move down like YouTube */
+    margin-top: max(10px, env(safe-area-inset-top, 0px)); /* Adapted for cleaner top alignment */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -756,7 +756,7 @@
     padding: 10px 16px; 
     margin-top: 0;
     position: absolute; /* Floating */
-    top: 44px; /* Adjusted for standard top spacing */
+    top: max(10px, env(safe-area-inset-top, 0px)); /* Adjusted for standard top spacing */
     left: 0;
     width: 100%;
     pointer-events: none; /* Let clicks pass through empty areas */
