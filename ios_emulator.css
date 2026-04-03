@@ -17,7 +17,7 @@
     --separator-color: #c6c6c8;
     --radius-bubble: 20px;
     --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    --app-height: 100dvh;
+    --app-height: 100vh;
 }
 
 * {
