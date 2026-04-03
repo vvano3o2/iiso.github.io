@@ -45,19 +45,23 @@ input, textarea, [contenteditable] {
     -webkit-user-select: text;
 }
 
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    position: fixed;
+}
+
 body {
     background-color: #e5e5e5;
     display: flex;
     justify-content: center;
     align-items: center;
-    /* 固定住 body，不让键盘压缩页面 */
-    position: fixed;
-    width: 100%;
-    height: 100%;
     /* 强化防缩放与防拉扯效应 */
     overscroll-behavior-y: none;
     touch-action: pan-y;
-    overflow: hidden;
 }
 
 /* Phone Frame */
@@ -2718,20 +2722,13 @@ body.hide-island .screen {
 /* Force Mobile Fullscreen & Remove Fake Phone Frame */
 @media (max-width: 600px) {
     html, body {
-        height: 100vh !important;
-        height: var(--app-height, 100vh) !important;
-        width: 100vw !important;
+        height: 100% !important;
+        width: 100% !important;
         position: fixed !important;
         overflow: hidden !important;
         background-color: var(--bg-color) !important;
     }
     
-    @supports (height: 100svh) {
-        html, body {
-            height: 100svh !important;
-            height: var(--app-height, 100svh) !important;
-        }
-    }
     .phone-frame {
         position: absolute !important;
         top: 0 !important;

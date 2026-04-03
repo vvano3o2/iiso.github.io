@@ -1,7 +1,7 @@
 {
   "name": "iOS Emulator",
   "short_name": "iOS",
-  "start_url": "/",
+  "start_url": ".",
   "display": "standalone",
   "theme_color": "#f2f2f7",
   "background_color": "#000000",
