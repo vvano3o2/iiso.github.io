@@ -2400,12 +2400,15 @@ body.fullscreen-mode .phone-frame {
     padding: 0;
     box-shadow: none;
     transform: none !important;
+    background-color: var(--screen-bg);
 }
 
 body.fullscreen-mode .screen {
     border-radius: 0;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
+    padding-top: env(safe-area-inset-top, 0px) !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+    padding-left: env(safe-area-inset-left, 0px) !important;
+    padding-right: env(safe-area-inset-right, 0px) !important;
     height: 100% !important;
     min-height: 100% !important;
     box-sizing: border-box;
@@ -2416,6 +2419,38 @@ body.fullscreen-mode .notch,
 body.fullscreen-mode .status-bar,
 body.fullscreen-mode .home-bar {
     display: none !important;
+}
+
+body.fullscreen-mode .app-view,
+body.fullscreen-mode .settings-view,
+body.fullscreen-mode .edit-view {
+    padding-top: calc(44px + env(safe-area-inset-top, 0px)) !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+}
+
+body.fullscreen-mode .big-header {
+    padding-top: calc(50px + env(safe-area-inset-top, 0px)) !important;
+}
+
+body.fullscreen-mode .settings-content {
+    padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+body.fullscreen-mode .dock-container {
+    bottom: max(24px, env(safe-area-inset-bottom, 0px)) !important;
+}
+
+body.fullscreen-mode .home-bar {
+    display: block !important;
+    bottom: max(8px, env(safe-area-inset-bottom, 0px)) !important;
+}
+
+body.fullscreen-mode .page-indicators {
+    bottom: calc(155px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+body.fullscreen-mode .home-search-pill {
+    bottom: calc(120px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 body.hide-island .notch {
