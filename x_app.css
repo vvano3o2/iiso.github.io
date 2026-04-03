@@ -216,27 +216,36 @@
 /* Floating Bottom Nav - Glassmorphism Slider */
 .x-bottom-nav-container {
     position: absolute;
-    bottom: calc(20px + env(safe-area-inset-bottom, 20px));
-    left: 50%;
-    transform: translateX(-50%);
-    width: 65%; /* Slightly smaller width */
-    max-width: 280px;
-    z-index: 100;
-    background-color: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 30px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    z-index: 200;
+    background-color: #ffffff;
+    padding-bottom: env(safe-area-inset-bottom, 20px) !important;
+    height: auto !important;
+    transform: none;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+    max-width: none;
+}
+
+body.fullscreen-mode .x-bottom-nav-container {
+    bottom: 0 !important;
 }
 
 .x-bottom-nav {
     display: flex;
+    padding: 6px 0;
+    width: 100%;
     justify-content: space-around;
-    align-items: center;
-    height: 54px; /* Reduced height */
+    align-items: stretch;
+    height: 56px;
+    gap: 0;
     position: relative;
-    padding: 0 6px;
+    background-color: transparent;
 }
 
 .x-nav-indicator {

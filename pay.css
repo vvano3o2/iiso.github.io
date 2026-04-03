@@ -24,18 +24,18 @@
 /* Floating Header without bottom white line */
 .pay-header {
     position: absolute;
-    top: max(10px, env(safe-area-inset-top, 0px)); /* Safe area */
+    top: env(safe-area-inset-top, 0px);
     left: 0;
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 16px;
-    background: transparent; /* No background */
-    border-bottom: none; /* Removed white line */
+    padding: 10px 16px;
+    background: transparent;
+    border-bottom: none;
     height: 44px;
     z-index: 20;
-    pointer-events: none; /* Let clicks pass through empty areas */
+    pointer-events: none;
 }
 
 /* Circular Floating Buttons */
