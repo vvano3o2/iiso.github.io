@@ -55,27 +55,31 @@
 /* --- BOTTOM NAV (Floating & Low Saturation) --- */
 .tk-bottom-nav-container {
     position: absolute;
-    bottom: 0;
+    bottom: 30px; 
     left: 0;
     width: 100%;
     display: flex;
     justify-content: center;
     z-index: 200;
-    background-color: #ffffff;
-    padding-bottom: env(safe-area-inset-bottom, 20px) !important;
-    height: auto !important;
 }
 
 body.fullscreen-mode .tk-bottom-nav-container {
-    bottom: 0 !important;
+    bottom: calc(30px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 .tk-bottom-nav {
-    background-color: transparent;
+    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
     display: flex;
-    padding: 4px 0; 
-    width: 100%; 
-    justify-content: space-around;
+    padding: 4px; 
+    border-radius: 40px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    position: relative;
+    width: auto; 
+    min-width: 240px;
+    justify-content: space-between;
     align-items: stretch; 
     height: 52px;
     gap: 0; 
@@ -124,7 +128,7 @@ body.fullscreen-mode .tk-bottom-nav-container {
 /* --- HOME TAB --- */
 .tk-home-topbar {
     position: absolute;
-    top: max(10px, env(safe-area-inset-top, 0px)); /* Adapted for cleaner top alignment */
+    top: calc(44px + env(safe-area-inset-top, 0px));
     left: 0;
     width: 100%;
     height: 44px;
@@ -390,7 +394,7 @@ body.fullscreen-mode .tk-bottom-nav-container {
 /* --- COMMON HEADER --- */
 .tk-header, .tk-home-topbar {
     position: absolute;
-    top: max(10px, env(safe-area-inset-top, 0px)); /* Adapted for cleaner top alignment */
+    top: env(safe-area-inset-top, 0px);
     left: 0;
     width: 100%;
     height: 44px;
@@ -1215,7 +1219,7 @@ body.fullscreen-mode .tk-bottom-nav-container {
 /* Adjust sub-views header position */
 .tk-sub-profile-view .tk-header,
 .tk-sub-profile-view .tk-home-topbar {
-    top: max(10px, env(safe-area-inset-top, 0px)) !important;
+    top: calc(44px + env(safe-area-inset-top, 0px)) !important;
 }
 
 /* Override Chat Row gaps for TK DM */
