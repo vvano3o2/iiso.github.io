@@ -185,7 +185,7 @@
 
                         <!-- App 1 & App 2 (Left side of Row 3) -->
                         <div class="app-item" style="cursor: pointer;">
-                            <div class="app-icon icon-placeholder" id="app-icon-5" style="background: #000000; color: #ffffff; display: flex; justify-content: center; align-items: center; border: 1px solid #1c1c1e;"><i class="fas fa-book" style="color: #ffffff; font-size: 30px;"></i></div>
+                            <div class="app-icon icon-placeholder" id="app-icon-5" style="background: linear-gradient(180deg, #f2f2f7 0%, #d1d1d6 100%); color: #ffcc00; display: flex; justify-content: center; align-items: center; border: 1px solid #c7c7cc;"><i class="fas fa-book" style="color: #ffcc00; font-size: 30px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));"></i></div>
                             <span class="app-name">Diary</span>
                         </div>
                         <div class="app-item" style="cursor: pointer;">
@@ -1628,18 +1628,22 @@
                         </div>
                     </div>
                     
-                    <div class="diary-editor-area">
-                        <div class="diary-editor-date" id="diary-editor-date">2026年3月20日 下午3:20</div>
-                        <textarea id="diary-editor-input" class="diary-editor-input" placeholder="输入内容..."></textarea>
+                    <div class="diary-editor-area" style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+                        <div class="diary-editor-date" id="diary-editor-date" style="flex-shrink: 0;">2026年3月20日 下午3:20</div>
+                        <!-- 将 textarea 替换为 contenteditable 容器实现富文本，并确保其可滚动 -->
+                        <div id="diary-editor-input" class="diary-editor-input" contenteditable="true" style="outline: none; word-wrap: break-word; flex: 1; overflow-y: auto; overflow-x: hidden; padding: 16px 20px; font-size: 17px; line-height: 1.5; -webkit-overflow-scrolling: touch; max-width: 100%;"></div>
                     </div>
                     
                     <div class="diary-editor-toolbar">
-                        <div class="diary-tool-btn"><i class="fas fa-font"></i></div>
-                        <div class="diary-tool-btn"><i class="fas fa-list-ul"></i></div>
+                        <div class="diary-tool-btn" id="diary-format-aa-btn" onclick="if(window.openView) window.openView(document.getElementById('diary-format-sheet'))"><i class="fas fa-font"></i></div>
+                        <div class="diary-tool-btn" id="diary-format-todo-btn"><i class="far fa-check-circle"></i></div>
                         <div class="diary-tool-btn"><i class="fas fa-table"></i></div>
                         <div class="diary-tool-btn"><i class="fas fa-paperclip"></i></div>
                         <div class="diary-tool-btn"><i class="fas fa-pencil-alt"></i></div>
-                        <div class="diary-tool-btn"><i class="fas fa-camera"></i></div>
+                        <div class="diary-tool-btn" id="diary-insert-img-btn">
+                            <i class="fas fa-camera"></i>
+                            <input type="file" id="diary-img-upload-input" accept="image/*" style="display:none;">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3822,6 +3826,59 @@
                     <div class="sheet-title">选择预设</div>
                     <div class="account-list" id="preset-list" style="margin: 20px 16px; overflow-y: auto; overscroll-behavior: contain;">
                         <!-- Presets injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formatting Bottom Sheet for Diary (Moved outside app-view for z-index safety) -->
+            <div class="bottom-sheet-overlay detail-sheet-overlay" id="diary-format-sheet" style="z-index: 100000 !important;">
+                <div class="bottom-sheet" style="height: auto; padding-bottom: calc(20px + env(safe-area-inset-bottom)); background: #f2f2f7;">
+                    <div class="sheet-handle"></div>
+                    
+                    <div class="detail-sheet-content" style="padding: 10px 16px;">
+                        <!-- Column 1: Headings & Block Formats -->
+                        <div style="background: #fff; border-radius: 14px; overflow: hidden; margin-bottom: 15px;">
+                            <div class="diary-format-option" data-format="h1" style="padding: 12px 16px; border-bottom: 1px solid #f2f2f7; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                                <span style="font-size: 22px; font-weight: bold; color: #000;">大标题</span>
+                                <span style="color: #8e8e93; font-size: 13px;">#</span>
+                            </div>
+                            <div class="diary-format-option" data-format="h2" style="padding: 12px 16px; border-bottom: 1px solid #f2f2f7; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                                <span style="font-size: 18px; font-weight: 600; color: #000;">小标题</span>
+                                <span style="color: #8e8e93; font-size: 13px;">##</span>
+                            </div>
+                            <div class="diary-format-option" data-format="h3" style="padding: 12px 16px; border-bottom: 1px solid #f2f2f7; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                                <span style="font-size: 16px; font-weight: 600; color: #000;">子标题</span>
+                                <span style="color: #8e8e93; font-size: 13px;">###</span>
+                            </div>
+                            <div class="diary-format-option" data-format="body" style="padding: 12px 16px; border-bottom: 1px solid #f2f2f7; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                                <span style="font-size: 15px; color: #000;">内文</span>
+                            </div>
+                            <div class="diary-format-option" data-format="code" style="padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #f8f8f8; font-family: monospace;">
+                                <span style="font-size: 15px; color: #333;">等宽</span>
+                                <span style="color: #8e8e93; font-size: 13px;">`</span>
+                            </div>
+                        </div>
+
+                        <!-- Column 2: Inline Formats (Grey Bubble Container) -->
+                        <div style="background: #e5e5ea; border-radius: 20px; padding: 6px 12px; display: flex; justify-content: space-around; align-items: center;">
+                            <div class="diary-format-option-inline" data-format="bold" style="width: 44px; height: 44px; display: flex; justify-content: center; align-items: center; border-radius: 12px; cursor: pointer;">
+                                <i class="fas fa-bold" style="font-size: 18px; color: #000;"></i>
+                            </div>
+                            <div class="diary-format-option-inline" data-format="italic" style="width: 44px; height: 44px; display: flex; justify-content: center; align-items: center; border-radius: 12px; cursor: pointer;">
+                                <i class="fas fa-italic" style="font-size: 18px; color: #000;"></i>
+                            </div>
+                            <div class="diary-format-option-inline" data-format="underline" style="width: 44px; height: 44px; display: flex; justify-content: center; align-items: center; border-radius: 12px; cursor: pointer;">
+                                <i class="fas fa-underline" style="font-size: 18px; color: #000;"></i>
+                            </div>
+                            <div class="diary-format-option-inline" data-format="strike" style="width: 44px; height: 44px; display: flex; justify-content: center; align-items: center; border-radius: 12px; cursor: pointer;">
+                                <i class="fas fa-strikethrough" style="font-size: 18px; color: #000;"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- Close format sheet button -->
+                        <div style="margin-top: 20px; text-align: center; cursor: pointer; padding: 12px; font-weight: 500; font-size: 16px; color: #007aff;" id="diary-format-close-btn" onclick="window.closeView(document.getElementById('diary-format-sheet'))">
+                            完成
+                        </div>
                     </div>
                 </div>
             </div>

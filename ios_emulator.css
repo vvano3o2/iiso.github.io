@@ -2360,16 +2360,16 @@ input:checked + .slider:before {
 
 /* Fullscreen & Hide Island Modes */
 body.fullscreen-mode {
-    background-color: #000;
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
-    height: var(--app-height);
-    min-height: var(--app-height);
+    height: 100vh;
+    min-height: 100vh;
     overflow: hidden;
     margin: 0;
     padding: 0;
+    background-color: transparent;
 }
 
 body.fullscreen-mode .phone-frame {
@@ -2379,9 +2379,9 @@ body.fullscreen-mode .phone-frame {
     right: 0;
     bottom: 0;
     width: 100%;
-    height: var(--app-height);
-    min-height: var(--app-height);
-    max-height: var(--app-height);
+    height: 100vh;
+    min-height: 100vh;
+    max-height: 100vh;
     border-radius: 0;
     padding: 0;
     box-shadow: none;
@@ -2709,8 +2709,12 @@ body.hide-island .screen {
 
 /* Force Mobile Fullscreen & Remove Fake Phone Frame */
 @media (max-width: 600px) {
-    body {
-        background-color: #000 !important;
+    html, body {
+        height: 100vh !important;
+        width: 100vw !important;
+        position: fixed !important;
+        overflow: hidden !important;
+        background-color: transparent !important;
     }
     .phone-frame {
         position: absolute !important;

@@ -167,7 +167,8 @@ function addSwipeLogic(card, onDelete) {
 function adjustAppHeight() {
     // 基础视口高度（不包含键盘，应对 Safari 地址栏伸缩）
     const vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+    // 使用 100vh 让内容在移动端延伸到 Safari 底部地址栏之下，实现地址栏悬浮效果
+    document.documentElement.style.setProperty('--app-height', `100vh`);
     document.documentElement.style.setProperty('--vh', `${vh}px`);
 }
 

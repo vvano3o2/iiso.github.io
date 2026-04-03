@@ -217,10 +217,9 @@ function renderModelList() {
 }
 
 function updateFullscreenViewportHeight() {
-    const viewportHeight = window.visualViewport
-        ? window.visualViewport.height
-        : window.innerHeight;
-    document.documentElement.style.setProperty('--app-height', `${Math.round(viewportHeight)}px`);
+    // 移除对 visualViewport.height 的依赖，避免由于移动端浏览器地址栏导致高度被压缩
+    // 始终保持 100vh，让内容延伸到 Safari 底部地址栏和状态栏之后，实现悬浮效果
+    document.documentElement.style.setProperty('--app-height', `100vh`);
 }
 
 window.updateFullscreenViewportHeight = updateFullscreenViewportHeight;
@@ -426,7 +425,7 @@ function applyAppIconStyles(app) {
         else if (app.id === 'app-icon-2') { iconDiv.style.background = '#000000'; iconDiv.style.color = '#ffffff'; if (iEl) iEl.className = 'fab fa-tiktok'; }
         else if (app.id === 'app-icon-3') { iconDiv.style.background = '#000000'; iconDiv.style.color = '#ffffff'; }
         else if (app.id === 'app-icon-4') { iconDiv.style.background = '#000000'; iconDiv.style.color = '#ffffff'; }
-        else if (app.id === 'app-icon-5') { iconDiv.style.background = '#000000'; iconDiv.style.color = '#ffffff'; iconDiv.style.border = '1px solid #1c1c1e'; if (iEl) { iEl.className = 'fas fa-book'; iEl.style.color = '#ffffff'; } }
+        else if (app.id === 'app-icon-5') { iconDiv.style.background = 'linear-gradient(180deg, #f2f2f7 0%, #d1d1d6 100%)'; iconDiv.style.color = '#ffcc00'; iconDiv.style.border = '1px solid #c7c7cc'; if (iEl) { iEl.className = 'fas fa-book'; iEl.style.color = '#ffcc00'; iEl.style.filter = 'drop-shadow(0 2px 2px rgba(0,0,0,0.1))'; } }
         else if (['app-icon-6', 'app-icon-7', 'app-icon-8'].includes(app.id)) { iconDiv.style.background = '#e5e5ea'; }
 
         if (iEl) iEl.style.display = '';
@@ -488,9 +487,15 @@ document.getElementById('confirm-theme-btn').addEventListener('click', () => {
             screenEl.style.backgroundSize = 'cover';
             screenEl.style.backgroundPosition = 'center';
             screenEl.style.backgroundColor = 'transparent';
+
+            document.body.style.backgroundImage = `url(${bgUrl})`;
+            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundPosition = 'center';
         } else {
             screenEl.style.backgroundImage = 'none';
             screenEl.style.backgroundColor = ''; // Restore to CSS default
+
+            document.body.style.backgroundImage = 'none';
         }
     }
 
@@ -529,9 +534,15 @@ function applySavedTheme() {
             screenEl.style.backgroundSize = 'cover';
             screenEl.style.backgroundPosition = 'center';
             screenEl.style.backgroundColor = 'transparent';
+
+            document.body.style.backgroundImage = `url(${themeState.bgUrl})`;
+            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundPosition = 'center';
         } else {
             screenEl.style.backgroundImage = ''; // Remove inline style to use CSS default
             screenEl.style.backgroundColor = ''; // Restore to CSS default
+
+            document.body.style.backgroundImage = '';
         }
     }
     themeState.apps.forEach(app => {
