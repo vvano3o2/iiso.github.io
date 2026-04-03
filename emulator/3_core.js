@@ -165,16 +165,18 @@ function addSwipeLogic(card, onDelete) {
 
 // JS Height Fix for 100vh fallback & Mobile Viewport Support
 function adjustAppHeight() {
-    // 基础视口高度（不包含键盘，应对 Safari 地址栏伸缩）
-    const vh = window.innerHeight * 0.01;
-    // 使用 100vh 让内容在移动端延伸到 Safari 底部地址栏之下，实现地址栏悬浮效果
-    document.documentElement.style.setProperty('--app-height', `100vh`);
+    const h = window.visualViewport?.height ?? window.innerHeight;
+    const vh = h * 0.01;
+    document.documentElement.style.setProperty('--app-height', `${h}px`);
     document.documentElement.style.setProperty('--vh', `${vh}px`);
 }
 
 // Listen to resize and orientation change
 window.addEventListener('resize', adjustAppHeight);
 window.addEventListener('orientationchange', adjustAppHeight);
+if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', adjustAppHeight);
+}
 
 // Initial call
 adjustAppHeight();
@@ -241,8 +243,8 @@ function initMobileKeyboardFixes() {
             // 真实的键盘高度：不再加上 offsetTop，因为我们要强行把 offsetTop 按死在 0
             let keyboardHeight = layoutHeight - visualHeight;
 
-            // 阈值：忽略小范围变动（比如 Safari 地址栏缩展通常小于 150px）
-            if (keyboardHeight < 150) {
+            // 阈值：忽略小范围变动（比如 Safari 地址栏缩展通常小于 100px）
+            if (keyboardHeight < 100) {
                 keyboardHeight = 0;
             }
 

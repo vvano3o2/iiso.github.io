@@ -278,13 +278,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const imgMatch = p.match(/^\[图片：(.*?)\]$/);
                 if (imgMatch) {
                     const desc = imgMatch[1].trim();
-                    // Added contenteditable="false", max-height (4:3 ratio), and clear block
-                    html += `<div class="diary-ai-image-block" contenteditable="false" data-desc="${desc}" style="display: block; clear: both; width: 100%; height: 200px; max-height: calc(100vw * 0.75); background: #e5e5ea; border-radius: 12px; margin: 15px 0; flex-direction: column; justify-content: center; align-items: center; color: #8e8e93; cursor: pointer; text-align: center; padding: 10px; box-sizing: border-box; overflow: hidden; position: relative;">
+                    // Added contenteditable="false", aspect-ratio: 1/1, and tighter margin
+                    html += `<div class="diary-ai-image-block" contenteditable="false" data-desc="${desc}" style="display: block; clear: both; width: 100%; aspect-ratio: 1 / 1; background: #e5e5ea; border-radius: 12px; margin: 8px 0 12px 0; flex-direction: column; justify-content: center; align-items: center; color: #8e8e93; cursor: pointer; text-align: center; padding: 10px; box-sizing: border-box; overflow: hidden; position: relative;">
                                 <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; width: 100%; pointer-events: none;">
-                                    <i class="fas fa-camera" style="font-size: 32px; margin-bottom: 8px;"></i>
-                                    <div style="font-size: 13px; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${desc}</div>
+                                    <i class="fas fa-camera" style="font-size: 36px; margin-bottom: 12px;"></i>
+                                    <div style="font-size: 14px; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${desc}</div>
                                 </div>
-                             </div><div><br></div>`;
+                             </div>`; // removed the trailing <br> block to tighten space
                     continue;
                 }
 
@@ -330,10 +330,14 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const friendName = currentFolderTitle || currentFolder;
+        // Take a snapshot of the current folder state at the exact moment the API is triggered
+        const targetFolder = currentFolder;
+        const targetFolderTitle = currentFolderTitle || currentFolder;
+
+        const friendName = targetFolderTitle;
         // Try to find the friend object from IM data to get persona
         const friends = typeof window.getImFriends === 'function' ? window.getImFriends() : (window.imData?.friends || []);
-        const friend = friends.find(f => (f.nickname || f.name || f.realName) === currentFolder) || { nickname: friendName, persona: '' };
+        const friend = friends.find(f => (f.nickname || f.name || f.realName) === targetFolder) || { nickname: friendName, persona: '' };
 
         if (window.showToast) window.showToast('正在写日记...');
 
@@ -360,10 +364,10 @@ document.addEventListener('DOMContentLoaded', () => {
                  }).join('\n');
             }
 
-            // 获取当前角色的最近 3 篇日记记忆
+            // 获取当前角色的最近 3 篇日记记忆 (using targetFolder snapshot)
             const recentNotes = diaryData
-                .filter(n => n.folder === currentFolder && !isDeletedFolder(n.folder))
-                .sort((a, b) => getNoteListTime(b, currentFolder) - getNoteListTime(a, currentFolder))
+                .filter(n => n.folder === targetFolder && !isDeletedFolder(n.folder))
+                .sort((a, b) => getNoteListTime(b, targetFolder) - getNoteListTime(a, targetFolder))
                 .slice(0, 3)
                 .reverse(); // 从旧到新排列，方便 AI 理解时间线
 
@@ -470,18 +474,18 @@ ${globalWorldBookContext ? `全局世界书：\n${globalWorldBookContext}\n` : '
                 id: Date.now().toString(),
                 text: richHtml, // Save the rich HTML directly!
                 time: Date.now(),
-                folder: currentFolder
+                folder: targetFolder // Save explicitly to the snapshot folder!
             };
             diaryData.push(newNote);
             saveDiaryData();
             
             if (window.showToast) window.showToast('日记已生成并保存！');
             
-            // Refresh list to show the new diary entry frame
-            renderNotesList(currentFolder);
-            
-            // Open the generated note automatically
-            openEditNote(newNote);
+            // Only jump to/refresh UI if the user is STILL looking at the target folder
+            if (currentFolder === targetFolder) {
+                renderNotesList(targetFolder);
+                openEditNote(newNote);
+            }
 
         } catch (error) {
             console.error('Diary API Error:', error);
