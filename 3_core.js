@@ -182,6 +182,17 @@ if (window.visualViewport) {
 // Initial call
 adjustAppHeight();
 
+// Check Standalone/PWA mode and apply fullscreen automatically
+function checkStandaloneMode() {
+    const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+    if (isStandalone) {
+        document.body.classList.add('fullscreen-mode');
+        // If we want to hide the fake island automatically in true PWA mode
+        document.body.classList.add('hide-island');
+    }
+}
+checkStandaloneMode();
+
 // Clock
 function updateClock() {
     const now = new Date();

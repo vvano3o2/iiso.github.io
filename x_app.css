@@ -34,7 +34,7 @@
 /* Header */
 .x-header {
     height: 56px; 
-    margin-top: 40px; /* 大幅下移，使其落到“分类”的视觉位置 */
+    margin-top: max(10px, env(safe-area-inset-top, 0px)); /* Adapted for cleaner top alignment */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -307,7 +307,7 @@
     box-shadow: 2px 0 10px rgba(0,0,0,0.1);
     display: flex;
     flex-direction: column;
-    padding-top: calc(env(safe-area-inset-top, 44px) + 30px);
+    padding-top: max(10px, env(safe-area-inset-top, 0px));
     overflow-y: auto;
 }
 
@@ -360,7 +360,7 @@
     justify-content: space-between;
     padding: 0 16px;
     border-bottom: 1px solid var(--x-border);
-    margin-top: env(safe-area-inset-top, 44px);
+    margin-top: max(10px, env(safe-area-inset-top, 0px));
     flex-shrink: 0;
 }
 
@@ -1010,7 +1010,7 @@
 
 .x-profile-header-btn {
     position: absolute;
-    top: max(10px, env(safe-area-inset-top, 10px));
+    top: max(10px, env(safe-area-inset-top, 0px));
     left: 10px;
     width: 32px;
     height: 32px;

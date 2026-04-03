@@ -64,8 +64,7 @@
 }
 
 body.fullscreen-mode .tk-bottom-nav-container {
-    bottom: env(safe-area-inset-bottom, 0px) !important;
-    padding-bottom: 0 !important;
+    bottom: calc(30px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 .tk-bottom-nav {
@@ -129,7 +128,7 @@ body.fullscreen-mode .tk-bottom-nav-container {
 /* --- HOME TAB --- */
 .tk-home-topbar {
     position: absolute;
-    top: 44px;
+    top: max(10px, env(safe-area-inset-top, 0px)); /* Adapted for cleaner top alignment */
     left: 0;
     width: 100%;
     height: 44px;
@@ -395,7 +394,7 @@ body.fullscreen-mode .tk-bottom-nav-container {
 /* --- COMMON HEADER --- */
 .tk-header, .tk-home-topbar {
     position: absolute;
-    top: 0;
+    top: max(10px, env(safe-area-inset-top, 0px)); /* Adapted for cleaner top alignment */
     left: 0;
     width: 100%;
     height: 44px;
@@ -414,7 +413,7 @@ body.fullscreen-mode .tk-bottom-nav-container {
 
 .tk-header.floating-header, .tk-home-topbar.floating-header {
     position: absolute;
-    top: 0;
+    top: env(safe-area-inset-top, 0px);
     left: 0;
     width: 100%;
     background: transparent;
@@ -469,7 +468,7 @@ body.fullscreen-mode .tk-bottom-nav-container {
 /* For views that overlay completely (like sub-profile floating header) */
 .tk-header.floating-header {
     position: absolute;
-    top: 0;
+    top: env(safe-area-inset-top, 0px);
     left: 0;
     width: 100%;
     background: transparent !important;
@@ -497,7 +496,7 @@ body.fullscreen-mode .tk-bottom-nav-container {
 /* Home Topbar overrides */
 .tk-home-topbar {
     position: absolute;
-    top: 0;
+    top: env(safe-area-inset-top, 0px);
     left: 0;
     width: 100%;
     height: 44px;
@@ -532,7 +531,7 @@ body.fullscreen-mode .tk-bottom-nav-container {
 .tk-chat-scrollable {
     flex: 1;
     overflow-y: auto;
-    padding-bottom: 70px;
+    padding-bottom: 100px;
     /* Adjust padding to align with header */
     padding-top: 44px; 
 }
@@ -716,7 +715,7 @@ body.fullscreen-mode .tk-bottom-nav-container {
 .tk-profile-scrollable {
     flex: 1;
     overflow-y: auto;
-    padding-bottom: 70px;
+    padding-bottom: 100px;
     padding-top: 44px; /* Align with header */
 }
 
@@ -1220,7 +1219,7 @@ body.fullscreen-mode .tk-bottom-nav-container {
 /* Adjust sub-views header position */
 .tk-sub-profile-view .tk-header,
 .tk-sub-profile-view .tk-home-topbar {
-    top: 44px !important;
+    top: max(10px, env(safe-area-inset-top, 0px)) !important;
 }
 
 /* Override Chat Row gaps for TK DM */

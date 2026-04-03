@@ -2366,11 +2366,13 @@ body.fullscreen-mode {
     left: 0;
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
     min-height: 100vh;
+    min-height: 100dvh;
     overflow: hidden;
     margin: 0;
     padding: 0;
-    background-color: transparent;
+    background-color: var(--bg-color);
 }
 
 body.fullscreen-mode .phone-frame {
@@ -2380,9 +2382,9 @@ body.fullscreen-mode .phone-frame {
     right: 0;
     bottom: 0;
     width: 100%;
-    height: 100vh;
-    min-height: 100vh;
-    max-height: 100vh;
+    height: 100%;
+    min-height: 100%;
+    max-height: 100%;
     border-radius: 0;
     padding: 0;
     box-shadow: none;
@@ -2393,8 +2395,8 @@ body.fullscreen-mode .screen {
     border-radius: 0;
     padding-top: env(safe-area-inset-top, 0px) !important;
     padding-bottom: env(safe-area-inset-bottom, 0px) !important;
-    height: var(--app-height);
-    min-height: var(--app-height);
+    height: 100% !important;
+    min-height: 100% !important;
     box-sizing: border-box;
 }
 
@@ -2711,11 +2713,12 @@ body.hide-island .screen {
 /* Force Mobile Fullscreen & Remove Fake Phone Frame */
 @media (max-width: 600px) {
     html, body {
-        height: 100% !important;
+        height: 100vh !important;
+        height: 100dvh !important;
         width: 100vw !important;
         position: fixed !important;
         overflow: hidden !important;
-        background-color: transparent !important;
+        background-color: var(--bg-color) !important;
     }
     .phone-frame {
         position: absolute !important;
@@ -2734,8 +2737,8 @@ body.hide-island .screen {
     }
     .screen {
         border-radius: 0 !important;
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
+        padding-top: env(safe-area-inset-top, 0px) !important;
+        padding-bottom: env(safe-area-inset-bottom, 0px) !important;
         height: 100% !important;
         min-height: 100% !important;
         box-sizing: border-box !important;
