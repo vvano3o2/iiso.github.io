@@ -163,25 +163,6 @@ function addSwipeLogic(card, onDelete) {
 // 4. CORE SYSTEM LOGIC
 // ==========================================
 
-// JS Height Fix for 100vh fallback & Mobile Viewport Support
-function adjustAppHeight() {
-    const h = window.visualViewport?.height ?? window.innerHeight;
-    const vh = h * 0.01;
-    // Let height naturally conform to 100% via CSS, fallback to h for absolute constraints if needed.
-    document.documentElement.style.setProperty('--app-height', `${h}px`);
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
-}
-
-// Listen to resize and orientation change
-window.addEventListener('resize', adjustAppHeight);
-window.addEventListener('orientationchange', adjustAppHeight);
-if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', adjustAppHeight);
-}
-
-// Initial call
-adjustAppHeight();
-
 // Check Standalone/PWA mode and apply fullscreen automatically
 function checkStandaloneMode() {
     const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
