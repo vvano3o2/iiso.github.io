@@ -1,6 +1,6 @@
 /* Pay App Specific Styles - White Background with Monochrome/Camo Cards */
 .pay-view {
-    background-color: #f2f2f7; /* iOS light grey background */
+    background-color: var(--screen-bg, #f2f2f7); /* Adaptive background */
     color: #000; /* Black text */
     display: flex;
     flex-direction: column;

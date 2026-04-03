@@ -10,7 +10,7 @@
 }
 
 .x-view {
-    background-color: var(--x-white);
+    background-color: var(--screen-bg, var(--x-white));
     z-index: 155; /* Same level as other apps */
     display: flex;
     flex-direction: column;

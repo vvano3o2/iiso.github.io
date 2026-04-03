@@ -1,7 +1,7 @@
 /* YouTube App Specific Styles */
 
 .youtube-view {
-    background-color: #ffffff; /* Light Mode Background */
+    background-color: var(--screen-bg, #ffffff); /* Light Mode Background */
     color: #0f0f0f;
     display: flex;
     flex-direction: column;
@@ -596,7 +596,7 @@ body.fullscreen-mode .yt-bottom-nav-container {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #ffffff;
+    background-color: var(--screen-bg, #ffffff);
     z-index: 200;
     display: flex;
     flex-direction: column;
@@ -1001,7 +1001,7 @@ body.fullscreen-mode .yt-bottom-nav-container {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #ffffff;
+    background-color: var(--screen-bg, #ffffff);
     z-index: 300; /* Higher than sub-channel-view */
     display: flex;
     flex-direction: column;
@@ -1057,7 +1057,7 @@ body.fullscreen-mode .yt-bottom-nav-container {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #ffffff; /* White background for Ins style */
+    background-color: var(--screen-bg, #ffffff); /* White background for Ins style */
     z-index: 300;
     display: flex;
     flex-direction: column;

@@ -706,7 +706,7 @@ body.fullscreen-mode .line-bottom-nav-container {
 
 /* iMessage Views Background Forced to White */
 .imessage-view {
-    background-color: #ffffff !important;
+    background-color: var(--screen-bg, #ffffff) !important;
 }
 
 .line-content {
