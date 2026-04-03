@@ -48,6 +48,8 @@ input, textarea, [contenteditable] {
 html, body {
     width: 100%;
     height: 100%;
+    /* iOS Safari mobile viewport height fix */
+    height: -webkit-fill-available;
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -2723,6 +2725,8 @@ body.hide-island .screen {
 @media (max-width: 600px) {
     html, body {
         height: 100% !important;
+        /* Safari on iOS specific */
+        min-height: -webkit-fill-available;
         width: 100% !important;
         position: fixed !important;
         overflow: hidden !important;
