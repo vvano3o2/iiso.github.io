@@ -1,512 +1,527 @@
-// ==========================================
-// 5. NAVIGATION EVENT LISTENERS
-// ==========================================
-// Main Settings
-const settingsBtn = document.getElementById('dock-icon-settings');
-if (settingsBtn) {
-    settingsBtn.addEventListener('click', (e) => {
-        if (window.isJiggleMode || window.preventAppClick) { e.preventDefault(); e.stopPropagation(); return; }
-        syncUIs();
-        openView(UI.views.settings);
-    });
-}
-document.getElementById('settings-title-back-btn').addEventListener('click', () => closeView(UI.views.settings));
+// --- YouTube Settings & Binding Logic ---
+    const ytSettingsSheet = document.getElementById('yt-settings-sheet');
+    const ytBindWbBtn = document.getElementById('yt-bind-wb-btn');
+    const bindWbSheet = document.getElementById('bind-world-book-sheet');
+    const ytPromptSheet = document.getElementById('yt-prompt-sheet');
+    const ytExportDataBtn = document.getElementById('yt-export-data-btn');
+    const ytImportDataBtn = document.getElementById('yt-import-data-btn');
+    const ytImportDataFile = document.getElementById('yt-import-data-file');
+    const ytClearDataBtn = document.getElementById('yt-clear-data-btn');
 
-// Use Home Bar to close apps
-document.getElementById('home-bar').addEventListener('click', () => {
-    closeView(UI.views.settings);
-    closeView(UI.views.edit);
-    closeView(UI.views.worldBook);
-    // imessageView is handled in imessage.js now
-    const imessageView = document.getElementById('imessage-view');
-    if (imessageView) closeView(imessageView);
-});
+    if (ytExportDataBtn) {
+        ytExportDataBtn.addEventListener('click', () => {
+            const dataToExport = {
+                channelState: channelState,
+                subscriptions: mockSubscriptions,
+                userState: ytUserState
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToExport, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "youtube_emulator_data.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+            if(window.showToast) window.showToast('数据已导出');
+            if(ytSettingsSheet) ytSettingsSheet.classList.remove('active');
+        });
+    }
 
-// Apple ID Profile
-document.getElementById('apple-id-trigger').addEventListener('click', (e) => {
-    e.stopPropagation(); 
-    syncUIs();
-    openView(UI.views.edit);
-});
-document.getElementById('edit-back-btn').addEventListener('click', () => closeView(UI.views.edit));
+    if (ytImportDataBtn && ytImportDataFile) {
+        ytImportDataBtn.addEventListener('click', () => ytImportDataFile.click());
+        ytImportDataFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
 
-// Main Edit Avatar Logic
-const mainEditAvatarWrapper = document.getElementById('main-edit-avatar-wrapper');
-const mainAvatarUpload = document.getElementById('main-avatar-upload');
-if (mainEditAvatarWrapper && mainAvatarUpload) {
-    mainEditAvatarWrapper.addEventListener('click', (e) => {
-        if (e.target.tagName !== 'INPUT') mainAvatarUpload.click();
-    });
-
-    mainAvatarUpload.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
             const reader = new FileReader();
             reader.onload = (event) => {
-                const url = event.target.result;
-                // Update user state
-                userState.avatarUrl = url;
-                
-                // Update current account in accounts array
-                const acc = accounts.find(a => a.id === currentAccountId);
-                if (acc) {
-                    acc.avatarUrl = url;
+                try {
+                    const importedData = JSON.parse(event.target.result);
+                    if (importedData.channelState) channelState = importedData.channelState;
+                    if (importedData.subscriptions) {
+                        mockSubscriptions = importedData.subscriptions;
+                        hasSubscriptions = mockSubscriptions.length > 0;
+                        mockVideos = [];
+                        mockSubscriptions.forEach(sub => {
+                            if (sub.generatedContent && sub.generatedContent.currentLive) {
+                                mockVideos.push({
+                                    title: sub.generatedContent.currentLive.title,
+                                    views: sub.generatedContent.currentLive.views,
+                                    time: 'LIVE',
+                                    thumbnail: sub.generatedContent.currentLive.thumbnail || 'https://picsum.photos/320/180?grayscale',
+                                    isLive: true,
+                                    comments: sub.generatedContent.currentLive.comments || [],
+                                    initialBubbles: sub.generatedContent.currentLive.initialBubbles || [],
+                                    guest: sub.generatedContent.currentLive.guest || null,
+                                    channelData: sub
+                                });
+                            }
+                        });
+                    }
+                    if (importedData.userState) ytUserState = importedData.userState;
+                    
+                    saveYoutubeData();
+                    syncYtProfile();
+                    renderSubscriptions();
+                    renderVideos();
+                    renderMessagesList();
+                    
+                    if(window.showToast) window.showToast('数据导入成功');
+                    if(ytSettingsSheet) ytSettingsSheet.classList.remove('active');
+                } catch (err) {
+                    console.error("Import Error:", err);
+                    if(window.showToast) window.showToast('导入失败，数据格式错误');
                 }
-                
-                // Sync the UI immediately
-                syncUIs();
-                showToast('头像已更新');
             };
-            reader.readAsDataURL(file);
-        }
-        e.target.value = ''; // Reset
-    });
-}
-
-// ==========================================
-// 6. ACCOUNT MANAGEMENT
-// ==========================================
-// Open Switcher
-document.getElementById('switch-account-btn').addEventListener('click', () => {
-    renderAccountList();
-    openView(UI.overlays.accountSwitcher);
-});
-
-// Add New Account
-document.getElementById('add-account-btn').addEventListener('click', () => {
-    isCreatingNewAccount = true;
-    detailTempId = Date.now();
-    UI.inputs.detailName.value = '';
-    UI.inputs.detailPhone.value = '';
-    if(UI.inputs.detailSignature) UI.inputs.detailSignature.value = '';
-    UI.inputs.detailPersona.value = '';
-    setDetailAvatar(null);
-    openView(UI.overlays.personaDetail);
-});
-
-// Save Selected Account to Main State
-document.getElementById('save-id-btn').addEventListener('click', () => {
-    const accToSync = accounts.find(a => a.id === currentAccountId);
-    if (accToSync) {
-        userState.name = accToSync.name;
-        userState.phone = accToSync.phone;
-        userState.persona = accToSync.signature || accToSync.persona; // Use signature for display
-        userState.avatarUrl = accToSync.avatarUrl;
-    } else {
-        userState.name = '';
-        userState.phone = '';
-        userState.persona = '';
-        userState.avatarUrl = null;
-    }
-    saveGlobalData();
-    syncUIs();
-    closeView(UI.overlays.accountSwitcher);
-});
-
-// Detail View Confirm
-document.getElementById('confirm-sync-btn').addEventListener('click', () => {
-    const name = UI.inputs.detailName.value || 'New User';
-    const phone = UI.inputs.detailPhone.value;
-    const signature = UI.inputs.detailSignature ? UI.inputs.detailSignature.value : '';
-    const persona = UI.inputs.detailPersona.value;
-    const currentAvatarSrc = UI.inputs.detailAvatarImg.style.display === 'block' ? UI.inputs.detailAvatarImg.src : null;
-
-    if (isCreatingNewAccount) {
-        accounts.push({ id: detailTempId, name, phone, signature, persona, avatarUrl: currentAvatarSrc });
-        currentAccountId = detailTempId; 
-    } else {
-        const acc = accounts.find(a => a.id === detailTempId);
-        if (acc) {
-            acc.name = name;
-            acc.phone = phone;
-            acc.signature = signature;
-            acc.persona = persona;
-            acc.avatarUrl = currentAvatarSrc;
-        }
-    }
-    isCreatingNewAccount = false;
-    saveGlobalData();
-    renderAccountList(); 
-    closeView(UI.overlays.personaDetail); 
-});
-
-// Avatar Upload Handler
-const userDetailAvatarWrapper = document.getElementById('user-detail-avatar-wrapper');
-if (userDetailAvatarWrapper) {
-    userDetailAvatarWrapper.addEventListener('click', (e) => {
-        if (e.target.tagName !== 'INPUT') document.getElementById('detail-avatar-upload').click();
-    });
-}
-
-document.getElementById('detail-avatar-upload').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => setDetailAvatar(e.target.result);
-        reader.readAsDataURL(file);
-    }
-});
-
-function setDetailAvatar(url) {
-    if (url) {
-        UI.inputs.detailAvatarImg.src = url;
-        UI.inputs.detailAvatarImg.style.display = 'block';
-        UI.inputs.detailAvatarIcon.style.display = 'none';
-    } else {
-        UI.inputs.detailAvatarImg.style.display = 'none';
-        UI.inputs.detailAvatarIcon.style.display = 'block';
-        UI.inputs.detailAvatarImg.src = '';
-    }
-}
-
-const bindRoleBtn = document.getElementById('bind-role-btn');
-const bindRoleBtnCount = document.getElementById('bind-role-btn-count');
-const bindRoleSheet = document.getElementById('bind-role-sheet');
-const bindRoleList = document.getElementById('bind-role-list');
-const bindRoleEmpty = document.getElementById('bind-role-empty');
-const bindRoleSheetAccountName = document.getElementById('bind-role-sheet-account-name');
-const bindRoleSheetAccountDesc = document.getElementById('bind-role-sheet-account-desc');
-const confirmBindRoleBtn = document.getElementById('confirm-bind-role-btn');
-
-let tempBoundRoleIds = [];
-
-function getCurrentAppleAccount() {
-    return accounts.find(acc => String(acc.id) === String(currentAccountId)) || null;
-}
-
-function getBindableRoles() {
-    return (window.imData?.friends || []).filter(friend => friend && friend.type !== 'group');
-}
-
-function getRolesBoundToCurrentAccount() {
-    return getBindableRoles().filter(friend => String(friend.boundAccountId || '') === String(currentAccountId || ''));
-}
-
-function updateBindRoleEntryPoints() {
-    if (!bindRoleBtnCount) return;
-    const count = currentAccountId ? getRolesBoundToCurrentAccount().length : 0;
-    bindRoleBtnCount.textContent = count > 0 ? `${count}个角色` : '';
-}
-
-function renderBindRoleList() {
-    if (!bindRoleList || !bindRoleEmpty) return;
-
-    const roles = getBindableRoles();
-    const currentAcc = getCurrentAppleAccount();
-    const boundRoles = getRolesBoundToCurrentAccount();
-    tempBoundRoleIds = boundRoles.map(friend => String(friend.id));
-
-    if (bindRoleSheetAccountName) {
-        bindRoleSheetAccountName.textContent = currentAcc ? (currentAcc.name || '当前 ID') : '未选择 Apple ID';
-    }
-    if (bindRoleSheetAccountDesc) {
-        bindRoleSheetAccountDesc.textContent = currentAcc
-            ? `已绑定 ${boundRoles.length} 个角色`
-            : '请先创建并选中一个 Apple ID';
+            reader.readAsText(file);
+            e.target.value = '';
+        });
     }
 
-    bindRoleList.innerHTML = '';
-
-    if (!currentAcc || roles.length === 0) {
-        bindRoleList.style.display = 'none';
-        bindRoleEmpty.style.display = 'block';
-        bindRoleEmpty.textContent = currentAcc ? '暂无可绑定角色' : '请先在 Apple ID 中选择一个账号';
-        return;
-    }
-
-    bindRoleList.style.display = 'flex';
-    bindRoleEmpty.style.display = 'none';
-
-    roles.forEach(friend => {
-        const isSelected = tempBoundRoleIds.includes(String(friend.id));
-        const alreadyBoundAccount = window.imApp?.getBoundAccountByFriend
-            ? window.imApp.getBoundAccountByFriend(friend)
-            : null;
-
-        const item = document.createElement('div');
-        item.className = 'account-card';
-        item.style.padding = '14px 16px';
-        item.style.height = 'auto';
-        item.style.cursor = 'pointer';
-        item.style.borderRadius = '16px';
-        item.style.border = isSelected ? '2px solid #007aff' : '2px solid transparent';
-        item.style.boxShadow = '0 2px 8px rgba(0,0,0,0.05)';
-
-        item.innerHTML = `
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
-                <div style="display:flex; align-items:center; gap:12px; min-width:0;">
-                    <div style="width:40px; height:40px; border-radius:50%; background:#f2f2f7; overflow:hidden; display:flex; align-items:center; justify-content:center; color:#8e8e93; flex-shrink:0;">
-                        ${friend.avatarUrl ? `<img src="${friend.avatarUrl}" style="width:100%;height:100%;object-fit:cover;">` : '<i class="fas fa-user"></i>'}
-                    </div>
-                    <div style="min-width:0;">
-                        <div style="font-size:15px; font-weight:600; color:#000; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${friend.nickname || '未命名角色'}</div>
-                        <div style="font-size:12px; color:#8e8e93; margin-top:3px;">${friend.realName || friend.signature || '角色'}</div>
-                        <div style="font-size:12px; color:#666; margin-top:4px; line-height:1.45;">当前绑定：${alreadyBoundAccount ? (alreadyBoundAccount.name || '某个ID') : '未绑定'}</div>
-                    </div>
-                </div>
-                <div style="width:22px; height:22px; border-radius:50%; border:1px solid ${isSelected ? '#007aff' : '#c7c7cc'}; background:${isSelected ? '#007aff' : 'transparent'}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; flex-shrink:0;">
-                    ${isSelected ? '<i class="fas fa-check"></i>' : ''}
-                </div>
-            </div>
-        `;
-
-        item.addEventListener('click', () => {
-            const friendId = String(friend.id);
-            if (tempBoundRoleIds.includes(friendId)) {
-                tempBoundRoleIds = tempBoundRoleIds.filter(id => id !== friendId);
+    if (ytClearDataBtn) {
+        ytClearDataBtn.addEventListener('click', () => {
+            if (window.showCustomModal) {
+                window.showCustomModal({
+                    title: '清空所有数据',
+                    message: '确定要清空 YouTube 模拟器的所有数据吗？这包括频道状态、订阅、所有视频和聊天记录。此操作不可恢复。',
+                    isDestructive: true,
+                    confirmText: '清空',
+                    onConfirm: () => {
+                        localStorage.removeItem('yt_channel_state');
+                        localStorage.removeItem('yt_subscriptions');
+                        localStorage.removeItem('yt_user_state');
+                        
+                        // Reset memory state
+                        channelState = {
+                            bannerUrl: null,
+                            url: '',
+                            boundWorldBookIds: [],
+                            systemPrompt: '',
+                            summaryPrompt: '',
+                            groupChatPrompt: '',
+                            vodPrompt: '',
+                            postPrompt: '',
+                            liveSummaries: [],
+                            groupChatHistory: [],
+                            cachedTrendingLive: null,
+                            cachedTrendingSub: null,
+                            pastVideos: []
+                        };
+                        mockSubscriptions = [];
+                        hasSubscriptions = false;
+                        mockVideos = [];
+                        ytUserState = null;
+                        if (window.userState) ytUserState = { ...window.userState };
+                        
+                        syncYtProfile();
+                        renderSubscriptions();
+                        renderVideos();
+                        renderMessagesList();
+                        
+                        if(window.showToast) window.showToast('所有数据已清空');
+                        if(ytSettingsSheet) ytSettingsSheet.classList.remove('active');
+                    }
+                });
             } else {
-                tempBoundRoleIds.push(friendId);
+                if (confirm('确定要清空所有数据吗？此操作不可恢复。')) {
+                    localStorage.removeItem('yt_channel_state');
+                    localStorage.removeItem('yt_subscriptions');
+                    localStorage.removeItem('yt_user_state');
+                    location.reload();
+                }
             }
-            renderBindRoleListFromDraft();
         });
-
-        bindRoleList.appendChild(item);
-    });
-}
-
-function renderBindRoleListFromDraft() {
-    if (!bindRoleList) return;
-    const currentAcc = getCurrentAppleAccount();
-    const roles = getBindableRoles();
-
-    bindRoleList.innerHTML = '';
-    roles.forEach(friend => {
-        const isSelected = tempBoundRoleIds.includes(String(friend.id));
-        const alreadyBoundAccount = window.imApp?.getBoundAccountByFriend
-            ? window.imApp.getBoundAccountByFriend(friend)
-            : null;
-
-        const item = document.createElement('div');
-        item.className = 'account-card';
-        item.style.padding = '14px 16px';
-        item.style.height = 'auto';
-        item.style.cursor = 'pointer';
-        item.style.borderRadius = '16px';
-        item.style.border = isSelected ? '2px solid #007aff' : '2px solid transparent';
-        item.style.boxShadow = '0 2px 8px rgba(0,0,0,0.05)';
-
-        item.innerHTML = `
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
-                <div style="display:flex; align-items:center; gap:12px; min-width:0;">
-                    <div style="width:40px; height:40px; border-radius:50%; background:#f2f2f7; overflow:hidden; display:flex; align-items:center; justify-content:center; color:#8e8e93; flex-shrink:0;">
-                        ${friend.avatarUrl ? `<img src="${friend.avatarUrl}" style="width:100%;height:100%;object-fit:cover;">` : '<i class="fas fa-user"></i>'}
-                    </div>
-                    <div style="min-width:0;">
-                        <div style="font-size:15px; font-weight:600; color:#000; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${friend.nickname || '未命名角色'}</div>
-                        <div style="font-size:12px; color:#8e8e93; margin-top:3px;">${friend.realName || friend.signature || '角色'}</div>
-                        <div style="font-size:12px; color:#666; margin-top:4px; line-height:1.45;">目标绑定：${isSelected ? (currentAcc?.name || '当前ID') : (alreadyBoundAccount ? alreadyBoundAccount.name : '未绑定')}</div>
-                    </div>
-                </div>
-                <div style="width:22px; height:22px; border-radius:50%; border:1px solid ${isSelected ? '#007aff' : '#c7c7cc'}; background:${isSelected ? '#007aff' : 'transparent'}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; flex-shrink:0;">
-                    ${isSelected ? '<i class="fas fa-check"></i>' : ''}
-                </div>
-            </div>
-        `;
-
-        item.addEventListener('click', () => {
-            const friendId = String(friend.id);
-            if (tempBoundRoleIds.includes(friendId)) {
-                tempBoundRoleIds = tempBoundRoleIds.filter(id => id !== friendId);
-            } else {
-                tempBoundRoleIds.push(friendId);
-            }
-            renderBindRoleListFromDraft();
-        });
-
-        bindRoleList.appendChild(item);
-    });
-
-    if (bindRoleSheetAccountDesc && currentAcc) {
-        bindRoleSheetAccountDesc.textContent = `已选择 ${tempBoundRoleIds.length} 个角色`;
     }
-}
 
-function renderAccountList() {
-    if(!UI.lists.accounts) return;
-    UI.lists.accounts.innerHTML = '';
-
-    accounts.forEach(acc => {
-        const card = document.createElement('div');
-        card.className = `account-card ${acc.id === currentAccountId ? 'selected' : ''}`;
-        
-        const avatarHtml = acc.avatarUrl ? `<img src="${acc.avatarUrl}" alt="">` : `<i class="fas fa-user"></i>`;
-        card.innerHTML = `
-            <div class="account-content">
-                <div class="account-avatar">${avatarHtml}</div>
-                <div class="account-info">
-                    <div class="account-name">${acc.name}</div>
-                    <div class="account-detail">${acc.phone || 'No Phone'}</div>
-                </div>
-                <i class="fas fa-times delete-icon"></i>
-            </div>
-        `;
-
-        // Click to Open Detail View & Set Active
-        card.querySelector('.account-content').addEventListener('click', (e) => {
-            // If clicked on delete icon, do not open detail view
-            if (e.target.classList.contains('delete-icon') || e.target.closest('.delete-icon')) return;
-
-            currentAccountId = acc.id;
-            if (window.setCurrentAccountId) window.setCurrentAccountId(acc.id);
-            renderAccountList(); // Refresh highlighting
-            
-            isCreatingNewAccount = false;
-            detailTempId = acc.id;
-            UI.inputs.detailName.value = acc.name || '';
-            UI.inputs.detailPhone.value = acc.phone || '';
-            if(UI.inputs.detailSignature) UI.inputs.detailSignature.value = acc.signature || acc.persona || '';
-            UI.inputs.detailPersona.value = acc.persona || '';
-            setDetailAvatar(acc.avatarUrl);
-            
-            openView(UI.overlays.personaDetail);
-        });
-
-        // Delete Action
-        card.querySelector('.delete-icon').addEventListener('click', (e) => {
+    if (mainSettingsBtn && ytSettingsSheet) {
+        mainSettingsBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            if (confirm(`Delete account "${acc.name}"?`)) {
-                accounts = accounts.filter(a => a.id !== acc.id);
-                if (currentAccountId === acc.id) {
-                    currentAccountId = accounts.length > 0 ? accounts[0].id : null;
-                    if (window.setCurrentAccountId) window.setCurrentAccountId(currentAccountId);
-                    const nextAccount = accounts.find(a => a.id === currentAccountId);
-                    userState.name = nextAccount?.name || '';
-                    userState.phone = nextAccount?.phone || '';
-                    userState.persona = nextAccount?.signature || nextAccount?.persona || '';
-                    userState.avatarUrl = nextAccount?.avatarUrl || null;
-                }
-                saveGlobalData();
-                syncUIs();
-                renderAccountList();
-            }
+            ytSettingsSheet.classList.add('active');
         });
-
-        UI.lists.accounts.appendChild(card);
-    });
-    updateBindRoleEntryPoints();
-}
-
-if (bindRoleSheet) {
-    bindRoleSheet.addEventListener('click', (e) => {
-        if (e.target === bindRoleSheet) closeView(bindRoleSheet);
-    });
-}
-
-if (bindRoleBtn) {
-    bindRoleBtn.addEventListener('click', () => {
-        updateBindRoleEntryPoints();
-        const count = currentAccountId ? getRolesBoundToCurrentAccount().length : 0;
-        showToast(currentAccountId ? `当前 ID 已绑定 ${count} 个角色` : '请先选择一个 Apple ID');
-    });
-}
-
-if (confirmBindRoleBtn) {
-    confirmBindRoleBtn.addEventListener('click', () => {
-        const roles = getBindableRoles();
-        const selectedIds = new Set(tempBoundRoleIds.map(String));
-
-        roles.forEach(friend => {
-            if (selectedIds.has(String(friend.id))) {
-                friend.boundAccountId = currentAccountId || null;
-            } else if (String(friend.boundAccountId || '') === String(currentAccountId || '')) {
-                friend.boundAccountId = null;
-            }
+        
+        ytSettingsSheet.addEventListener('mousedown', (e) => {
+            if(e.target === ytSettingsSheet) ytSettingsSheet.classList.remove('active');
         });
-
-        if (window.imApp?.saveFriends) window.imApp.saveFriends();
-        if (window.imApp?.updateChatBindIdLabel && window.imData?.currentSettingsFriend) {
-            window.imApp.updateChatBindIdLabel(window.imData.currentSettingsFriend);
-        }
-        updateBindRoleEntryPoints();
-        showToast('角色绑定已更新');
-        closeView(bindRoleSheet);
-    });
-}
-
-window.updateBindRoleEntryPoints = updateBindRoleEntryPoints;
-window.renderBindRoleList = renderBindRoleList;
-
-// ==========================================
-// 8.5 DATA MANAGEMENT (Export / Import / Clear)
-// ==========================================
-document.getElementById('export-data-btn')?.addEventListener('click', () => {
-    saveGlobalData(); // Ensure latest state is saved
-    const dataStr = localStorage.getItem('ios_emulator_global_data');
-    if (!dataStr) {
-        showToast('暂无数据可导出');
-        return;
     }
-    
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `emulator_data_${new Date().getTime()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    showToast('导出成功');
-});
 
-const importDataBtn = document.getElementById('import-data-btn');
-const importDataFile = document.getElementById('import-data-file');
+    if (ytBindWbBtn && bindWbSheet) {
+        ytBindWbBtn.addEventListener('click', () => {
+            ytSettingsSheet.classList.remove('active');
+            renderWbBindList();
+            bindWbSheet.classList.add('active');
+        });
+    }
 
-if (importDataBtn && importDataFile) {
-    importDataBtn.addEventListener('click', () => {
-        importDataFile.click();
-    });
+    let tempBoundIds = [];
 
-    importDataFile.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+    if (ytBindWbBtn && bindWbSheet) {
+        ytBindWbBtn.addEventListener('click', () => {
+            ytSettingsSheet.classList.remove('active');
+            tempBoundIds = [...(channelState.boundWorldBookIds || [])];
+            renderWbBindList();
+            bindWbSheet.classList.add('active');
+        });
+    }
 
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            try {
-                const parsed = JSON.parse(event.target.result);
-                if (parsed && typeof parsed === 'object') {
-                    localStorage.setItem('ios_emulator_global_data', event.target.result);
-                    showToast('导入成功，即将刷新...');
-                    setTimeout(() => location.reload(), 1500);
+    const confirmBindWbBtn = document.getElementById('confirm-bind-world-book-btn');
+    if (confirmBindWbBtn) {
+        confirmBindWbBtn.addEventListener('click', () => {
+            channelState.boundWorldBookIds = [...tempBoundIds];
+            const nameEl = document.getElementById('yt-bound-wb-name');
+            if (nameEl) {
+                if (channelState.boundWorldBookIds.length === 0) {
+                    nameEl.textContent = '未绑定';
+                } else if (channelState.boundWorldBookIds.length === 1) {
+                    const wbs = window.getWorldBooks ? window.getWorldBooks() : [];
+                    const wb = wbs.find(w => w.id === channelState.boundWorldBookIds[0]);
+                    nameEl.textContent = wb ? wb.name : '已绑定 1 本';
                 } else {
-                    showToast('无效的数据格式');
-                }
-            } catch (err) {
-                showToast('文件解析失败');
-            }
-        };
-        reader.readAsText(file);
-        e.target.value = '';
-    });
-}
-
-document.getElementById('clear-data-btn')?.addEventListener('click', () => {
-    if (confirm('确定要清空缓存数据吗？此操作不可恢复，但会保留 API 配置。')) {
-        let preservedApiConfig = { endpoint: '', apiKey: '', model: '', temperature: 0.7 };
-
-        try {
-            const dataStr = localStorage.getItem('ios_emulator_global_data');
-            if (dataStr) {
-                const parsed = JSON.parse(dataStr);
-                if (parsed && parsed.apiConfig && typeof parsed.apiConfig === 'object') {
-                    preservedApiConfig = {
-                        endpoint: parsed.apiConfig.endpoint || '',
-                        apiKey: parsed.apiConfig.apiKey || '',
-                        model: parsed.apiConfig.model || '',
-                        temperature: parseFloat(parsed.apiConfig.temperature) || 0.7
-                    };
+                    nameEl.textContent = `已绑定 ${channelState.boundWorldBookIds.length} 本`;
                 }
             }
-        } catch (err) {
-            console.error('Failed to preserve api config before clearing data', err);
+            saveYoutubeData();
+            if(window.showToast) window.showToast('世界书绑定成功');
+            bindWbSheet.classList.remove('active');
+        });
+    }
+
+    function renderWbBindList() {
+        const list = document.getElementById('bind-world-book-list');
+        if(!list) return;
+        list.innerHTML = '';
+        
+        const wbs = window.getWorldBooks ? window.getWorldBooks() : [];
+        if (wbs.length === 0) {
+            list.innerHTML = `<div style="text-align:center; padding:20px; color:#8e8e93;">暂无世界书，请先在主界面创建</div>`;
+            return;
         }
 
-        localStorage.setItem('ios_emulator_global_data', JSON.stringify({
-            apiConfig: preservedApiConfig
-        }));
-        showToast('缓存已清空，API 配置已保留，即将刷新...');
-        setTimeout(() => location.reload(), 1500);
+        wbs.forEach(wb => {
+            const isSelected = tempBoundIds.includes(wb.id);
+            const tokens = window.calculateTokens ? window.calculateTokens(wb.entries) : 0;
+            
+            const item = document.createElement('div');
+            item.className = 'account-card';
+            item.style.padding = '12px 16px';
+            item.style.height = 'auto';
+            item.style.cursor = 'pointer';
+            item.style.borderRadius = '16px';
+            item.style.border = isSelected ? '2px solid var(--blue-color)' : '2px solid transparent';
+            item.style.boxShadow = '0 2px 8px rgba(0,0,0,0.05)';
+            item.style.position = 'relative';
+            
+            item.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 36px; height: 36px; background-color: #1c1c1e; border-radius: 10px; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 16px;">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 16px; font-weight: 500; color: #000;">${wb.name}</div>
+                            <div style="font-size: 12px; color: #8e8e93; margin-top: 2px;">分组: ${wb.group || '未分组'}</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 13px; color: #8e8e93;">+${tokens} Tokens</span>
+                        <div style="width: 22px; height: 22px; border-radius: 50%; border: 1px solid ${isSelected ? 'var(--blue-color)' : '#c7c7cc'}; background-color: ${isSelected ? 'var(--blue-color)' : 'transparent'}; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 12px;">
+                            ${isSelected ? '<i class="fas fa-check"></i>' : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const styleFix = document.createElement('style');
+            styleFix.innerHTML = `#bind-world-book-list .account-card::after { display: none !important; }`;
+            item.appendChild(styleFix);
+
+            item.addEventListener('click', () => {
+                if (tempBoundIds.includes(wb.id)) {
+                    tempBoundIds = tempBoundIds.filter(id => id !== wb.id);
+                } else {
+                    tempBoundIds.push(wb.id);
+                }
+                renderWbBindList();
+            });
+            
+            list.appendChild(item);
+        });
     }
-});
+
+    // Prompt Settings
+    const ytPromptInput = document.getElementById('yt-prompt-input');
+    const promptTabLive = document.getElementById('prompt-tab-live');
+    const promptTabSummary = document.getElementById('prompt-tab-summary');
+    const promptTabGroup = document.getElementById('prompt-tab-group');
+    const promptDesc = document.getElementById('yt-prompt-desc');
+    let currentPromptTab = 'live';
+
+    const defaultPrompt = `你正在进行YouTube直播，你的名字是"{char}"。
+你的人设和简介："{char_persona}"。
+当前和你互动的是观众"{user}"，ta的人设："{user_persona}"。
+世界观背景：{wb_context}
+最近的直播经历：{live_summary_context}
+{context_clue}
+{msg_context}
+
+请根据你的设定，生成符合你人设风格的直播回应。
+具体要求：
+1. charBubbles: 主播（你）的回应。
+   - 绝对不要复述观众的话或SC留言！
+   - 返回1-3条气泡（字符串数组）。每条限制在30字内。
+   - 格式要求：动作请用全角括号包裹（例如：（微笑）），环境和氛围请用简短的词语描述在括号里。然后再接语言。
+   - 绝对禁止使用任何 Emoji 表情符号！
+   - 句子末尾不要使用句号，语气要像活人聊天。
+2. passerbyComments: 路人观众在公屏发表的评论（吃瓜群众）。**注意：主播（Char）的回复绝对不要出现在这里！绝对不要使用 Emoji 和句末句号！**
+3. randomSuperChat: （可选）随机生成一条其他人的打赏。
+   - 必须根据打赏观众的国籍或名字特征，显示不同国家/地区的货币符号和金额（例如：$50, ¥100, €20, £30, JP¥5000 等）。如果不确定，可随机使用一种。
+   - displayAmount: 用于展示给用户的金额（带货币符号的字符串）。
+   - amount: 用于后台统计的纯数字（代表换算成人民币的大致金额）。
+
+必须返回严格的 JSON 格式，如下：
+{
+  "charBubbles": ["（喝了口水，氛围轻松）大家晚上好呀", "（笑）谢谢大家的礼物"],
+  "passerbyComments": [
+    {"name": "路人甲", "text": "前排围观"},
+    {"name": "John Doe", "text": "This is awesome"}
+  ],
+  "randomSuperChat": {
+    "hasSuperChat": true,
+    "name": "富哥",
+    "displayAmount": "JP¥5000",
+    "amount": 250,
+    "text": "主播辛苦了",
+    "color": "#e65100"
+  }
+}`;
+
+    const defaultSummaryPrompt = `请为刚刚结束的这场直播写一份“直播总结报告”。
+你的名字是"{char}"。你的人设和简介："{char_persona}"。
+这场直播中与你互动的主要观众是"{user}"。
+当前时间：{current_time}
+以下是本次直播的真实聊天记录摘要：
+{chat_history}
+
+请严格基于上述聊天记录生成一份详细的直播回忆总结，不要编造不存在的情节。
+要求：
+1. 字数控制在200字以内，简化描述，去除冗余修饰。
+2. 专注于核心互动、关键事件和直播间的整体氛围。
+3. 包含 date, title, content, interaction, atmosphere 字段。
+4. 绝对不要使用任何 Emoji 表情符号，句子末尾不要使用句号。
+
+返回严格的 JSON 格式：
+{
+  "date": "使用当前真实时间",
+  "title": "简短标题",
+  "content": "简要概括做了什么",
+  "interaction": "与观众的互动亮点",
+  "atmosphere": "整体氛围",
+  "newSubs": 150
+}`;
+
+    const defaultGroupChatPrompt = `你正在粉丝群里水群，你的名字是"{char}"。
+你的人设和简介："{char_persona}"。
+用户"{user}"也在群里，ta的人设："{user_persona}"。
+世界观背景：{wb_context}
+最近的直播经历：{live_summary_context}
+
+群聊历史记录：
+{chat_history}
+
+{trigger_instruction}
+
+请生成群聊回复。
+返回严格的 JSON 格式：
+{
+  "charReplies": ["你的第一句回复", "你的第二句回复（可选，分段发送更真实）"],
+  "otherFansReplies": [
+    {"name": "粉丝A", "text": "回复内容"},
+    {"name": "粉丝B", "text": "回复内容"}
+  ]
+}
+注意：
+1. 气泡要简短！每条回复（包括你的和其他粉丝的）**绝对不要超过25个字**。
+2. charReplies 必须是一个字符串数组。请模仿真实聊天，将你想说的话拆分成1-3条极短的消息分开发送。
+3. otherFansReplies 中的每个粉丝也应该只发极短的句子。如果一个粉丝要说多句话，请将其拆分成多个对象（同名）。
+4. 语气要口语化、松弛，绝对不要使用任何 Emoji 表情符号，句子末尾不要使用句号。`;
+
+    const defaultVODPrompt = `用户"{user}"在你的往期视频或贴文下发表了评论。
+内容主题："{video_title}"
+你的名字："{char}"，人设："{char_persona}"。
+用户人设："{user_persona}"。
+世界观：{wb_context}
+
+用户评论内容："{msg}"
+
+请生成回复。返回严格的 JSON 格式：
+{
+  "charReplies": ["你的回复内容（可以是1-3条短句）"],
+  "fanReplies": [
+    {"name": "路人粉", "text": "路人的简短评论"},
+    {"name": "黑粉", "text": "路人的简短评论"}
+  ]
+}
+注意：绝对不要使用任何 Emoji 表情符号，句子末尾不要使用句号，语气要像真实的活人聊天。`;
+
+    if (promptTabLive && promptTabSummary && promptTabGroup) {
+        promptTabLive.addEventListener('click', () => {
+            currentPromptTab = 'live';
+            promptTabLive.classList.add('active');
+            promptTabSummary.classList.remove('active');
+            promptTabGroup.classList.remove('active');
+            if(promptDesc) promptDesc.textContent = "直播互动提示词。使用 {char}, {user}, {guest}, {msg} 等变量。";
+            if(ytPromptInput) ytPromptInput.value = channelState.systemPrompt || defaultPrompt;
+        });
+
+        promptTabSummary.addEventListener('click', () => {
+            currentPromptTab = 'summary';
+            promptTabSummary.classList.add('active');
+            promptTabLive.classList.remove('active');
+            promptTabGroup.classList.remove('active');
+            if(promptDesc) promptDesc.textContent = "直播总结提示词。要求返回 JSON。";
+            if(ytPromptInput) ytPromptInput.value = channelState.summaryPrompt || defaultSummaryPrompt;
+        });
+        
+        promptTabGroup.addEventListener('click', () => {
+            currentPromptTab = 'group';
+            promptTabGroup.classList.add('active');
+            promptTabLive.classList.remove('active');
+            promptTabSummary.classList.remove('active');
+            if(promptDesc) promptDesc.textContent = "粉丝群聊提示词。包含 {live_summary_context}, {chat_history} 等变量。";
+            if(ytPromptInput) ytPromptInput.value = channelState.groupChatPrompt || defaultGroupChatPrompt;
+        });
+    }
+
+    const resetPromptBtn = document.getElementById('reset-yt-prompt-btn');
+    if (resetPromptBtn) {
+        resetPromptBtn.addEventListener('click', () => {
+            if (!ytPromptInput) return;
+            if (currentPromptTab === 'live') {
+                ytPromptInput.value = defaultPrompt;
+            } else if (currentPromptTab === 'summary') {
+                ytPromptInput.value = defaultSummaryPrompt;
+            } else {
+                ytPromptInput.value = defaultGroupChatPrompt;
+            }
+        });
+    }
+
+    const confirmPromptBtn = document.getElementById('confirm-yt-prompt-btn');
+    if (confirmPromptBtn) {
+        confirmPromptBtn.addEventListener('click', () => {
+            if (!ytPromptInput) return;
+            if (currentPromptTab === 'live') {
+                channelState.systemPrompt = ytPromptInput.value.trim();
+            } else if (currentPromptTab === 'summary') {
+                channelState.summaryPrompt = ytPromptInput.value.trim();
+            } else {
+                channelState.groupChatPrompt = ytPromptInput.value.trim();
+            }
+            saveYoutubeData();
+            if(ytPromptSheet) ytPromptSheet.classList.remove('active');
+            if(window.showToast) window.showToast('提示词已保存');
+        });
+    }
+
+    // Summary List Logic
+    const summaryListBtn = document.getElementById('yt-summary-list-btn');
+    const summaryListSheet = document.getElementById('yt-summary-list-sheet');
+    const summaryListContainer = document.getElementById('yt-summary-list-container');
+    const summaryDetailSheet = document.getElementById('yt-summary-detail-sheet');
+    const summaryDetailText = document.getElementById('yt-summary-detail-text');
+    const summarySaveBtn = document.getElementById('yt-summary-save-btn');
+    const summaryDeleteBtn = document.getElementById('yt-summary-delete-btn');
+    
+    let currentEditingSummaryIndex = -1;
+
+    if (summaryListBtn && summaryListSheet) {
+        summaryListBtn.addEventListener('click', () => {
+            if(ytSettingsSheet) ytSettingsSheet.classList.remove('active');
+            renderSummaryList();
+            summaryListSheet.classList.add('active');
+        });
+        
+        summaryListSheet.addEventListener('mousedown', (e) => {
+            if(e.target === summaryListSheet) summaryListSheet.classList.remove('active');
+        });
+        
+        if (summaryDetailSheet) {
+            summaryDetailSheet.addEventListener('mousedown', (e) => {
+                if(e.target === summaryDetailSheet) summaryDetailSheet.classList.remove('active');
+            });
+        }
+    }
+
+    if (summarySaveBtn) {
+        summarySaveBtn.addEventListener('click', () => {
+            if (currentEditingSummaryIndex > -1 && channelState.liveSummaries) {
+                if (summaryDetailText) {
+                    channelState.liveSummaries[currentEditingSummaryIndex].content = summaryDetailText.value;
+                }
+                channelState.liveSummaries[currentEditingSummaryIndex].isEdited = true;
+                saveYoutubeData();
+                if(window.showToast) window.showToast('总结已修改');
+                renderSummaryList(); // Refresh list preview
+                if(summaryDetailSheet) summaryDetailSheet.classList.remove('active');
+            }
+        });
+    }
+
+    if (summaryDeleteBtn) {
+        summaryDeleteBtn.addEventListener('click', () => {
+            if (currentEditingSummaryIndex > -1 && channelState.liveSummaries) {
+                if(confirm('确定要删除这条总结吗？')) {
+                    channelState.liveSummaries.splice(currentEditingSummaryIndex, 1);
+                    saveYoutubeData();
+                    if(window.showToast) window.showToast('总结已删除');
+                    renderSummaryList();
+                    if(summaryDetailSheet) summaryDetailSheet.classList.remove('active');
+                }
+            }
+        });
+    }
+
+    function renderSummaryList() {
+        if (!summaryListContainer) return;
+        summaryListContainer.innerHTML = '';
+        
+        if (!channelState.liveSummaries || channelState.liveSummaries.length === 0) {
+            summaryListContainer.innerHTML = `<div style="text-align:center; padding: 30px; color:#8e8e93; font-size:14px;">暂无直播总结记录</div>`;
+            return;
+        }
+
+        for (let i = channelState.liveSummaries.length - 1; i >= 0; i--) {
+            const summary = channelState.liveSummaries[i];
+            const card = document.createElement('div');
+            card.className = 'yt-summary-card';
+            
+            const displayTitle = summary.title || '直播记录';
+            const safeContent = summary.content ? String(summary.content) : '';
+            const displayContent = summary.isEdited ? (safeContent.length > 60 ? safeContent.slice(0, 60) + '...' : safeContent) : (safeContent || '无内容');
+
+            card.innerHTML = `
+                <div class="yt-summary-date">${summary.date || '未知时间'}</div>
+                <div class="yt-summary-title">${displayTitle}</div>
+                <div class="yt-summary-preview">主要内容：${displayContent}</div>
+            `;
+            
+            card.addEventListener('click', () => {
+                currentEditingSummaryIndex = i;
+                if (summaryDetailText) {
+                    if (summary.isEdited) {
+                        summaryDetailText.value = summary.content || '';
+                    } else {
+                        summaryDetailText.value = `【直播时间】\n${summary.date || ''}\n\n` +
+                                                  `【直播主题】\n${summary.title || ''}\n\n` +
+                                                  `【直播内容】\n${summary.content || ''}\n\n` +
+                                                  `【互动亮点】\n${summary.interaction || ''}\n\n` +
+                                                  `【直播氛围】\n${summary.atmosphere || ''}`;
+                    }
+                }
+                if (summaryDetailSheet) summaryDetailSheet.classList.add('active');
+            });
+            
+            summaryListContainer.appendChild(card);
+        }
+    }
+
+    

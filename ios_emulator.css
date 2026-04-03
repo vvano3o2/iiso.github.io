@@ -2712,7 +2712,6 @@ body.hide-island .screen {
 @media (max-width: 600px) {
     html, body {
         height: 100vh !important;
-        height: 100dvh !important;
         width: 100vw !important;
         position: fixed !important;
         overflow: hidden !important;
@@ -2726,11 +2725,8 @@ body.hide-island .screen {
         bottom: 0 !important;
         width: 100vw !important;
         height: 100vh !important;
-        height: 100dvh !important;
         min-height: 100vh !important;
-        min-height: 100dvh !important;
         max-height: 100vh !important;
-        max-height: 100dvh !important;
         border-radius: 0 !important;
         padding: 0 !important;
         box-shadow: none !important;
@@ -2738,18 +2734,16 @@ body.hide-island .screen {
     }
     .screen {
         border-radius: 0 !important;
-        padding-top: env(safe-area-inset-top, 0px) !important;
-        padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
         height: 100vh !important;
-        height: 100dvh !important;
         min-height: 100vh !important;
-        min-height: 100dvh !important;
         box-sizing: border-box !important;
     }
     .notch, .status-bar, .home-bar {
         display: none !important;
     }
     .app-view, .settings-view, .edit-view {
-        padding-top: env(safe-area-inset-top, 0px);
+        padding-top: 0 !important;
     }
 }
