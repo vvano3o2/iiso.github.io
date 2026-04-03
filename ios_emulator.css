@@ -2723,7 +2723,7 @@ body.hide-island .screen {
         width: 100vw !important;
         position: fixed !important;
         overflow: hidden !important;
-        background-color: var(--bg-color) !important;
+        background-color: #000 !important; /* Ensure safe-area is covered by black when fullscreen */
     }
     
     @supports (height: 100svh) {
@@ -2754,6 +2754,7 @@ body.hide-island .screen {
         height: 100% !important;
         min-height: 100% !important;
         box-sizing: border-box !important;
+        background-color: var(--bg-color); /* Real background inside screen */
     }
     .notch, .status-bar, .home-bar {
         display: none !important;

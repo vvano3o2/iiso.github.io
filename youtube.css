@@ -419,7 +419,7 @@
 /* 6. Floating Bottom Navigation (Glassmorphism) */
 .yt-bottom-nav-container {
     position: absolute;
-    bottom: 30px; 
+    bottom: calc(30px + env(safe-area-inset-bottom, 0px)); 
     left: 0;
     width: 100%;
     display: flex;
@@ -428,7 +428,7 @@
 }
 
 body.fullscreen-mode .yt-bottom-nav-container {
-    bottom: 30px !important;
+    bottom: calc(30px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 .yt-bottom-nav {

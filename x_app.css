@@ -866,7 +866,7 @@
 /* Floating Action Button (FAB) */
 .x-fab {
     position: absolute;
-    bottom: 90px; /* Adjusted due to flatter bottom nav */
+    bottom: calc(90px + env(safe-area-inset-bottom, 0px)); /* Adjusted due to flatter bottom nav */
     right: 20px;
     width: 56px;
     height: 56px;
