@@ -49,6 +49,7 @@ html {
     -webkit-text-size-adjust: 100%;
     height: 100%;
     width: 100%;
+    overflow: hidden;
 }
 
 body {
@@ -61,8 +62,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    overscroll-behavior-y: none;
-    touch-action: pan-y;
+    overscroll-behavior: none;
+    touch-action: none;
 }
 
 /* Phone Frame */
@@ -293,58 +294,6 @@ body {
     color: #c7c7cc;
 }
 
-/* Dynamic Island Notch */
-.notch {
-    position: absolute;
-    top: 23px; /* 12px padding + 11px inner distance to match modern iOS */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 125px; 
-    height: 37px; 
-    background-color: #000;
-    border-radius: 18.5px; 
-    z-index: 9999; 
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    pointer-events: none; 
-}
-
-/* Status Bar */
-.status-bar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 54px; /* Align vertically with the notch area */
-    padding: 0 34px; /* Steer clear of the big screen corners */
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: #000;
-    z-index: 90;
-}
-
-.time {
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: -0.3px;
-    margin-top: 2px; /* Slight optical adjustment */
-}
-
-.status-icons {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.status-icons i {
-    font-size: 13px;
-}
-
-.status-icons .fa-battery-full {
-    font-size: 17px;
-    margin-left: 2px;
-    opacity: 0.8; /* Make battery look a bit smoother */
-}
 
 /* Home Search Pill */
 .home-search-pill {
@@ -1582,18 +1531,6 @@ body.jiggle-mode {
     transform: scale(0.9);
 }
 
-.home-bar {
-    position: absolute;
-    bottom: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 134px;
-    height: 5px;
-    background-color: #000;
-    border-radius: 10px;
-    opacity: 0.3;
-    z-index: 200;
-}
 
 /* ---------------- App Views (Settings, iMessage, Edit) ---------------- */
 .app-view, .settings-view, .edit-view {
@@ -2386,6 +2323,7 @@ body.fullscreen-mode .phone-frame {
     transform: none !important;
     background-color: var(--screen-bg);
     position: relative;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
 }
@@ -2400,12 +2338,6 @@ body.fullscreen-mode .screen {
     box-sizing: border-box;
 }
 
-/* ÄÂÄšÂÄÂĂÂÄÂĂÂ¨ÄÂÄšÂÄÂĂÂÄÂĂÂ¨ÄÂÄšÂÄÂĂÂÄÂĂÂÄÂĂÂÄÂĂÂ¨ÄÂĂÂÄÂÄšÂĂĹĄÄšÂÄÂĂÂĂÂĂÂ¤ÄÂĂÂ¸ÄÂĂÂÄÂĂÂĂĹĄÄšÂÄÂĂÂĂÂÄšÂ ÄÂĂÂÄÂĂÂÄÂĂÂÄÂĂÂÄÂĂÂÄÂĂÂÄÂĂÂ¨ÄÂĂÂÄÂĂÂÄÂĂÂÄÂĂÂÄÂÄšÂÄÂĂÂÄÂĂÂ¨ÄÂÄšÂÄÂĂÂÄÂĂÂÄÂĂÂÄÂĂÂĂĹĄÄšÄĂÂĂÂ§ÄÂĂÂÄÂĂÂÄÂÄšÂÄÂĂÂÄÂĂÂÄÂÄšÂÄÂĂÂÄÂĂÂÄÂĂÂÄÂÄšĹžÄÂĂÂÄÂĂÂÄÂĂÂÄÂĂÂĂÂĂÂ§ÄÂĂÂĂĹĄĂÂÄÂĂÂÄÂĂÂÄÂĂÂÄÂĂÂÄÂĂÂ ÄÂĂÂÄÂÄšÂÄÂĂÂÄÂĂÂÄÂÄšÂĂĹĄĂÂÄÂĂÂĂÂÄšÂ ÄÂĂÂÄÂĂÂ¨ÄÂĂÂÄÂĂÂ¨ĂĹĄĂÂÄÂĂÂÄÂĂÂÄÂĂÂ */
-body.fullscreen-mode .notch,
-body.fullscreen-mode .status-bar,
-body.fullscreen-mode .home-bar {
-    display: none !important;
-}
 
 body.fullscreen-mode .app-view,
 body.fullscreen-mode .settings-view,
@@ -2425,10 +2357,6 @@ body.fullscreen-mode .dock-container {
     bottom: max(24px, env(safe-area-inset-bottom, 0px)) !important;
 }
 
-body.fullscreen-mode .home-bar {
-    display: block !important;
-    bottom: max(8px, env(safe-area-inset-bottom, 0px)) !important;
-}
 
 body.fullscreen-mode .page-indicators {
     bottom: calc(155px + env(safe-area-inset-bottom, 0px)) !important;
@@ -2436,10 +2364,6 @@ body.fullscreen-mode .page-indicators {
 
 body.fullscreen-mode .home-search-pill {
     bottom: calc(120px + env(safe-area-inset-bottom, 0px)) !important;
-}
-
-body.hide-island .notch {
-    display: none !important;
 }
 
 body.hide-island .screen {
@@ -2759,6 +2683,7 @@ body.hide-island .screen {
         transform: none;
         background-color: var(--screen-bg);
         position: relative;
+        overflow: hidden;
         display: flex;
         flex-direction: column;
     }
@@ -2773,7 +2698,4 @@ body.hide-island .screen {
         box-sizing: border-box;
     }
     
-    .notch {
-        display: none;
-    }
 }

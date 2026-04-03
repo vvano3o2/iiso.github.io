@@ -69,13 +69,6 @@
         });
     }
 
-    const homeBar = document.getElementById('home-bar');
-    if (homeBar && ytView) {
-        homeBar.addEventListener('click', () => {
-            ytView.classList.remove('active');
-        });
-    }
-
     // 4. Bottom Nav Interaction
     
     // --- Messages Tab Logic ---

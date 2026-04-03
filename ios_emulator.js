@@ -404,14 +404,17 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('settings-title-back-btn').addEventListener('click', () => closeView(UI.views.settings));
 
     // Use Home Bar to close apps
-    document.getElementById('home-bar').addEventListener('click', () => {
-        closeView(UI.views.settings);
-        closeView(UI.views.edit);
-        closeView(UI.views.worldBook);
-        // imessageView is handled in imessage.js now
-        const imessageView = document.getElementById('imessage-view');
-        if (imessageView) closeView(imessageView);
-    });
+    const homeBar = document.getElementById('home-bar');
+    if (homeBar) {
+        homeBar.addEventListener('click', () => {
+            closeView(UI.views.settings);
+            closeView(UI.views.edit);
+            closeView(UI.views.worldBook);
+            // imessageView is handled in imessage.js now
+            const imessageView = document.getElementById('imessage-view');
+            if (imessageView) closeView(imessageView);
+        });
+    }
 
     // ==========================================
     // World Book Logic

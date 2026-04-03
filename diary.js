@@ -620,11 +620,6 @@ ${globalWorldBookContext ? `全局世界书：\n${globalWorldBookContext}\n` : '
         }
     }
 
-    const homeBar = document.getElementById('home-bar');
-    if (homeBar && diaryView) {
-        homeBar.addEventListener('click', closeDiaryView);
-    }
-
     if (homeBackBtn && diaryView) {
         homeBackBtn.addEventListener('click', closeDiaryView);
     }

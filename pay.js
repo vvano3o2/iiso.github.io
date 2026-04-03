@@ -105,14 +105,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Use Home Bar to close apps
-    const homeBar = document.getElementById('home-bar');
-    if (homeBar && payView) {
-        homeBar.addEventListener('click', () => {
-            payView.classList.remove('active');
-        });
-    }
-
     // --- Tab Switching ---
     segmentBtns.forEach(btn => {
         btn.addEventListener('click', () => {
