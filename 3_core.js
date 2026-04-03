@@ -167,8 +167,8 @@ function addSwipeLogic(card, onDelete) {
 function adjustAppHeight() {
     const h = window.visualViewport?.height ?? window.innerHeight;
     const vh = h * 0.01;
-    // 强行将容器高度锁定为100vh（无论Safari地址栏缩展），让底部沉底，但是保留--vh的精确计算供其他元素使用
-    document.documentElement.style.setProperty('--app-height', `100vh`);
+    // Let height naturally conform to 100% via CSS, fallback to h for absolute constraints if needed.
+    document.documentElement.style.setProperty('--app-height', `${h}px`);
     document.documentElement.style.setProperty('--vh', `${vh}px`);
 }
 
