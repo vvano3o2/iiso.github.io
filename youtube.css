@@ -426,7 +426,7 @@
     justify-content: center;
     z-index: 200;
     background-color: #ffffff;
-    padding-bottom: 20px !important;
+    padding-bottom: env(safe-area-inset-bottom, 20px) !important;
     height: auto !important;
 }
 

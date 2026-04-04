@@ -935,7 +935,7 @@ body.fullscreen-mode .line-bottom-nav-container {
     left: 0;
     width: 100%;
     padding: 10px 16px 0;
-    padding-bottom: 20px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 34px));
     background-color: #ffffff; /* Solid background to match sticky header */
     border-top: none;
     z-index: 30;

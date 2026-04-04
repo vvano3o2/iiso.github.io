@@ -48,25 +48,18 @@ input, textarea, [contenteditable] {
 html {
     -webkit-text-size-adjust: 100%;
     height: 100%;
-    width: 100%;
-    overflow: hidden;
 }
 
 body {
-    width: 100%;
-    height: 100%;
     margin: 0;
-    padding: 0;
+    font-family: var(--font-stack);
+    font-weight: normal;
+    background-color: #f0f2f5;
+    height: 100%;
     overflow: hidden;
-    background-color: #e5e5e5; /* gray in desktop mode */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overscroll-behavior: none;
-    touch-action: none;
 }
 
-/* Phone Frame */
+/* Phone Frame (matches sfsfdf detach mode) */
 .phone-frame {
     position: fixed;
     top: 0;
@@ -74,23 +67,16 @@ body {
     left: 0;
     right: 0;
     height: auto !important;
-    width: auto !important;
-    max-width: none;
-    max-height: none;
-    background-color: var(--screen-bg);
-    border-radius: 0;
-    padding: 0;
-    box-sizing: border-box;
-    box-shadow: none;
-    overflow: hidden; /* Ensure nothing spills out */
+    width: 100%;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    transition: all 0.3s ease;
+    background-color: var(--screen-bg);
 }
 
 .screen {
     width: 100%;
-    height: 100%;
+    flex: 1; /* Key change: flex to take remaining height */
     background-color: var(--screen-bg);
     background-image: var(--home-bg-image);
     background-size: cover;
@@ -139,7 +125,7 @@ body {
 /* Page Indicators */
 .page-indicators {
     position: absolute;
-    bottom: 155px;
+    bottom: calc(130px + env(safe-area-inset-bottom, 0px));
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -304,7 +290,7 @@ body {
 /* Home Search Pill */
 .home-search-pill {
     position: absolute;
-    bottom: 120px;
+    bottom: calc(95px + env(safe-area-inset-bottom, 0px));
     left: 50%;
     transform: translateX(-50%);
     background-color: rgba(255, 255, 255, 0.4); /* ÄÂĂÂÄÂĂÂÄÂĂÂ´ÄÂĂÂÄÂÄšĹžÄÂĂÂĂÂĂÂ§ÄÂĂÂÄÂĂÂÄÂÄšÂÄÂĂÂÄÂĂÂĂÂÄšÂ ÄÂĂÂÄÂĂÂÄÂĂÂÄÂĂÂÄÂĂÂĂÂĂÂ§ÄÂĂÂÄÂĂÂÄÂÄšÂĂĹĄĂÂÄÂĂÂ */
@@ -1478,13 +1464,14 @@ body.jiggle-mode {
 
 /* Dock */
 .dock-container {
-    position: absolute;
-    bottom: 24px;
-    left: 0;
+    padding: 0;
+    margin-top: auto;
+    margin-bottom: calc(25px + env(safe-area-inset-bottom, 0px));
     width: 100%;
     display: flex;
     justify-content: center;
     z-index: 50;
+    position: relative;
 }
 
 .dock {
@@ -2188,7 +2175,7 @@ body.jiggle-mode {
 /* Toast Bubble Notification */
 .toast-bubble {
     position: absolute;
-    bottom: 120px;
+    bottom: calc(120px + env(safe-area-inset-bottom, 0px));
     left: 50%;
     transform: translateX(-50%) translateY(20px);
     background-color: rgba(255, 255, 255, 0.95);
@@ -2312,71 +2299,7 @@ input:checked + .slider:before {
     padding-right: 0;
 }
 
-/* Fullscreen & Hide Island Modes */
-body.fullscreen-mode {
-    background-color: var(--screen-bg);
-    display: block;
-}
-
-body.fullscreen-mode .phone-frame {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: auto !important;
-    width: auto !important;
-    max-width: none;
-    max-height: none;
-    border-radius: 0;
-    border: none;
-    padding: 0;
-    box-shadow: none;
-    transform: none !important;
-    background-color: var(--screen-bg);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
-
-body.fullscreen-mode .screen {
-    border-radius: 0;
-    padding-top: env(safe-area-inset-top, 0px) !important;
-    padding-bottom: 0px !important;
-    padding-left: env(safe-area-inset-left, 0px) !important;
-    padding-right: env(safe-area-inset-right, 0px) !important;
-    height: 100% !important;
-    box-sizing: border-box;
-}
-
-
-body.fullscreen-mode .app-view,
-body.fullscreen-mode .settings-view,
-body.fullscreen-mode .edit-view {
-    padding-bottom: 0px !important;
-}
-
-body.fullscreen-mode .big-header {
-    padding-top: calc(50px + env(safe-area-inset-top, 0px)) !important;
-}
-
-body.fullscreen-mode .settings-content {
-    padding-bottom: 30px !important;
-}
-
-body.fullscreen-mode .dock-container {
-    bottom: 24px !important;
-}
-
-
-body.fullscreen-mode .page-indicators {
-    bottom: 155px !important;
-}
-
-body.fullscreen-mode .home-search-pill {
-    bottom: 120px !important;
-}
-
+/* Hide Island Modes */
 body.hide-island .screen {
     padding-top: 30px; /* Reduced padding when island is hidden */
 }
