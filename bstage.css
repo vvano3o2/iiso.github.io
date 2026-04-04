@@ -1574,3 +1574,9 @@
     color: #555;
     cursor: default;
 }
+
+
+/* Fix input screen jumping */
+input:focus, textarea:focus {
+    scroll-behavior: smooth;
+}

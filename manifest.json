@@ -1,6 +1,6 @@
 {
-  "name": "iOS Emulator",
-  "short_name": "iOS",
+  "name": "iisonphone",
+  "short_name": "iison",
   "start_url": "./index.html",
   "display": "fullscreen",
   "theme_color": "#000000",

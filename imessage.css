@@ -3001,3 +3001,9 @@ input:checked + .slider:before {
     background: #e5e5ea;
     flex-shrink: 0;
 }
+
+
+/* Fix input screen jumping */
+#chat-message-input:focus {
+    scroll-behavior: smooth;
+}

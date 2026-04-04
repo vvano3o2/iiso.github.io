@@ -613,3 +613,9 @@
     justify-content: center;
     background: rgba(255, 255, 255, 0.42);
 }
+
+
+/* Fix input screen jumping */
+input:focus, textarea:focus {
+    scroll-behavior: smooth;
+}

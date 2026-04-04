@@ -5,16 +5,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const { apiConfig, userState, openView, closeView, showToast } = window;
     
-    if (!document.getElementById('chat-status-bar-scroll-style')) {
-        const statusBarStyle = document.createElement('style');
-        statusBarStyle.id = 'chat-status-bar-scroll-style';
-        statusBarStyle.innerHTML = `.chat-status-bar-container::-webkit-scrollbar { display: none; }`;
-        document.head.appendChild(statusBarStyle);
-    }
-    
     const chatsContent = document.getElementById('chats-content');
-
-    window.imApp.applyFriendStatusBarCss = window.imChat.applyFriendStatusBarCss;
 
     // --- Context Menu Logic ---
     const msgContextOverlay = document.getElementById('msg-context-overlay');

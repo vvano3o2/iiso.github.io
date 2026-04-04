@@ -701,7 +701,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Render member list in details
         const listContainer = document.getElementById('group-details-members-list');
         
-        const myName = window.userState ? window.userState.name : 'Me';
+        const myName = window.userState ? (window.userState.name || window.userState.realName || 'Me') : 'Me';
         const myAvatarUrl = window.userState && window.userState.avatar ? window.userState.avatar : `https://ui-avatars.com/api/?name=${encodeURIComponent(myName)}&background=random`;
 
         let membersHtml = `
@@ -745,8 +745,79 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (groupDetailsSheet) {
-            openView(groupDetailsSheet);
+        openView(groupDetailsSheet);
         }
     };
 
+    // --- ADD GROUP MEMBER LOGIC ---
+    const groupAddMemberBtn = document.getElementById('group-add-member-btn');
+    const groupAddMemberSheet = document.getElementById('group-add-member-sheet');
+    const groupAddMemberList = document.getElementById('group-add-member-list');
+
+    if (groupAddMemberBtn) {
+        groupAddMemberBtn.addEventListener('click', () => {
+            if (!currentViewingGroup) return;
+            openGroupAddMemberSheet();
+        });
+    }
+
+    if (groupAddMemberSheet) {
+        groupAddMemberSheet.addEventListener('click', (e) => {
+            if (e.target === groupAddMemberSheet) closeView(groupAddMemberSheet);
+        });
+    }
+
+    function openGroupAddMemberSheet() {
+        if (!currentViewingGroup || !groupAddMemberSheet || !groupAddMemberList) return;
+        
+        groupAddMemberList.innerHTML = '';
+        
+        const allFriendsAndNpcs = window.imData.friends.filter(f => f.type !== 'group');
+        const currentMemberIds = currentViewingGroup.members || [];
+        
+        allFriendsAndNpcs.forEach(friend => {
+            const isAlreadyInGroup = currentMemberIds.includes(friend.id);
+            const item = document.createElement('div');
+            item.className = 'line-list-item';
+            if (isAlreadyInGroup) {
+                item.style.opacity = '0.5';
+                item.style.pointerEvents = 'none';
+            }
+            
+            const avatarHtml = friend.avatarUrl 
+                ? `<img src="${friend.avatarUrl}" style="width:100%;height:100%;object-fit:cover;">` 
+                : (friend.type === 'npc' ? `<i class="fas fa-robot"></i>` : `<i class="fas fa-user"></i>`);
+                
+            item.innerHTML = `
+                <div class="line-item-avatar">${avatarHtml}</div>
+                <div class="line-item-text" style="flex: 1;">${friend.nickname}</div>
+                ${isAlreadyInGroup ? '<div style="font-size: 13px; color: #8e8e93; margin-right: 15px;">已在群内</div>' : '<div style="width: 28px; height: 28px; border-radius: 50%; background: #007aff; color: #fff; display: flex; justify-content: center; align-items: center; cursor: pointer; margin-right: 15px;"><i class="fas fa-plus" style="font-size: 12px;"></i></div>'}
+            `;
+            
+            if (!isAlreadyInGroup) {
+                item.addEventListener('click', () => {
+                    currentViewingGroup.members.push(friend.id);
+                    if(window.imApp.saveFriends) window.imApp.saveFriends();
+                    
+                    // Update lists visually
+                    item.style.opacity = '0.5';
+                    item.style.pointerEvents = 'none';
+                    item.innerHTML = `
+                        <div class="line-item-avatar">${avatarHtml}</div>
+                        <div class="line-item-text" style="flex: 1;">${friend.nickname}</div>
+                        <div style="font-size: 13px; color: #8e8e93; margin-right: 15px;">已在群内</div>
+                    `;
+                    
+                    // Re-render the details list in background
+                    window.imApp.openGroupDetails(currentViewingGroup);
+                    
+                    if (window.showToast) window.showToast(`已邀请 ${friend.nickname} 加入群聊`);
+                });
+            }
+            
+            groupAddMemberList.appendChild(item);
+        });
+        
+        openView(groupAddMemberSheet);
+    }
 });

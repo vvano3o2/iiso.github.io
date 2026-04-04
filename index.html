@@ -853,7 +853,7 @@
                         </div>
                         
                         <div class="yt-profile-actions">
-                            <div class="yt-profile-action-btn">
+                            <div class="yt-profile-action-btn" id="yt-data-center-btn">
                                 <i class="fas fa-chart-bar"></i> 数据中心
                             </div>
                             <div class="yt-profile-action-btn" id="yt-edit-channel-btn">
@@ -3115,19 +3115,19 @@
                         <div style="display: flex; gap: 12px; width: 100%; margin-bottom: 20px; justify-content: center;">
                             <div class="group-action-btn" id="group-details-settings-btn" style="flex: 1; max-width: 80px; background: #fff; border-radius: 14px; padding: 12px 0; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
                                 <i class="fas fa-cog" style="color: #007aff; font-size: 20px;"></i>
-                                <span style="font-size: 11px; color: #007aff; font-weight: 500;">设置</span>
+                                <span style="font-size: 11px; color: #007aff; font-weight: 500;">Manage</span>
                             </div>
                             <div class="group-action-btn" style="flex: 1; max-width: 80px; background: #fff; border-radius: 14px; padding: 12px 0; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
                                 <i class="fas fa-bell-slash" style="color: #007aff; font-size: 20px;"></i>
-                                <span style="font-size: 11px; color: #007aff; font-weight: 500;">mute</span>
+                                <span style="font-size: 11px; color: #007aff; font-weight: 500;">Mute</span>
                             </div>
                             <div class="group-action-btn" style="flex: 1; max-width: 80px; background: #fff; border-radius: 14px; padding: 12px 0; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
                                 <i class="fas fa-search" style="color: #007aff; font-size: 20px;"></i>
-                                <span style="font-size: 11px; color: #007aff; font-weight: 500;">search</span>
+                                <span style="font-size: 11px; color: #007aff; font-weight: 500;">Search</span>
                             </div>
                             <div class="group-action-btn" style="flex: 1; max-width: 80px; background: #fff; border-radius: 14px; padding: 12px 0; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
                                 <i class="fas fa-ellipsis-h" style="color: #007aff; font-size: 20px;"></i>
-                                <span style="font-size: 11px; color: #007aff; font-weight: 500;">more</span>
+                                <span style="font-size: 11px; color: #007aff; font-weight: 500;">More</span>
                             </div>
                         </div>
 
@@ -3181,9 +3181,29 @@
             <div class="bottom-sheet-overlay detail-sheet-overlay" id="group-context-settings-sheet" style="z-index: 650;">
                 <div class="bottom-sheet" style="height: auto; max-height: 65%; display: flex; flex-direction: column;">
                     <div class="sheet-handle" style="flex-shrink: 0;"></div>
-                    <div class="sheet-title" style="flex-shrink: 0;">群聊上下文</div>
+                    <div class="sheet-title" style="flex-shrink: 0;">管理群聊</div>
                     <div class="detail-sheet-content" style="flex: 1; overflow-y: auto; padding-bottom: max(20px, env(safe-area-inset-bottom));">
                         <div class="settings-group fully-rounded" style="margin: 10px 16px; overflow: visible;">
+                            
+                            <!-- 置顶群聊 -->
+                            <div class="form-item" style="justify-content: space-between; border-bottom: 1px solid var(--separator-color);">
+                                <label style="width: auto; font-size: 17px; color: #000; padding-left: 0;">置顶群聊</label>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="group-pin-enabled-toggle">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- 群公告 -->
+                            <div class="form-item" style="justify-content: space-between; border-bottom: 1px solid var(--separator-color); cursor: pointer;" id="group-announcement-btn">
+                                <label style="width: auto; font-size: 17px; color: #000; padding-left: 0;">群公告</label>
+                                <div style="display: flex; align-items: center; color: #8e8e93;">
+                                    <i class="fas fa-chevron-right" style="font-size: 14px;"></i>
+                                </div>
+                            </div>
+
                             <div class="form-item" style="justify-content: space-between; border-bottom: 1px solid var(--separator-color);">
                                 <label style="width: auto; font-size: 17px; color: #000; padding-left: 0;">上下文</label>
                                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -3216,7 +3236,32 @@
                             控制群聊发送给 AI 的最近消息条数。开启后，群成员会更容易记住自己和别人刚刚说过的话。
                         </div>
 
+                        <div class="settings-group fully-rounded" style="margin: 20px 16px;">
+                            <div class="form-item" style="justify-content: center; cursor: pointer; border-bottom: 1px solid var(--separator-color);" id="clear-group-chat-history-btn">
+                                <span style="color: #ff3b30; font-size: 17px; text-align: center; width: 100%;">清空聊天记录</span>
+                            </div>
+                            <div class="form-item" style="justify-content: center; cursor: pointer; border-bottom: 1px solid var(--separator-color);" id="leave-group-chat-btn">
+                                <span style="color: #ff3b30; font-size: 17px; text-align: center; width: 100%;">退出群聊</span>
+                            </div>
+                            <div class="form-item" style="justify-content: center; cursor: pointer;" id="dismiss-group-chat-btn">
+                                <span style="color: #ff3b30; font-size: 17px; text-align: center; width: 100%;">解散群聊</span>
+                            </div>
+                        </div>
+
                         <div class="sheet-action confirm-action" id="confirm-group-context-btn" style="background-color: #007aff; color: #fff;">保存设置</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Group Member Sheet -->
+            <div class="bottom-sheet-overlay detail-sheet-overlay" id="group-add-member-sheet" style="z-index: 550;">
+                <div class="bottom-sheet" style="height: 80%; display: flex; flex-direction: column;">
+                    <div class="sheet-handle"></div>
+                    <div class="sheet-title">添加群成员</div>
+                    <div class="detail-sheet-content" style="flex: 1; overflow-y: auto; padding: 0 16px;">
+                        <div id="group-add-member-list" style="display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px;">
+                            <!-- Members injected via JS -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -4190,5 +4235,41 @@
     <script src="tiktok/4_chat.js"></script>
     <script src="tiktok/5_profile.js"></script>
 
+
+    <!-- Fix input screen jumping -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Monitor for existing and new inputs
+        const handleInputs = () => {
+            const inputs = document.querySelectorAll('input, textarea');
+            inputs.forEach(input => {
+                if (!input.dataset.scrollFixApplied) {
+                    input.dataset.scrollFixApplied = 'true';
+                    input.addEventListener('focus', () => {
+                        setTimeout(() => {
+                            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }, 300);
+                    });
+                }
+            });
+        };
+        
+        handleInputs();
+        
+        // Also observe DOM changes for dynamically added inputs
+        const observer = new MutationObserver((mutations) => {
+            let hasNewNodes = false;
+            for (const mutation of mutations) {
+                if (mutation.addedNodes.length > 0) {
+                    hasNewNodes = true;
+                    break;
+                }
+            }
+            if (hasNewNodes) handleInputs();
+        });
+        
+        observer.observe(document.body, { childList: true, subtree: true });
+    });
+    </script>
 </body>
 </html>

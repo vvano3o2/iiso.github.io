@@ -1151,3 +1151,9 @@ body.fullscreen-mode .x-bottom-nav-container {
     background-color: var(--x-blue);
     border-radius: 4px 4px 0 0;
 }
+
+
+/* Fix input screen jumping */
+input:focus, textarea:focus {
+    scroll-behavior: smooth;
+}
