@@ -223,7 +223,7 @@
     justify-content: center;
     z-index: 200;
     background-color: #ffffff;
-    padding-bottom: env(safe-area-inset-bottom, 20px) !important;
+    padding-bottom: 20px !important;
     height: auto !important;
     transform: none;
     border-radius: 0;
@@ -323,7 +323,7 @@ body.fullscreen-mode .x-bottom-nav-container {
 .x-drawer-footer {
     margin-top: auto;
     padding: 20px 16px;
-    padding-bottom: max(20px, env(safe-area-inset-bottom, 20px));
+    padding-bottom: 20px;
 }
 
 .x-drawer-exit-btn {
@@ -505,7 +505,7 @@ body.fullscreen-mode .x-bottom-nav-container {
     left: 0;
     width: 100%;
     padding: 12px 16px;
-    padding-bottom: max(12px, env(safe-area-inset-bottom, 20px));
+    padding-bottom: 20px;
     border-top: 1px solid var(--x-border);
     background-color: var(--x-white);
     display: flex;
@@ -712,7 +712,7 @@ body.fullscreen-mode .x-bottom-nav-container {
     justify-content: space-between;
     align-items: center;
     background-color: var(--x-white);
-    padding-bottom: max(12px, env(safe-area-inset-bottom, 12px));
+    padding-bottom: 12px;
 }
 
 .x-compose-toolbar {
@@ -875,7 +875,7 @@ body.fullscreen-mode .x-bottom-nav-container {
 /* Floating Action Button (FAB) */
 .x-fab {
     position: absolute;
-    bottom: calc(90px + env(safe-area-inset-bottom, 0px)); /* Adjusted due to flatter bottom nav */
+    bottom: 90px; /* Adjusted due to flatter bottom nav */
     right: 20px;
     width: 56px;
     height: 56px;
