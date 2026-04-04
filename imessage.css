@@ -298,7 +298,7 @@
 }
 
 body.fullscreen-mode .line-bottom-nav-container {
-    bottom: calc(30px + var(--keyboard-height, 0px));
+    bottom: calc(max(20px, env(safe-area-inset-bottom)) + var(--keyboard-height, 0px));
 }
 
 .line-bottom-nav {
@@ -711,7 +711,7 @@ body.fullscreen-mode .line-bottom-nav-container {
     display: flex;
     flex-direction: column;
     gap: 2px; /* Ultra tight spacing for consecutive messages */
-    padding-bottom: calc(90px + var(--keyboard-height, 0px)); /* Space for input and home bar */
+    padding-bottom: calc(90px + var(--keyboard-height, 0px) + env(safe-area-inset-bottom)); /* Space for input and home bar */
     transition: padding-bottom 0.25s ease;
 }
 
@@ -935,7 +935,7 @@ body.fullscreen-mode .line-bottom-nav-container {
     left: 0;
     width: 100%;
     padding: 10px 16px 0;
-    padding-bottom: 20px;
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
     background-color: #ffffff; /* Solid background to match sticky header */
     border-top: none;
     z-index: 30;
