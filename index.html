@@ -3379,11 +3379,6 @@
                                     <span id="stickers-btn-count" style="font-size: 13px; color: #8e8e93; margin-right: 4px;"></span>
                                     <i class="fas fa-chevron-right arrow"></i>
                                 </div>
-                                <div class="settings-item" id="status-bar-btn">
-                                    <div class="settings-icon" style="background-color: #34c759;"><i class="fas fa-bars"></i></div>
-                                    <div class="settings-text">状态栏</div>
-                                    <i class="fas fa-chevron-right arrow"></i>
-                                </div>
                                 <div class="settings-item" id="relationship-btn" style="border-bottom: none;">
                                     <div class="settings-icon" style="background-color: #5856d6;"><i class="fas fa-project-diagram"></i></div>
                                     <div class="settings-text">关系网</div>
@@ -3527,62 +3522,6 @@
                     </div>
                     <div style="padding: 0 16px 20px; flex-shrink: 0;">
                         <div class="sheet-action confirm-action" id="confirm-bind-account-btn" style="background-color: #1c1c1e; color: #fff; margin: 0;">确认绑定</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Status Bar Settings Sheet -->
-            <div class="bottom-sheet-overlay detail-sheet-overlay" id="status-bar-settings-sheet" style="z-index: 600;">
-                <div class="bottom-sheet" style="height: 85%; display: flex; flex-direction: column;">
-                    <div class="sheet-handle"></div>
-                    <div style="position: relative; display: flex; justify-content: center; align-items: center; padding: 0 16px;">
-                        <div class="sheet-title" style="margin-bottom: 0;">状态栏设置</div>
-                        <!-- 导入导出圆形白色图标按钮 -->
-                        <div style="position: absolute; right: 16px; display: flex; gap: 10px;">
-                            <div id="status-bar-import-btn" style="width: 32px; height: 32px; border-radius: 50%; background: #fff; display: flex; justify-content: center; align-items: center; color: #333; font-size: 14px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                                <i class="fas fa-file-import"></i>
-                            </div>
-                            <div id="status-bar-export-btn" style="width: 32px; height: 32px; border-radius: 50%; background: #fff; display: flex; justify-content: center; align-items: center; color: #333; font-size: 14px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                                <i class="fas fa-file-export"></i>
-                            </div>
-                            <input type="file" id="status-bar-import-file" accept=".json" style="display:none;">
-                        </div>
-                    </div>
-                    <div class="detail-sheet-content" style="flex: 1; overflow-y: auto; padding-bottom: 20px; padding-top: 15px;">
-                        
-                        <div class="settings-group fully-rounded" style="margin: 10px 16px;">
-                            <div class="form-item" style="justify-content: space-between; border-bottom: 0.5px solid var(--separator-color);">
-                                <label style="width: auto; font-size: 17px; color: #000;">启用状态栏</label>
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="status-bar-enabled-toggle">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <div style="padding: 14px 16px 16px;">
-                                <div style="font-size: 13px; color: #8e8e93; margin-bottom: 10px;">状态栏分类</div>
-                                <div id="status-bar-type-segment" style="display: flex; gap: 8px;">
-                                    <button type="button" class="status-bar-type-btn active" data-type="ins" style="flex: 1; border: none; border-radius: 12px; padding: 10px 0; background: #1c1c1e; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer;">ins</button>
-                                    <button type="button" class="status-bar-type-btn" data-type="icity" style="flex: 1; border: none; border-radius: 12px; padding: 10px 0; background: #f2f2f7; color: #3a3a3c; font-size: 14px; font-weight: 600; cursor: pointer;">icity</button>
-                                </div>
-                                <div id="status-bar-type-hint" style="margin-top: 10px; font-size: 12px; line-height: 1.5; color: #8e8e93;">ins 为当前卡片风格；icity 会切换到日记卡片风格，并联动提示词与 CSS。</div>
-                            </div>
-                        </div>
-
-                        <div class="form-group fully-rounded tall-input-group" style="margin: 20px 16px;">
-                            <div style="padding: 12px 16px 4px; font-size: 13px; color: #8e8e93;">系统提示词 (切换分类时会联动更新)</div>
-                            <div class="form-item tall-item">
-                                <textarea id="status-bar-prompt-input" class="tall-input" style="height: 120px;" placeholder="输入提示词..."></textarea>
-                            </div>
-                        </div>
-
-                        <div class="form-group fully-rounded tall-input-group" style="margin: 20px 16px;">
-                            <div style="padding: 12px 16px 4px; font-size: 13px; color: #8e8e93;">自定义样式 CSS (.status-card-custom，切换分类时会联动更新)</div>
-                            <div class="form-item tall-item">
-                                <textarea id="status-bar-style-input" class="tall-input" style="height: 140px; font-family: monospace;" placeholder="输入 CSS..."></textarea>
-                            </div>
-                        </div>
-
-                        <div class="sheet-action confirm-action" id="confirm-status-bar-btn" style="margin: 20px 16px 0; background-color: #1c1c1e; color: #fff;">保存设置</div>
                     </div>
                 </div>
             </div>
@@ -3882,20 +3821,6 @@
                     <div class="detail-sheet-content" style="padding-bottom: 30px; overflow-y: auto; flex: 1;">
                         <!-- Layout Config -->
                         <div class="settings-group fully-rounded" style="margin: 0 16px 20px;">
-                            <div class="form-item" style="justify-content: space-between; border-bottom: 1px solid var(--separator-color);">
-                                <label style="width: auto; font-size: 16px; color: #000; font-weight: 500;">显示灵动岛</label>
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="theme-island-toggle" checked>
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <div class="form-item" style="justify-content: space-between; border-bottom: 1px solid var(--separator-color);">
-                                <label style="width: auto; font-size: 16px; color: #000; font-weight: 500;">显示状态栏</label>
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="theme-statusbar-toggle" checked>
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
                             <div class="form-item" style="justify-content: space-between; border-bottom: none;">
                                 <label style="width: auto; font-size: 16px; color: #000; font-weight: 500;">全屏模式 (适配手机)</label>
                                 <label class="toggle-switch">

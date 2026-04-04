@@ -125,7 +125,7 @@ body {
 /* Page Indicators */
 .page-indicators {
     position: absolute;
-    bottom: calc(130px + env(safe-area-inset-bottom, 0px));
+    bottom: 130px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -290,7 +290,7 @@ body {
 /* Home Search Pill */
 .home-search-pill {
     position: absolute;
-    bottom: calc(95px + env(safe-area-inset-bottom, 0px));
+    bottom: 95px;
     left: 50%;
     transform: translateX(-50%);
     background-color: rgba(255, 255, 255, 0.4); /* ÄÂĂÂÄÂĂÂÄÂĂÂ´ÄÂĂÂÄÂÄšĹžÄÂĂÂĂÂĂÂ§ÄÂĂÂÄÂĂÂÄÂÄšÂÄÂĂÂÄÂĂÂĂÂÄšÂ ÄÂĂÂÄÂĂÂÄÂĂÂÄÂĂÂÄÂĂÂĂÂĂÂ§ÄÂĂÂÄÂĂÂÄÂÄšÂĂĹĄĂÂÄÂĂÂ */
@@ -1466,7 +1466,7 @@ body.jiggle-mode {
 .dock-container {
     padding: 0;
     margin-top: auto;
-    margin-bottom: calc(25px + env(safe-area-inset-bottom, 0px));
+    margin-bottom: 20px;
     width: 100%;
     display: flex;
     justify-content: center;
@@ -2175,7 +2175,7 @@ body.jiggle-mode {
 /* Toast Bubble Notification */
 .toast-bubble {
     position: absolute;
-    bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+    bottom: 120px;
     left: 50%;
     transform: translateX(-50%) translateY(20px);
     background-color: rgba(255, 255, 255, 0.95);

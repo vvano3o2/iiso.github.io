@@ -55,7 +55,7 @@
 /* --- BOTTOM NAV (Floating & Low Saturation) --- */
 .tk-bottom-nav-container {
     position: absolute;
-    bottom: calc(30px + env(safe-area-inset-bottom, 0px)); 
+    bottom: 30px; 
     left: 0;
     width: 100%;
     display: flex;
@@ -64,7 +64,7 @@
 }
 
 body.fullscreen-mode .tk-bottom-nav-container {
-    bottom: calc(30px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: 20px !important;
 }
 
 .tk-bottom-nav {
