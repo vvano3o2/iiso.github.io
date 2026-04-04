@@ -64,7 +64,7 @@
 }
 
 body.fullscreen-mode .tk-bottom-nav-container {
-    bottom: calc(30px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: 30px !important;
 }
 
 .tk-bottom-nav {

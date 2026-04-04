@@ -47,10 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('tk-sub-profile-view').classList.remove('active');
     };
 
-    if (homeBar && tkView) {
-        homeBar.addEventListener('click', closeTkApp);
-    }
-
     // Top Bar Back Buttons
     const homeBackBtn = document.getElementById('tk-home-back-btn');
     if (homeBackBtn) homeBackBtn.addEventListener('click', closeTkApp);

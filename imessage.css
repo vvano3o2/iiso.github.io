@@ -298,7 +298,7 @@
 }
 
 body.fullscreen-mode .line-bottom-nav-container {
-    bottom: calc(30px + env(safe-area-inset-bottom, 0px) + var(--keyboard-height, 0px));
+    bottom: calc(30px + var(--keyboard-height, 0px));
 }
 
 .line-bottom-nav {
@@ -430,126 +430,6 @@ body.fullscreen-mode .line-bottom-nav-container {
     transition: transform 0.1s;
 }
 
-/* Chat Status Bar */
-.chat-status-bar-controls {
-    z-index: 55;
-}
-
-.chat-status-bar-pager {
-    min-width: 48px;
-    padding: 4px 10px;
-    border-radius: 999px;
-    background: rgba(28, 28, 30, 0.72);
-    color: #fff;
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 1;
-    letter-spacing: 0.2px;
-    text-align: center;
-    pointer-events: none;
-}
-
-.chat-status-bar-nav {
-    width: 30px;
-    height: 30px;
-    border: none;
-    border-radius: 50%;
-    background: rgba(28, 28, 30, 0.72);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
-}
-
-.chat-status-bar-nav:not(:disabled):active {
-    transform: scale(0.94);
-    background: rgba(28, 28, 30, 0.88);
-}
-
-.chat-status-bar-nav:disabled {
-    opacity: 0.35;
-    cursor: default;
-}
-
-.status-card-custom {
-    position: relative;
-}
-
-.status-card-shell {
-    width: 100%;
-    background: #fff;
-}
-
-.status-card-image-hit {
-    position: relative;
-    width: 300px;
-    height: 300px;
-    cursor: pointer;
-    perspective: 1200px;
-    overflow: hidden;
-}
-
-.status-card-media-flip {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    transform-style: preserve-3d;
-    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.status-card-media-flip.is-flipped {
-    transform: rotateY(180deg);
-}
-
-.status-card-media-face {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    overflow: hidden;
-}
-
-.status-card-media-front {
-    background: #f8f8f8;
-}
-
-.status-card-media-back {
-    background: #fff;
-    transform: rotateY(180deg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 28px 24px;
-}
-
-.status-card-thought-wrap {
-    width: 100%;
-    min-height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    text-align: left;
-}
-
-.status-card-thought-label {
-    font-size: 12px;
-    font-weight: 700;
-    color: #999;
-    letter-spacing: 0.18em;
-    margin-bottom: 14px;
-}
-
-.status-card-thought-text {
-    font-size: 15px;
-    line-height: 1.8;
-    color: #262626;
-    word-break: break-word;
-}
 
 .chat-avatar {
     width: 50px;
