@@ -241,11 +241,7 @@ if (window.visualViewport) {
 document.getElementById('theme-config-btn').addEventListener('click', (e) => {
     e.stopPropagation();
     
-    const islandToggle = document.getElementById('theme-island-toggle');
-    const statusBarToggle = document.getElementById('theme-statusbar-toggle');
     const fsToggle = document.getElementById('theme-fullscreen-toggle');
-    if (islandToggle) islandToggle.checked = themeState.showIsland;
-    if (statusBarToggle) statusBarToggle.checked = themeState.showStatusBar;
     if (fsToggle) fsToggle.checked = themeState.isFullscreen;
 
     renderThemeAppList();
@@ -434,24 +430,9 @@ function applyAppIconStyles(app) {
 
 // Confirm Theme Settings
 document.getElementById('confirm-theme-btn').addEventListener('click', () => {
-    const islandToggle = document.getElementById('theme-island-toggle');
-    const statusBarToggle = document.getElementById('theme-statusbar-toggle');
     const fsToggle = document.getElementById('theme-fullscreen-toggle');
     
-    if (islandToggle) themeState.showIsland = islandToggle.checked;
-    if (statusBarToggle) themeState.showStatusBar = statusBarToggle.checked;
     if (fsToggle) themeState.isFullscreen = fsToggle.checked;
-
-    if (themeState.showIsland) {
-        document.body.classList.remove('hide-island');
-    } else {
-        document.body.classList.add('hide-island');
-    }
-    
-    const statusBar = document.querySelector('.status-bar');
-    if (statusBar) {
-        statusBar.style.display = themeState.showStatusBar ? 'flex' : 'none';
-    }
 
     updateFullscreenViewportHeight();
 
@@ -513,18 +494,12 @@ document.getElementById('confirm-theme-btn').addEventListener('click', () => {
 function applySavedTheme() {
     updateFullscreenViewportHeight();
 
-    if (themeState.showIsland === false) document.body.classList.add('hide-island');
     if (themeState.isFullscreen === true) {
         document.body.classList.add('fullscreen-mode');
         window.setTimeout(updateFullscreenViewportHeight, 60);
         window.setTimeout(updateFullscreenViewportHeight, 240);
         // Do not force native fullscreen on load as it requires user gesture, 
         // just apply the CSS class.
-    }
-    
-    const statusBar = document.querySelector('.status-bar');
-    if (statusBar) {
-        statusBar.style.display = themeState.showStatusBar === false ? 'none' : 'flex';
     }
 
     const screenEl = document.querySelector('.screen');

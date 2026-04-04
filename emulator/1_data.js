@@ -23,12 +23,10 @@ let fetchedModels = [];
 
 // Theme State
 const isMobileUser = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-let themeState = {
-    bgUrl: null,
-    showIsland: !isMobileUser,
-    showStatusBar: true,
-    isFullscreen: isMobileUser,
-    apps: [
+    let themeState = {
+        bgUrl: null,
+        isFullscreen: isMobileUser,
+        apps: [
         { id: 'app-icon-1', name: 'Pay', icon: null },
         { id: 'app-icon-2', name: 'TikTok', icon: null },
         { id: 'app-icon-3', name: 'b.stage', icon: null },
@@ -64,12 +62,10 @@ function loadGlobalData() {
             if (data.apiConfig) Object.assign(apiConfig, data.apiConfig);
             if (data.apiPresets) apiPresets = data.apiPresets;
             if (data.fetchedModels) fetchedModels = data.fetchedModels;
-            if (data.themeState) {
-                themeState = data.themeState;
-                if (themeState.showIsland === undefined) themeState.showIsland = !isMobileUser;
-                if (themeState.showStatusBar === undefined) themeState.showStatusBar = true;
-                if (themeState.isFullscreen === undefined) themeState.isFullscreen = isMobileUser;
-                // Migration for default app names
+                if (data.themeState) {
+                    themeState = data.themeState;
+                    if (themeState.isFullscreen === undefined) themeState.isFullscreen = isMobileUser;
+                    // Migration for default app names
                 if (themeState.apps) {
                     const app1 = themeState.apps.find(a => a.id === 'app-icon-1');
                     if (app1 && app1.name === 'App 1') app1.name = 'Pay';
